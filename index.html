@@ -26,10 +26,10 @@ for (var n, p = [n = 1], k, i; n < 21; n++)
     (p[n] += ((k & 1) * 2 - 1) * p[n-i])
 document.write(table(p));
 })();
-document.write("p:"+p+"<br>");
-document.write("n:"+n+"<br>");
-document.write("k:"+k+"<br>");
-document.write("i:"+i+"<br>");
+document.write("p:"+"p" in window?p:"undefined"+"<br>");
+document.write("n:"+"n" in window?n:"undefined"+"<br>");
+document.write("k:"+"k" in window?k:"undefined"+"<br>");
+document.write("i:"+"i" in window?i:"undefined"+"<br>");
 </script>
 asdf
 </body>
