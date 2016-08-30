@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>test</title>
-<li nk rel="stylesheet" href="normalize.css">
-<li nk rel="stylesheet" href="ghpages-materialize.css">
+<link rel="stylesheet" href="style.css">
 <style>
 
 </style>
@@ -12,7 +11,7 @@
 <body>
 <script>
 var table=function(a){
-  var res = '<table class="responsive-table"><tbody>';
+  var res = '<table><tbody>';
   for(var key in a){
     if(a.hasOwnProperty(key))
       res += '<tr><td>' + key + '</td><td>' + a[key] + '</td></tr>';
