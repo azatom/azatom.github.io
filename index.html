@@ -12,12 +12,12 @@
 <body>
 <script>
 var table=function(a){
-  var res="<table><tbody>";
+  var res = '<table class="pure-table"><tbody>';
   for(var key in a){
     if(a.hasOwnProperty(key))
-      res+="<tr><td>"+key+"</td><td>"+a[key]+"</td></tr>";
+      res += '<tr><td>' + key + '</td><td>' + a[key] + '</td></tr>';
   }
-  return res+"</tbody><table>";
+  return res + '</tbody><table>';
 };
 for (p = [n = 1]; n < 21; n++)
   for (p[k = n] = 0; k >= -n; --k)
