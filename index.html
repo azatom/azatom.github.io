@@ -1,10 +1,17 @@
-v4
+v1
 <script>
+var table=function(a){
+  var res="<table><tbody>";
+  for(var key in a){
+    res+="<tr><td>"+key+"</td><td>"+a[key]+"</td></tr>";
+  }
+  return res+"</tbody><table>";
+};
 for (p = [n = 1]; n < 21; n++)
   for (p[k = n] = 0; k >= -n; --k)
     0 < (i = k * (3 * k - 1) / 2) &&
     i <= n &&
     (p[n] += ((k & 1) * 2 - 1) * p[n-i])
-document.write(p.join());
+document.write(table(p));
 </script>
 
