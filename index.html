@@ -11,7 +11,7 @@
 <body>
 <script>
 var table = function(a){
-  var res = '<table><tbody>';
+  var res = '<table class="table"><tbody><tr><th>n</th><th>p(n)</th></tr>';
   for(var key in a)
     if(a.hasOwnProperty(key))
       res += '<tr><td>' + key + '</td><td>' + a[key] + '</td></tr>';
@@ -19,7 +19,7 @@ var table = function(a){
 };
 document.write(table(
 (function(){
-  for (var n, p = [n = 1], k, i; n < 302 n++)
+  for (var n, p = [n = 1], k, i; n < 302; n++)
     for (p[k = n] = 0; k >= -n; --k)
       0 < (i = k * (3 * k - 1) / 2) &&
       i <= n &&
