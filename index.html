@@ -1,72 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<title>test</title>
-<link rel="stylesheet" href="style.css">
-<style>
-
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>test</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="a.js"></script>
 </head>
-<body>
-<script>
-var table = function(a){
-  var res = '<table class="table"><tbody><tr><th>n</th><th>p(n)</th></tr>';
-  for(var key in a)
-    if(a.hasOwnProperty(key))
-      res += '<tr><td>' + key + '</td><td>' + a[key] + '</td></tr>';
-  return res + '</tbody><table>';
-};
-document.write(table(
-(function(){
-  for (var n, p = [n = 1], k, i; n < 302; n++)
-    for (p[k = n] = 0; k >= -n; --k)
-      0 < (i = k * (3 * k - 1) / 2) &&
-      i <= n &&
-      (p[n] += ((k & 1) * 2 - 1) * p[n-i])
-  return p;
-})()));
-</script>
-<script>
-var cache = {};
-var p3 = function(n, val) {
-    if (n===0)
-        return 1;
-    var key = n + "_" + val
-    if (key in cache)
-        return cache[key]
-    var r = 0;
-    for (var i = val; i <= n; ++i)
-        r += p3(n - i, i);
-    cache[key] = r;
-    return r;
-};
-var ascending_partition = function(n, k) {
-    var P = [], val = 1;
-    while (n > 0) {
-        that : for (var i = val; i <= n; ++i) {
-            var count = p3(n - i, i)
-            if (k >= count)
-                k -= count
-            else if (count != 0) {
-                P.push(i)
-                n -= i;
-                val = i;
-                break that;//what
-            }
-        }
-    }
-    return P;
-};
 
-(function (){
-  var n = 5; s="", r = p3(n, 1);
-  for (var i = 0; i < r; ++i) {
-    s += i + " " + ascending_partition(n, i) + "\n";
-  }
-  return s;
-})();
-document.write(ascending_partition(100,p3(100,1)-10));
-</script>
+<body onload="test()">
+
 </body>
+
 </html>
