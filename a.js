@@ -62,6 +62,22 @@ var p3 = function (n, val) {
     cache[key] = r;
     return r;
 };
+var p4 = function(N) {
+  for (var n, p = [n = 1], k, i; n <= N; ++n)
+    for (p[k = n] = 0; k >= -n; --k)
+      0 < (i = k * (3 * k - 1) / 2) &&
+      i <= n &&
+      (p[n] += ((k & 1) * 2 - 1) * p[n-i])
+  return p[N];
+};
+
+tests.push(function(){
+    return p3(299,1);
+});
+
+tests.push(function(){
+    return p4(299,1);
+});
 
 var ascending_partition = function (n, k) {
     var P = [], val = 1;
