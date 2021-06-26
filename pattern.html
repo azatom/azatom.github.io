@@ -1,0 +1,76 @@
+<!doctype html><html><head><title>a</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: block;
+        }
+        canvas {
+            image-rendering: pixelated;
+        }
+    </style></head><body><script>
+        c = document.createElement('canvas')
+        document.body.appendChild(c);
+        function f() {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+        d = c.getContext('2d');
+        const g = 0.753;
+        const C = 3;
+        const RGB = [
+            [1,1,1, 0,0,0],
+            [1,1,0, 0,0,1],
+            [1,0,0, 0,1,1],
+            [1,0,1, 0,1,0],
+
+            [0,1,1, 0,0,0],
+            [1,0,0, 0,0,0],
+            [1,0,0, 0,0,0, 0,0,0, 1,0,0, 0,0,0, 0,0,0],
+            [1,0,0, 1,0,0, 1,0,0],
+            
+            [1,0,1, 0,0,0],
+            [0,1,0, 0,0,0],
+            [0,1,0, 0,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0,0],
+            [0,1,0, 0,1,0, 0,1,0],
+            
+            [1,1,0, 0,0,0],
+            [0,0,1, 0,0,0],
+            [0,0,1, 0,0,0, 0,0,0, 0,0,1, 0,0,0, 0,0,0],
+            [0,0,1, 0,0,1, 0,0,1],
+            
+            [1,1,0, 0,1,1, 0,0,1, 1,0,0],
+            [g,g,g, g,g,g],
+            [.5,.5,.5, .5,.5,.5],
+            [.49,.49,.49, .51,.51,.51],
+        ].map(e=>e.map(e=>e*255));
+        const W = 4;
+        const H = Math.ceil(RGB.length / W);
+        const t = performance.now();
+        const imageData = d.getImageData(0, 0, c.width, c.height);
+        const data = imageData.data;
+
+        for (var i = 0, y = 0; y < c.height; y++) {
+            const h = Math.floor(H * y / c.height);
+            for (var x = 0; x < c.width; x++) {
+                const w = Math.floor(W * x / c.width);
+                const rgb = RGB[W * h + w] || [];
+                const n = Math.floor(rgb.length / C);
+                const    o = ((x + y*n/2) % n) * C;
+                data[i++] = rgb[o + 0];
+                data[i++] = rgb[o + 1];
+                data[i++] = rgb[o + 2];
+                data[i++] = 255;
+            }
+        }
+
+        d.putImageData(imageData, 0, 0);
+        console.log(performance.now() - t + "ms");
+    }
+    f();
+    window.addEventListener("resize", f);
+    </script></body></html>
