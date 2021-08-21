@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>span{
+        float: left;
+    }
+    </style>
+    <script src="lsystem-data.js"></script>
+</head>
+<body>
+<script>
+    var l="lsystem.svg"
+    examples.unshift('')
+    for(let i = 0; i<examples.length; i++) {
+        let s = examples[i];
+        let q=s?eval(s.replaceAll('&','",').replaceAll('=',':"').replace(/^/,'({').replace(/$/,'"})')):{_:"[default]"};
+        let r = s.replaceAll('&','\n')
+        let u = l+'?'+s
+        document.write('<span><a href="'+u+'">'+q._+'</a><br><object title="title" tooltip="tooltip" alt="alt" width="200" height="200" type="image/svg+xml" data="'+u+'">objectfallback</object></span>');
+    }
+</script>
+</body>
+</html>

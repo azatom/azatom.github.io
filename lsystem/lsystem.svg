@@ -1,0 +1,25 @@
+<svg onload="b(evt)" xmlns="http://www.w3.org/2000/svg">
+<script><![CDATA[b=d=>{d=d.target;
+  let r=(window.location.href.split("?")[1] || "F=F+F-F&S=F&_n=11&_a=126&_l=9")
+  .split("&").reduce((p,c)=>{
+    let[k,v]=c.split("="); p[k]=k[0]=="_"?+v:v; return p;
+  },{});
+  let l=r._l||9,[x,y,a,mx,Mx,my,My]=Array(9).fill(0),o="M0,0",s=[],p=1;
+  r._a*=Math.PI/180;r._n=r._n||3;r._m=r._m||1.4142;
+  for (q of function*g(n) {
+    if (n) for (let q of g(n-1)) yield* null==r[q]?q:r[q];
+    else   yield* r.S
+  }(r._n))
+    "F"==q ||
+    "f"==q ?(x+=l*Math.cos(a), mx=x>mx?mx:x, Mx=x>Mx?x:Mx,
+             y+=l*Math.sin(a), my=y>my?my:y, My=y>My?y:My,
+             o+=("f"==q?"M":"L")+x+","+y) :
+    "+"==q ? a+=r._a*p  : "*"==q ? l*=r._m : "!"==q ? p=-p :
+    "-"==q ? a-=r._a*p  : "/"==q ? l/=r._m :
+    "|"==q ? a+=Math.PI : "^"==q ? a+=Math.PI/2*p :
+    "["==q ? s.push([x,y,a,l]) : "]"==q && ([x,y,a,l]=s.pop(), o+="M"+x+","+y);
+  d.setAttribute("viewBox",mx-1+" "+(my-1)+" "+(Mx-mx+2)+" "+(My-my+2));
+  d.querySelector("path").setAttribute("d",o)
+};]]></script>
+<path stroke="#000" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
