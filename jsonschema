@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Guessing json schema
+#
+# usage: jsonschema [file.json] ...
+# outputs 3 columns:
+#   1. !?: mandatory or optional
+#   2. type: "*" if multiple
+#   3. path
+# using multiple instances as jq input can be handy, eg.:
+#   cat "*.json" | jsonschema
+#   jsonschema *.json
+# one json array of instances produces an additional root element (array):
+#   jsonschema arrayOfInstances.json
+
+jq -rs 'paths as $p  | [
+        ( [ $p[] | tostring ] | join(".") ),
+        ( getpath($p) | type )
+    ] | join(" ")' "$@" |\
+awk '{
+        $0 = gensub("(^|\\.)[0-9]+", "[]", "g")
+        cnt[$1]++
+        if (typeof(type[$1]) == "unassigned")
+            type[$1] = $2
+        else if (type[$1] != $2)
+            type[$1] = "*"
+    }
+    END {
+        for (i in cnt) {
+            if (i ~ "[^]]$") {
+                b = gensub("\\.[^.]*$", "", 1, i)
+                printf cnt[i]==cnt[b]?"! ":"? "
+            } else {
+                continue
+            }
+            # printf "%9d ", cnt[i]
+            printf "%7s %s\n", type[i], i
+        }
+    }' |\
+sort -k3
