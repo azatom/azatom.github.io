@@ -2,7 +2,7 @@
 
 # Guessing json schema
 #
-# usage: guessjsonschema [file.json] ...
+# usage: guessjsonschema [file.json]...
 # output columns:
 #   ! or ?: mandatory or optional
 #   count: number of occurrences of a path
@@ -21,26 +21,25 @@
 #   primitive types of array elements (eg.: [str,obj,num...] )
 #   detect subtypes (date,int,float,...); common values
 
-jq -rs 'paths as $p  | [
-        ( [ $p[] | tostring ] | join(".") ),
-        ( getpath($p) | type )
+jq -rs 'paths as $path  | [
+        ( [ $path[] | tostring ] | join(".") ),
+        ( getpath($path) | type )
     ] | join(" ")' "$@" |\
 awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1' |\
 sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g' |\
 awk 'function join(a,t){for(i in a)t=t""(t==""?"":",")""i;return t}
     {
-        pa[$1]++
-        pta[$1][$2]++
+        pathcnt[$1]++
+        pathtypecnt[$1][$2]++
     }
     END {
-        for (p in pta) {
-            if (p ~ "]$") continue
-            b = gensub("\\.[^.]*$", "", 1, p)
-            printf pa[p]==pa[b]?"! ":"? "
-            printf "%8d ", pa[p]
-            printf "%8s %s\n", join(pta[p]), p
+        for (path in pathtypecnt) {
+            if (path ~ "]$") continue
+            parent = gensub("\\.[^.]*$", "", 1, path)
+            printf pathcnt[path]==pathcnt[parent]?"! ":"? "
+            printf "%8d %8s %s\n", pathcnt[path], join(pathtypecnt[path]), path
         }
-    }' \
-| sort -k4 \
-| sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' \
-| grep --color -E '($|^.\*.*|.*,.*)'
+    }' |\
+sort -k4 |\
+sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' |\
+grep --color -E '($|^.\*.*|.*,.*)'
