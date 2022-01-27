@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Guessing json schema
+#
+# usage: guessjsonschema [file.json] ...
+# output columns:
+#   ! or ?: mandatory or optional
+#   count: number of occurrences of a path
+#   type: type[,type] | {null,string,boolean,number,array,object}
+#   path: path (array indices suppresses)
+# using multiple instances as jq input can be handy, eg.:
+#   cat "*.json" | guessjsonschema
+#   guessjsonschema *.json
+# one json array of instances produces an additional root element (array):
+#   guessjsonschema arrayOfInstances.json
+# two sed commands eliminates and marks with "*" direct recursions (aka.
+#   tree structure), not robust! (just delete that two lines)
+# last grep shows where to be careful
+# TODO
+#   aaargh (there has to be a better way)
+#   primitive types of array elements (eg.: [str,obj,num...] )
+#   detect subtypes (date,int,float,...); common values
+
+jq -rs 'paths as $p  | [
+        ( [ $p[] | tostring ] | join(".") ),
+        ( getpath($p) | type )
+    ] | join(" ")' "$@" |\
+awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1' |\
+sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g' |\
+awk 'function join(a,t){for(i in a)t=t""(t==""?"":",")""i;return t}
+    {
+        pa[$1]++
+        pta[$1][$2]++
+    }
+    END {
+        for (p in pta) {
+            if (p ~ "]$") continue
+            b = gensub("\\.[^.]*$", "", 1, p)
+            printf pa[p]==pa[b]?"! ":"? "
+            printf "%8d ", pa[p]
+            printf "%8s %s\n", join(pta[p]), p
+        }
+    }' \
+| sort -k4 \
+| sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' \
+| grep --color -E '($|^.\*.*|.*,.*)'
