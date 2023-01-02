@@ -5,7 +5,7 @@
     let[k,v]=c.split("="); p[k]=k[0]=="_"?+v:v; return p;
   },{});
   let l=r._l||9,[x,y,a,mx,Mx,my,My]=Array(9).fill(0),o="M0,0",s=[],p=1;
-  r._a*=Math.PI/180;r._n=r._n||3;r._m=r._m||1.4142;
+  r._a*=Math.PI/180;r._m=r._m||1.4142;
   for (q of function*g(n) {
     if (n) for (let q of g(n-1)) yield* null==r[q]?q:r[q];
     else   yield* r.S
