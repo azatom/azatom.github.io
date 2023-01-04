@@ -1,12 +1,14 @@
 #  Logo Turtle with Context Free Grammar - L-System fractals
 
 ##  Example:
-`lsystem.svg?S=AX&X=F+F+F+FFF-F-F-F&F=&A=[+AX-AX-AX]-AX+AX+AX-&_a=60`
+`lsystem.svg?S=AX&X=F+F+F+FFF-F-F-F&F=&A=[+AX-AX-AX]-AX+AX+AX-&_a=60&_n=3`
 
 [lsystem.svg](lsystem.svg)  really [lots](lsystem-lots.html)
 
 ##  How it works:
-Starting sentence (axiom) is 'S' and every iteration every character as a rule key, if exists, is replaced by the rule value. The resulted sentence - context-free grammar - says to the logo turtle what to do. Embeding with `<img>` not works, only `<object>`.
+Starting sentence (axiom) is 'S'. In an iteration every character of the sentence replaced by the key-value rule set. A key's default value is the key itself. The resulted sentence says to the logo turtle what to do.
+
+Note: embeding this svg with `<img>` does not work, only with `<object>`.
 
 ##  Parameter keys - values:
 - `_` - string: title
@@ -15,12 +17,13 @@ Starting sentence (axiom) is 'S' and every iteration every character as a rule k
 - `_m` - number: multiply linelength
 - `_a` - number: angle in degrees
 - 1char - string: other key than above means a rule
+- chars - string: CS grammar not implemented, only CF
 
 ##  Characters of rule value:
 - `F`, `f`: forward with, without drawing a line
-- `+`, `-`, `^`, `|`: rotate a, -a, right, straight
+- `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
 - `!`: change parity of rotation
-- `*`, /: multiply, divide length of line with m
+- `*`, `/`: multiply, divide length of line with m
 - `[`, `]`: state (position, line length and direction) store, load
 
 ##  Some fibonacci:

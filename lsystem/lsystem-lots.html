@@ -4,23 +4,35 @@
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <style>span{
-        float: left;
-    }
+    <style>
+        a{display:block;}
+        span{float: left;}
+        object{width:200px;height:200px;}
     </style>
     <script src="lsystem-data.js"></script>
 </head>
 <body>
 <script>
-    var l="lsystem.svg"
-    examples.unshift('')
-    for(let i = 0; i<examples.length; i++) {
-        let s = examples[i];
-        let q=s?eval(s.replaceAll('&','",').replaceAll('=',':"').replace(/^/,'({').replace(/$/,'"})')):{_:"[default]"};
-        let r = s.replaceAll('&','\n')
-        let u = l+'?'+s
-        document.write('<span><a href="'+u+'">'+q._+'</a><br><object title="title" tooltip="tooltip" alt="alt" width="200" height="200" type="image/svg+xml" data="'+u+'">objectfallback</object></span>');
-    }
+    const svg = "lsystem.svg";
+    examples.forEach(example => {
+        let url = svg + '?' + example;
+        let title = example.split('&').find(a => a.startsWith('_='));
+        title = title ? title.substring(2) : "[default]";
+        
+        let span = document.createElement('span');
+        let a = document.createElement('a');
+        let object = document.createElement('object');
+        
+        a.href = url;
+        a.textContent = title;
+        object.data = url;
+        object.type = "image/svg+xml";
+        object.textContent = "error";
+        
+        span.appendChild(a);
+        span.appendChild(object);
+        document.body.appendChild(span);
+    });
 </script>
 </body>
 </html>
