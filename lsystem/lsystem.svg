@@ -1,25 +1,24 @@
-<svg onload="b(evt)" xmlns="http://www.w3.org/2000/svg">
-<script><![CDATA[b=d=>{d=d.target;
-  let r=(window.location.href.split("?")[1] || "S=S+SF-S&_a=126&_n=9")
-  .split("&").reduce((p,c)=>{
-    let[k,v]=c.split("="); p[k]=k=="_"?v:k[0]=="_"?+v:v; return p;
-  },{});
-  let l=r._l||9,[x,y,a,A,mx,Mx,my,My]=Array(10).fill(0),o="M0,0",s=[],p=1;
-  r._a/=90;Q=Math.PI/2;r._m=r._m||1.4142;
-  for (q of function*g(n) {
-    if (n) for (let q of g(n-1)) yield* null==r[q]?q:r[q];
-    else                         yield* r.S
-  }(r._n))
-    "F"==q || "f"==q ? (x+=l*Math.cos(Q*(a*r._a+A)), mx=x>mx?mx:x, Mx=x>Mx?x:Mx,
-                        y+=l*Math.sin(Q*(a*r._a+A)), my=y>my?my:y, My=y>My?y:My,
-                        o+=("f"==q?"M":"L")+x+","+y) :
-    "+"==q ? a+=p : "*"==q ? l*=r._m : "!"==q ? p=-p :
-    "-"==q ? a-=p : "/"==q ? l/=r._m :
-    "|"==q ? A=(A+2)%4 : "^"==q ? A=(A+p+4)%4 :
-    "["==q ? s.push([x,y,a,A,l]) :
-    "]"==q ? ([x,y,a,A,l]=s.pop(), o+="M"+x+","+y) : 0;
-  d.setAttribute("viewBox",mx-1+" "+(my-1)+" "+(Mx-mx+2)+" "+(My-my+2));
-  d.querySelector("path").setAttribute("d",o)
-};]]></script>
-<path stroke="#000" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<svg onload='b(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
+const b=(e)=>{
+  const svg=e.target; (onhashchange=()=>{
+  const R=JSON.parse('{"'+(location.href.split(/[?#]/)[1] ||
+    'S=AX&A=[+AX-AX-AX]-AX+AX+AX-&F=&X=F+F+F+FFF-F-F-F&_a=60&_n=3'
+  ).replace(/&/g,'","').replace(/=/g,'":"')+'"}');
+  const S=[], Q=Math.PI/2, T=R._a/90||1;
+  let [x,y,a,A,mx,Mx,my,My]=Array(8).fill(0), o='M0,0', d=1, l=R._l||9;
+  for (const q of function*g(n) {
+    if (n) for (const p of g(n-1)) yield* p in R?R[p]:p; else yield* R.S;
+  }(R._n))
+    'F'==q || 'f'==q ? (x+=l*Math.cos(Q*(a*T+A)), mx=x>mx?mx:x, Mx=x>Mx?x:Mx,
+                        y+=l*Math.sin(Q*(a*T+A)), my=y>my?my:y, My=y>My?y:My,
+                        o+=('f'==q?'M':'L')+x+','+y) :
+    '+'==q ? a+=d : '*'==q ? l*=R._m : '!'==q ? d=-d :
+    '-'==q ? a-=d : '/'==q ? l/=R._m :
+    '|'==q ? A=(A+2)%4 : '^'==q ? A=(A+d+4)%4 :
+    '['==q ? S.push([x,y,a,A,l]) :
+    ']'==q ? ([x,y,a,A,l]=S.pop(), o+='M'+x+','+y) : 0;
+  svg.setAttribute('viewBox',`${mx-1} ${my-1} ${Mx-mx+2} ${My-my+2}`);
+  svg.querySelector('path').setAttribute('d',o); })()
+}//]]></script>
+<path stroke='#000' stroke-linecap='round' stroke-linejoin='round' fill='none'/>
 </svg>
