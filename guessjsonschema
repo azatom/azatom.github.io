@@ -2,25 +2,22 @@
 
 # Guessing json schema
 #
-# usage: guessjsonschema [file.json]...
+# usage: $0 [file.json]...
 # output columns:
-#   ! or ?: mandatory or optional
-#   count: number of occurrences of a path
-#   type: type[,type] | {null,string,boolean,number,array,object}
-#   path: path (array indices suppresses)
-# using multiple instances as jq input can be handy, eg.:
-#   cat "*.json" | guessjsonschema
-#   guessjsonschema *.json
-# one json array of instances produces an additional root element (array):
-#   guessjsonschema arrayOfInstances.json
-# two sed commands eliminates and marks with "*" direct recursions (aka.
-#   tree structure), not robust! (just delete that two lines)
-# last grep shows where to be careful
+#   1.a ! or ?: mandatory or optional
+#   1.b *: point of guessed recursion
+#   2. count: number of occurrences of a path
+#   3. type: type[,type] | {null, string, boolean, number, array, object}
+#   4. path: path (array indices suppresses)
+# some usages:
+#   `cat "*.json" | $0`         for ?
+#   `$0 "*.json"`               for ?
+#   `jsons2array "*.json" | $0` for ?
 # TODO
-#   aaargh (there has to be a better way)
-#   instead of mandatory/optional matrix[a,b]: if a is present then b too, where a includes the node itself, so m/o are represented
-#   primitive types of array elements (eg.: [str,obj,num...] )
-#   detect subtypes (date,int,float,...); common values
+#   - aaargh (there has to be a better way)
+#   - instead of mandatory/optional: matrix of a vs b marking if a is present then b too, a includes the node itself so m/o are represented
+#   - primitive types of array elements (eg.: [str,obj,num...] )
+#   - detect subtypes (date,int,float,enums(aka. repeating values),...)
 
 function main() {
     traverse "$@" |\
@@ -47,7 +44,7 @@ function pathCollapsing() { sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g'; }
 
 # as you already recognized, this is not a shell script's job
 function magic() {
-    awk 'function join(a,t){for (i in a) t = t "" (t == "" ? "" : ",") "" i; return t}
+    awk 'function join(a, t){for (i in a) t = t "" (t == "" ? "" : ",") "" i; return t}
     {
         pathcnt[$1]++
         pathtypecnt[$1][$2]++
