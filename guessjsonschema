@@ -18,16 +18,36 @@
 # last grep shows where to be careful
 # TODO
 #   aaargh (there has to be a better way)
+#   instead of mandatory/optional matrix[a,b]: if a is present then b too, where a includes the node itself, so m/o are represented
 #   primitive types of array elements (eg.: [str,obj,num...] )
 #   detect subtypes (date,int,float,...); common values
 
-jq -rs 'paths as $path  | [
+function main() {
+    traverse "$@" |\
+    arrayCollapsing |\
+    pathCollapsing |\
+    magic |\
+    sortByPathname |\
+    markRecursions
+}
+
+# produces lines of every values as their full paths and types, (values are "colapsing" to type)
+function traverse () {
+    jq -rs 'paths as $path  | [
         ( [ $path[] | tostring ] | join(".") ),
         ( getpath($path) | type )
-    ] | join(" ")' "$@" |\
-awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1' |\
-sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g' |\
-awk 'function join(a,t){for(i in a)t=t""(t==""?"":",")""i;return t}
+    ] | join(" ")' "$@"
+}
+
+# values af array indices (eg. ".0") collapsin to just "[]"
+function arrayCollapsing() { awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1'; }
+
+# consecutive same array names collapsing in a hope that it is a real recursion
+function pathCollapsing() { sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g'; }
+
+# as you already recognized, this is not a shell script's job
+function magic() {
+    awk 'function join(a,t){for (i in a) t = t "" (t == "" ? "" : ",") "" i; return t}
     {
         pathcnt[$1]++
         pathtypecnt[$1][$2]++
@@ -39,7 +59,13 @@ awk 'function join(a,t){for(i in a)t=t""(t==""?"":",")""i;return t}
             printf pathcnt[path]==pathcnt[parent]?"! ":"? "
             printf "%8d %8s %s\n", pathcnt[path], join(pathtypecnt[path]), path
         }
-    }' |\
-sort -k4 |\
-sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' |\
-grep --color -E '($|^.\*.*|.*,.*)'
+    }'
+}
+
+# minimal last resort to make it usable
+function sortByPathname() { sort -k4; }
+
+# all hopes are lost
+function markRecursions() { sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' | grep --color -E '($|^.\*.*|.*,.*)'; }
+
+main "$@"
