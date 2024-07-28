@@ -3,27 +3,26 @@
 # Guessing json schema
 #
 # usage: $0 [file.json]...
+# multiple json handled as an array of jsons:
+#   `cat "*.json" | $0` same as `$0 "*.json"`
+# generalizing made by multiple instances, what can happen in one tree's recursion too
 # output columns:
 #   1.a ! or ?: mandatory or optional
 #   1.b *: point of guessed recursion
 #   2. count: number of occurrences of a path
 #   3. type: type[,type] | {null, string, boolean, number, array, object}
 #   4. path: path (array indices suppresses)
-# some usages:
-#   `cat "*.json" | $0`         for ?
-#   `$0 "*.json"`               for ?
-#   `jsons2array "*.json" | $0` for ?
 # TODO
 #   - aaargh (there has to be a better way)
 #   - instead of mandatory/optional: matrix of a vs b marking if a is present then b too, a includes the node itself so m/o are represented
 #   - primitive types of array elements (eg.: [str,obj,num...] )
-#   - detect subtypes (date,int,float,enums(aka. repeating values),...)
+#   - detect subtypes (date, int, float, enums(aka. repeating values), ...)
 
 function main() {
     traverse "$@" |\
     arrayCollapsing |\
     pathCollapsing |\
-    magic |\
+    pathCount |\
     sortByPathname |\
     markRecursions
 }
@@ -43,7 +42,8 @@ function arrayCollapsing() { awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1'; 
 function pathCollapsing() { sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g'; }
 
 # as you already recognized, this is not a shell script's job
-function magic() {
+# it counts pathes of nodes, if it same as it te parent than it is mandatory
+function pathCount() {
     awk 'function join(a, t){for (i in a) t = t "" (t == "" ? "" : ",") "" i; return t}
     {
         pathcnt[$1]++
