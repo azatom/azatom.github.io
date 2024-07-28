@@ -1,130 +1,74 @@
-var Ywrap = (wrapper_func, f) => (x => x(x))(x => f(wrapper_func(y => x(x)(y))));
-var memo_wrapper_generator = function () {
-    const memo = {};
-    return f => n => {
-        if (memo.hasOwnProperty(n)) {
-            return memo[n];
-        }
-        const result = f(n);
-        memo[n] = result;
-        return result;
-    };
-};
-var Ymemo = f => Ywrap(memo_wrapper_generator(), f);
-var factorial_ = f => {
-    window.a++;
-    return (n => ((n === 0) ? 1 : n * f(n - 1)));
-};
-var factorial = Ymemo(factorial_);
+#!/bin/bash
 
+# Guessing json schema
+#
+# usage: $0 [file.json]...
+# multiple json handled as an array of jsons:
+#   `cat "*.json" | $0` same as `$0 "*.json"`
+# generalizing made by multiple instances, what can happen in one tree's recursion too
+# output columns:
+#   1.a ! or ?: mandatory or optional
+#   1.b *: point of guessed(!) recursion
+#   2. count: number of occurrences of a path
+#   3. type: type[,type] | {null, string, boolean, number, array, object}
+#   4. path: path (array indices suppresses)
+# TODO
+#   - aaargh (there has to be a better way)
+#   - instead of mandatory/optional: matrix of a vs b marking if a is present then b too, a includes the node itself so m/o are represented
+#   - primitive types of array elements (eg.: [str,obj,num...] )
+#   - detect subtypes (date, int, float, enums(aka. repeating values), ...)
 
-var tests = [];
-tests.push(function () {
-    window.a = 0;
-    ret = factorial(10) + " " + window.a + "calls";
-    document.write("factorial(10) = " + ret + "<br>");
-});
+function main() {
+    traverse "$@" |\
+    arrayCollapsing |\
+    pathCollapsing |\
+    pathCount |\
+    sortByPathname |\
+    markRecursions
+}
 
+# produces lines of every values as their full paths and types, (values are "colapsing" to type)
+# eg. input: {"children":[{"children":[{"foo":7},{"foo":8,"bar":9}]}]}
+# eg. output: "0.children.0.children.0.foo number"
+function traverse () {
+    jq -rs 'paths as $path  | [
+        ( [ $path[] | tostring ] | join(".") ),
+        ( getpath($path) | type )
+    ] | join(" ")' "$@"
+}
 
+# values af array indices (eg. ".0") collapsin to just "[]"
+# eg. output: "[].children[].children[].foo number"
+function arrayCollapsing() { awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1'; }
 
+# consecutive same array names collapsing in a hope that it is a real recursion
+# eg. output: "[].children[].foo number"
+function pathCollapsing() { sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g'; }
 
-var table = function (a) {
-    var res = '<table class="table"><tbody><tr><th>n</th><th>p(n)</th></tr>';
-    for (var key in a)
-        if (a.hasOwnProperty(key))
-            res += '<tr><td>' + key + '</td><td>' + a[key] + '</td></tr>';
-    return res + '</tbody><table>';
-};
-
-
-var cache = {};
-var p2 = function (n, val) {
-    if (n === 0)
-        return 1;
-    var key = n + "_" + val;
-    if (key in cache)
-        return cache[key];
-    var r = 0;
-    for (var i = val; i <= n; ++i)
-        r += p3(n - i, i);
-    cache[key] = r;
-    return r;
-};
-var p3 = function (n, val) {
-    if (n === 0)
-        return 1;
-    var key = n + "_" + val;
-    if (key in cache)
-        return cache[key];
-    var r = 0;
-    for (var i = val; i <= n; ++i)
-        r += p3(n - i, i);
-    cache[key] = r;
-    return r;
-};
-var p4 = function(N) {
-  for (var n, p = [n = 1], k, i; n <= N; ++n)
-    for (p[k = n] = 0; k >= -n; --k)
-      0 < (i = k * (3 * k - 1) / 2) &&
-      i <= n &&
-      (p[n] += ((k & 1) * 2 - 1) * p[n-i])
-  return p[N];
-};
-
-tests.push(function(){
-    return p3(299,1);
-});
-
-tests.push(function(){
-    return p4(299,1);
-});
-
-var ascending_partition = function (n, k) {
-    var P = [], val = 1;
-    while (n > 0) {
-        that: for (var i = val; i <= n; ++i) {
-            var count = p3(n - i, i);
-            if (k >= count)
-                k -= count;
-            else if (count != 0) {
-                P.push(i);
-                n -= i;
-                val = i;
-                break that;//what
-            }
-        }
+# as you already recognized, this is not a shell script's job
+# it counts pathes of nodes, if it same as it te parent than it is mandatory
+# eg. output: "?        2   number [].children[].foo"
+function pathCount() {
+    awk 'function join(a, t){for (i in a) t = t "" (t == "" ? "" : ",") "" i; return t}
+    {
+        pathcnt[$1]++
+        pathtypecnt[$1][$2]++
     }
-    return P;
-};
+    END {
+        for (path in pathtypecnt) {
+            if (path ~ "]$") continue
+            parent = gensub("\\.[^.]*$", "", 1, path)
+            printf pathcnt[path]==pathcnt[parent]?"! ":"? "
+            printf "%8d %8s %s\n", pathcnt[path], join(pathtypecnt[path]), path
+        }
+    }'
+}
 
-tests.push(function () {
-    var n = 100, k = p3(n, 1) - 10;
-    document.write("p(" + n + ", " + k + ") = " + ascending_partition(n, k));
-    var n = 5, s = "", r = p3(n, 1);
-    for (var i = 0; i < r; ++i) {
-        s += i + " " + ascending_partition(n, i) + "\n";
-    }
-    return s;
-});
+# minimal last resort to make it usable
+function sortByPathname() { sort -k4; }
 
-tests.push(function () {
-    document.write(table(
-        (function () {
-            for (var n, p = [n = 1], k, i; n < 302; n++)
-                for (p[k = n] = 0; k >= -n; --k)
-                    0 < (i = k * (3 * k - 1) / 2) &&
-                        i <= n &&
-                        (p[n] += ((k & 1) * 2 - 1) * p[n - i]);
-            return p;
-        })()));
-});
+# all hopes are lost
+& eg. output: "?*       1    array [].children[].children"
+function markRecursions() { sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' | grep --color -E '($|^.\*.*|.*,.*)'; }
 
-var test = function() {
-    for (var i in tests) {
-        if (!tests.hasOwnProperty(i) || typeof tests[i] != "function")
-            continue;
-        var t = new Date();
-        var ret = tests[i]();
-        console.log("[test " + i + "]\n" + (ret != undefined ? ret + "\n" : "")+"[time: " + ((new Date()) - t) + "ms]");
-    } 
-};
+main "$@"
