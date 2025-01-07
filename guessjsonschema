@@ -8,7 +8,7 @@
 # generalizing made by multiple instances, what can happen in one tree's recursion too
 # output columns:
 #   1.a ! or ?: mandatory or optional
-#   1.b *: point of guessed recursion
+#   1.b *: point of guessed(!) recursion
 #   2. count: number of occurrences of a path
 #   3. type: type[,type] | {null, string, boolean, number, array, object}
 #   4. path: path (array indices suppresses)
@@ -28,6 +28,8 @@ function main() {
 }
 
 # produces lines of every values as their full paths and types, (values are "colapsing" to type)
+# eg. input: {"children":[{"children":[{"foo":7},{"foo":8,"bar":9}]}]}
+# eg. output: "0.children.0.children.0.foo number"
 function traverse () {
     jq -rs 'paths as $path  | [
         ( [ $path[] | tostring ] | join(".") ),
@@ -36,13 +38,16 @@ function traverse () {
 }
 
 # values af array indices (eg. ".0") collapsin to just "[]"
+# eg. output: "[].children[].children[].foo number"
 function arrayCollapsing() { awk '{$0 = gensub("(^|\\.)[0-9]+", "[]", "g")} 1'; }
 
 # consecutive same array names collapsing in a hope that it is a real recursion
+# eg. output: "[].children[].foo number"
 function pathCollapsing() { sed -re 's,(\.[^]\[\.]+\[\])\1+,\1,g'; }
 
 # as you already recognized, this is not a shell script's job
 # it counts pathes of nodes, if it same as it te parent than it is mandatory
+# eg. output: "?        2   number [].children[].foo"
 function pathCount() {
     awk 'function join(a, t){for (i in a) t = t "" (t == "" ? "" : ",") "" i; return t}
     {
@@ -63,6 +68,7 @@ function pathCount() {
 function sortByPathname() { sort -k4; }
 
 # all hopes are lost
+# eg. output: "?*       1    array [].children[].children"
 function markRecursions() { sed -re 's,^(.).(.*(\.[^]\[\.]+)\[\]\3$),\1*\2,' | grep --color -E '($|^.\*.*|.*,.*)'; }
 
 main "$@"
