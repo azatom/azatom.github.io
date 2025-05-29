@@ -46,7 +46,7 @@
             border-radius: .3rem;
         }
 
-        .txt {
+        .log {
             background: #fff;
             border: .1rem solid #aaa;
             color: #000;
@@ -81,12 +81,12 @@
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
-        <button onclick="swap(this)">swap</button>
-        <button class="txt">v2</button>
+        <button class="swap" onclick="swap()">swap</button>
+        <button class="log"></button>
     </div>
     <div class="note" autofocus contenteditable></div>
     <script>
-        const [note, head, sp] = ['.note', '.header', '.header>.txt'].map(i => document.querySelector(i));
+        const [note, head, log, eswp] = ['.note', '.header', '.header>.log', '.swap'].map(i => document.querySelector(i));
         let sto;
         window.addEventListener('load', () => (load(), note.focus()));
         document.addEventListener('visibilitychange', devisibled);
@@ -111,21 +111,24 @@
         function sav() {
             debr();
             localStorage.setItem('html', note.innerHTML);
-            sp.textContent = note.innerHTML.length;
+            log.textContent = note.innerHTML.length;
         }
         function autosave() {
             clearTimeout(sto);
-            sto = setTimeout(sav, 2000);
+            sto = setTimeout(sav, 1000);
         }
-        function swap(el) {
+        function swap() {
             let t = localStorage.getItem('mem') || '';
             debr();
             localStorage.setItem('mem', note.innerHTML);
-            el.textContent = note.innerHTML.length;
+            eswp.textContent = note.innerHTML.length;
             note.innerHTML = t;
-            sp.textContent = t.length;
+            log.textContent = t.length;
         }
-        function load() { sp.textContent = (note.innerHTML = localStorage.getItem('html')).length; }
+        function load() {
+            localStorage.getItem('mem') && (log.textContent = (note.innerHTML = localStorage.getItem('html')).length);
+            localStorage.getItem('mem') && (eswp.textContent = localStorage.getItem('mem').length);
+        }
         function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
         function devisibled() { document.visibilityState === 'hidden' && sav(); }
         function scroll() { head.classList.toggle('scrolled', note.scrollTop > 0); }
