@@ -27,6 +27,7 @@
             justify-content: space-around;
             box-shadow: 0 0 0 transparent;
             transition: box-shadow 0.3s;
+            user-select: none;
         }
 
         .header.scrolled {
@@ -69,7 +70,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave into localStorage\A- download: html/textContent/innerText\A- swap between 2 versions\A v1";
+            content: "- type here or paste image\A- autosave into localStorage\A- download: html/textContent/innerText\A- swap between 2 versions\A v.2";
             display: block;
             color: #aaa;
         }
@@ -81,8 +82,8 @@
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
-        <button class="swap" onclick="swap()">swap</button>
-        <button class="log"></button>
+        <button onclick="swap()" class="swap">swap</button>
+        <button onclick="clr()" class="log"></button>
     </div>
     <div class="note" autofocus contenteditable></div>
     <script>
@@ -129,6 +130,7 @@
             localStorage.getItem('html') && (log.textContent = (note.innerHTML = localStorage.getItem('html')).length);
             localStorage.getItem('mem') && (eswp.textContent = localStorage.getItem('mem').length);
         }
+        function clr() { confirm('clear it?') && (note.textContent = '', sav()); }
         function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
         function devisibled() { document.visibilityState === 'hidden' && sav(); }
         function scroll() { head.classList.toggle('scrolled', note.scrollTop > 0); }
