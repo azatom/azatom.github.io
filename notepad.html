@@ -134,14 +134,14 @@
             sto = setTimeout(() => {
                 sav();
                 notify('Autosaved');
-            }, 2000);
+            }, 1000);
         }
         function swap(e) {
             try {
                 let t = localStorage.getItem('mem') || '';
                 localStorage.setItem('mem', note.innerHTML);
                 note.innerHTML = t;
-                this.textContent = mem.length;
+                e.textContent = mem.length;
             } catch (e) { notify(e); this.textContent = 'err'; }
         }
     </script>
