@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Notapad</title>
     <style>
         body {
@@ -16,17 +16,25 @@
 
         .header {
             height: 2.4rem;
-            position: sticky;
+            position: fixed;
             top: 0;
+            width: 100%;
             background: #fff;
             padding: 0;
             z-index: 8;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-around;
+            box-shadow: 0 0 0 transparent;
+            transition: box-shadow 0.3s;
+        }
+
+        .header.scrolled {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         button {
-            flex: 1;
+            flex: 1 1 18%;
             margin: .2rem;
             padding: .5rem;
             font-size: 1rem;
@@ -39,6 +47,7 @@
         }
 
         .note {
+            padding-top: 2.4rem;
             width: 100%;
             height: calc(100vh - 2.4rem);
             margin: 0;
@@ -47,6 +56,8 @@
             box-sizing: border-box;
             background-color: #fff;
             overflow: scroll;
+            padding-bottom: env(safe-area-inset-bottom);
+            will-change: transform;
         }
 
         .mess {
@@ -72,16 +83,20 @@
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
-        <button onclick="save()">save</button>
-        <button onclick="load()">load</button>
+        <!--button onclick="save()">save</button-->
+        <!--button onclick="load()">load</button-->
         <button onclick="[note.innerHTML,mem]=[mem,note.innerHTML],notify(note.innerHTML.length)">swap</button>
     </div>
     <div class="note" autofocus contenteditable></div>
     <button class="mess button hidden"></button>
     <script>
-        const [note, mess] = ['.note', '.mess'].map(i => document.querySelector(i));
-        let mem = '';
-        window.addEventListener('load', () => (note.focus(), load()));
+        const [note, mess, head] = ['.note', '.mess', '.header'].map(i => document.querySelector(i));
+        let mem = '', sto;
+        window.addEventListener('load', () => (load(), note.focus()));
+        note.addEventListener('scroll', () => head.classList.toggle('scrolled', note.scrollTop > 0));
+        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+        window.addEventListener('beforeunload', sav);
+        note.addEventListener('input', autosave);
         function download(plain = false, textContent = false) {
             const a = document.createElement('a'),
                 [dat, ext, typ] = plain ? textContent ?
@@ -103,17 +118,27 @@
             mess.classList.remove('hidden');
             setTimeout(() => mess.classList.add('hidden'), 2e3);
         }
+        function sav() { localStorage.setItem('html', note.innerHTML); }
         function save() {
             try {
-                localStorage.setItem('html', note.innerHTML), notify(`saved ${note.innerHTML.length}`);
+                sav();
+                notify(`saved ${note.innerHTML.length}`);
             } catch (e) { notify(e); }
         }
         function load() {
             try {
                 const h = localStorage.getItem('html');
-                if (!h) throw 'can not';
+                if (!h) throw "can't";
                 note.innerHTML = h;
+                notify(`loaded ${h.length}`);
             } catch (e) { notify(e); }
+        }
+        function autosave() {
+            clearTimeout(sto);
+            sto = setTimeout(() => {
+                sav();
+                notify('Autosaved');
+            }, 2000);
         }
     </script>
 </body>
