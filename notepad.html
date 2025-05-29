@@ -25,6 +25,10 @@
             justify-content: space-around;
         }
 
+        b {
+            color: #8cf;
+        }
+
         button {
             flex: 1;
             margin: .2rem;
@@ -47,6 +51,24 @@
             box-sizing: border-box;
             background-color: #fff;
         }
+
+        .status {
+            position: absolute;
+            z-index: 999;
+            top: .5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgb(246, 35, 239);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .status.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -54,24 +76,48 @@
     <div class="header">
         <button onclick="download()">.html</button>
         <button onclick="download(true)">.txt</button>
-        <button onclick="download(true, true)">.text</button>
+        <button onclick="download(true, true)">.t<b>e</b>xt</button>
+        <button onclick="saveToLocalStorage()" aria-label="Save to local storage">MS</button>
+        <button onclick="loadFromLocalStorage()" aria-label="Load from local storage">MR</button>
     </div>
     <div id="note" autofocus contenteditable="true"></div>
+    <div id="status" class="status"></div>
     <script>
         const note = document.getElementById('note');
-        note.focus();
-        function download(plain = false, all = false) {
+        const status = document.getElementById('status');
+        window.addEventListener('load', () => note.focus());
+        function download(plain = false, textContent = false) {
             const blob = plain ?
-                new Blob([all ? note.textContent : note.innerText], { type: 'text/plain;charset=utf8' }) :
+                new Blob([textContent ? note.textContent : note.innerText], { type: 'text/plain;charset=utf8' }) :
                 new Blob([note.innerHTML], { type: 'text/html;charset=utf8' }),
                 url = URL.createObjectURL(blob),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-                ext = plain ? all ? 'full.txt' : 'txt' : 'html',
+                ext = plain ? textContent ? 'full.txt' : 'txt' : 'html',
                 a = document.createElement('a');
             a.href = url;
             a.download = `note.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
+        }
+        function aler(s) {
+            status.textContent = s;
+            status.classList.add('visible');
+            setTimeout(() => {
+                status.classList.remove('visible');
+            }, 1500);
+        }
+        function saveToLocalStorage() {
+            localStorage.setItem('html', note.innerHTML);
+            aler('saved');
+        }
+        function loadFromLocalStorage() {
+            const savedContent = localStorage.getItem('html');
+            if (savedContent) {
+                note.innerHTML = savedContent;
+                aler('loaded');
+            } else {
+                aler('NO!');
+            }
         }
     </script>
 </body>
