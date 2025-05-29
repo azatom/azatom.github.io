@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notepad</title>
+    <title>Notapad</title>
     <style>
         body {
             margin: 0;
@@ -29,8 +29,11 @@
             color: #8cf;
         }
 
-        button {
+        .header>button {
             flex: 1;
+        }
+
+        button {
             margin: .2rem;
             padding: .5rem;
             font-size: 1rem;
@@ -58,12 +61,14 @@
             top: .5rem;
             left: 50%;
             transform: translateX(-50%);
-            background: rgb(246, 35, 239);
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 0.3rem;
+            background: #1f4;
+            color: #000;
             opacity: 0;
             transition: opacity 0.3s;
+        }
+
+        .error {
+            background: #f25;
         }
 
         .status.visible {
@@ -77,15 +82,15 @@
         <button onclick="download()">.html</button>
         <button onclick="download(true)">.txt</button>
         <button onclick="download(true, true)">.t<b>e</b>xt</button>
-        <button onclick="saveToLocalStorage()" aria-label="Save to local storage">MS</button>
-        <button onclick="loadFromLocalStorage()" aria-label="Load from local storage">MR</button>
+        <button onclick="save()" aria-label="Save to local storage">save</button>
+        <button onclick="load()" aria-label="Load from local storage">load</button>
     </div>
     <div id="note" autofocus contenteditable="true"></div>
-    <div id="status" class="status"></div>
+    <button id="status" class="status button"></button>
     <script>
         const note = document.getElementById('note');
         const status = document.getElementById('status');
-        window.addEventListener('load', () => note.focus());
+        window.addEventListener('load', () => { note.focus(); load(); });
         function download(plain = false, textContent = false) {
             const blob = plain ?
                 new Blob([textContent ? note.textContent : note.innerText], { type: 'text/plain;charset=utf8' }) :
@@ -99,25 +104,24 @@
             a.click();
             URL.revokeObjectURL(url);
         }
-        function aler(s) {
+        function notify(s, error) {
             status.textContent = s;
             status.classList.add('visible');
+            error && status.classList.add('error');
             setTimeout(() => {
-                status.classList.remove('visible');
+                status.classList.remove('visible', 'error');
             }, 1500);
         }
-        function saveToLocalStorage() {
-            localStorage.setItem('html', note.innerHTML);
-            aler('saved');
-        }
-        function loadFromLocalStorage() {
-            const savedContent = localStorage.getItem('html');
-            if (savedContent) {
-                note.innerHTML = savedContent;
-                aler('loaded');
-            } else {
-                aler('NO!');
+        function save() {
+            try {
+                localStorage.setItem('html', note.innerHTML);
+                notify('saved');
             }
+            catch (e) { notify(e, true); }
+        }
+        function load() {
+            const html = localStorage.getItem('html');
+            if (html) note.innerHTML = html;
         }
     </script>
 </body>
