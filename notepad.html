@@ -15,7 +15,7 @@
         }
 
         .header {
-            height: 2.4rem;
+            height: 2.7rem;
             position: fixed;
             top: 0;
             width: 100%;
@@ -25,13 +25,12 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-around;
-            box-shadow: 0 0 0 transparent;
-            transition: box-shadow 0.3s;
+            transition: box-shadow 0.2s;
             user-select: none;
         }
-
+        
         .header.scrolled {
-            box-shadow: 0 2px 5px rgba(0, 100, 100, 0.5);
+            box-shadow: #777 0 .2rem .2rem;
         }
 
         button {
@@ -57,10 +56,10 @@
         .note {
             margin: 0;
             padding: 0;
-            margin-top: 2.4rem;
+            margin-top: 2.7rem;
             margin-bottom: env(safe-area-inset-bottom);
             width: 100%;
-            min-height: calc(100vh - 2.4rem);
+            height: calc(100vh - 2.7rem);
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #fff;
@@ -70,7 +69,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave\A- download formats: html visible.txt hiddenToo.txt\A- swap: between sheets\A v.3";
+            content: "- type here or paste image\A- autosave\A- download formats: html visible.txt hiddenToo.txt\A- swap: between sheets\A v.4";
             display: block;
             color: #aaa;
         }
@@ -81,13 +80,13 @@
     <div class="header">
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
-        <button onclick="download(1, 1)">.tð•–xt</button>
+        <button onclick="download(1, 1)">.t𝕖xt</button>
         <button onclick="swap()" class="swap">swap</button>
         <button onclick="clr()" class="log"></button>
     </div>
     <div class="note" contenteditable></div>
     <script>
-        const [note, head, log, sp] = ['.note', '.header', '.header>.log', '.swap'].map(i => document.querySelector(i));
+        const [note, header, log, sp] = ['.note', '.header', '.header>.log', '.swap'].map(i => document.querySelector(i));
         let sto;
         window.addEventListener('load', load);
         document.addEventListener('visibilitychange', devisibled);
@@ -134,7 +133,7 @@
         function clr() { confirm('clear it?') && (note.textContent = '', sav()); }
         function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
         function devisibled() { document.visibilityState === 'hidden' && sav(); }
-        function scroll() { head.classList.toggle('scrolled', note.scrollTop > 0); }
+        function scroll(e) { console.log(e); header.classList.toggle('scrolled', note.scrollTop > 0); }
     </script>
 </body>
 
