@@ -33,8 +33,7 @@
             box-shadow: 0 2px 5px rgba(0, 100, 100, 0.5);
         }
 
-        button,
-        span {
+        button {
             flex: 1 1 18%;
             margin: .2rem;
             padding: .5rem;
@@ -47,8 +46,9 @@
             border-radius: .3rem;
         }
 
-        span {
+        .txt {
             background: #fff;
+            border: .1rem solid #aaa;
             color: #000;
         }
 
@@ -81,7 +81,7 @@
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
         <button onclick="swap(this)">swap</button>
-        <span>v3</span>
+        <button class="txt">v1</button>
     </div>
     <div class="note" autofocus contenteditable></div>
     <script>
