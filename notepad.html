@@ -25,7 +25,7 @@
             justify-content: space-around;
         }
 
-        b {
+        em {
             color: #8cf;
         }
 
@@ -53,6 +53,7 @@
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #fff;
+            overflow: scroll;
         }
 
         .status {
@@ -81,7 +82,7 @@
     <div class="header">
         <button onclick="download()">.html</button>
         <button onclick="download(true)">.txt</button>
-        <button onclick="download(true, true)">.t<b>e</b>xt</button>
+        <button onclick="download(true, true)">.t<em>e</em>xt</button>
         <button onclick="save()" aria-label="Save to local storage">save</button>
         <button onclick="load()" aria-label="Load from local storage">load</button>
     </div>
@@ -98,11 +99,13 @@
                 url = URL.createObjectURL(blob),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
                 ext = plain ? textContent ? 'full.txt' : 'txt' : 'html',
-                a = document.createElement('a');
+                a = document.createElement('a'),
+                fname = `note.${now}.${ext}`;
             a.href = url;
-            a.download = `note.${now}.${ext}`;
+            a.download = fname;
             a.click();
             URL.revokeObjectURL(url);
+            notify(`downloading ${fname}`);
         }
         function notify(s, error) {
             status.textContent = s;
