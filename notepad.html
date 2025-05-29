@@ -30,7 +30,7 @@
         }
 
         .header.scrolled {
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
 
         button {
@@ -47,16 +47,16 @@
         }
 
         .note {
-            padding-top: 2.4rem;
-            width: 100%;
-            height: calc(100vh - 2.4rem);
             margin: 0;
-            padding: 0;
+            padding: 0.5rem;
+            padding-top: 2.4rem;
+            padding-bottom: env(safe-area-inset-bottom);
+            width: 100%;
+            min-height: calc(100vh - 2.4rem);
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #fff;
-            overflow: scroll;
-            padding-bottom: env(safe-area-inset-bottom);
+            overflow-y: auto;
             will-change: transform;
         }
 
@@ -83,15 +83,13 @@
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
-        <!--button onclick="save()">save</button-->
-        <!--button onclick="load()">load</button-->
-        <button onclick="[note.innerHTML,mem]=[mem,note.innerHTML],notify(note.innerHTML.length)">swap</button>
+        <button onclick="swap(this)">swap</button>v1
     </div>
     <div class="note" autofocus contenteditable></div>
     <button class="mess button hidden"></button>
     <script>
         const [note, mess, head] = ['.note', '.mess', '.header'].map(i => document.querySelector(i));
-        let mem = '', sto;
+        let sto;
         window.addEventListener('load', () => (load(), note.focus()));
         note.addEventListener('scroll', () => head.classList.toggle('scrolled', note.scrollTop > 0));
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
@@ -119,12 +117,6 @@
             setTimeout(() => mess.classList.add('hidden'), 2e3);
         }
         function sav() { localStorage.setItem('html', note.innerHTML); }
-        function save() {
-            try {
-                sav();
-                notify(`saved ${note.innerHTML.length}`);
-            } catch (e) { notify(e); }
-        }
         function load() {
             try {
                 const h = localStorage.getItem('html');
@@ -139,6 +131,15 @@
                 sav();
                 notify('Autosaved');
             }, 2000);
+        }
+        function swap(e) {
+            try {
+                let t;
+                localStorage.getItem('mem', t);
+                localStorage.setItem('mem', note.innerHTML);
+                note.innerHTML = t;
+                this.textContent = mem.length;
+            } catch (e) { notify(e); this.textContent = 'err'; }
         }
     </script>
 </body>
