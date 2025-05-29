@@ -1,70 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Notepad</title>
-        <style>
-            body {
-                margin: 0;
-                padding: 0;
-                background: #fff;
-                font-family: sans-serif;
-            }
 
-            .header {
-                position: sticky;
-                top: 0;
-                background: #fff;
-                padding: 10px;
-                border-bottom: 1px solid #000;
-                z-index: 1;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            font-family: sans-serif;
+        }
 
-            button {
-                width: 100%;
-                padding: 10px;
-                font-size: 16px;
-                background: #007bff;
-                color: #fff;
-                border: none;
-                cursor: pointer;
-            }
+        .header {
+            height: 2rem;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 1rem;
+            border-bottom: .1rem solid #000;
+            z-index: 1;
+        }
 
-            #note {
-                width: 100%;
-                height: calc(100vh - 60px);
-                padding: 10px;
-                font-size: 16px;
-                border: 1px solid #000;
-                box-sizing: border-box;
-                margin: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <button onclick="download()">Download</button>
-        </div>
-        <textarea id="note" autofocus placeholder="Type here..."></textarea>
-        <script>
-            try {
-                const note = document.getElementById('note');
-                note.focus();
-                function download() {
-                    const blob = new Blob([note.value],{
-                        type: 'text/plain'
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'note.txt';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                }
-            } catch (e) {
-                document.body.innerHTML += '<p>Error: ' + e.message + '</p>';
-            }
-        </script>
-    </body>
+        button {
+            width: 40%;
+            padding: .5rem;
+            font-size: 1rem;
+            background: #08f;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0.2rem;
+        }
+
+        #note {
+            width: 100%;
+            height: calc(100vh - 2rem);
+            padding: 1rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <button onclick="download()">.html</button> <button onclick="download(true)">.txt</button>
+    </div>
+    <div id="note" autofocus contenteditable="true"></div>
+    <script>
+        const note = document.getElementById('note');
+        note.focus();
+        function download(plain = false) {
+            const blob = plain ?
+                new Blob([note.innerText], { type: 'text/plain;charset=utf8' }) :
+                new Blob([note.innerHTML], { type: 'text/html;charset=utf8' });
+            const url = URL.createObjectURL(blob);
+            const now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
+            const ext = plain ? 'txt' : 'html';
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `note.${now}.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
 </html>
