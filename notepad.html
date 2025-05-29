@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notapad</title>
+    <title>Notepad</title>
     <style>
         body {
             margin: 0;
@@ -25,15 +25,12 @@
             justify-content: space-around;
         }
 
-        em {
+        b {
             color: #8cf;
         }
 
-        .header>button {
-            flex: 1;
-        }
-
         button {
+            flex: 1;
             margin: .2rem;
             padding: .5rem;
             font-size: 1rem;
@@ -45,7 +42,7 @@
             border-radius: .3rem;
         }
 
-        .note {
+        #note {
             width: 100%;
             height: calc(100vh - 2.4rem);
             margin: 0;
@@ -53,26 +50,23 @@
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #fff;
-            overflow: scroll;
         }
 
-        .mess {
+        .status {
             position: absolute;
             z-index: 999;
             top: .5rem;
             left: 50%;
             transform: translateX(-50%);
-            background: #1f4;
-            color: #000;
+            background: rgb(246, 35, 239);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
             opacity: 0;
             transition: opacity 0.3s;
         }
 
-        .error {
-            background: #f25;
-        }
-
-        .mess.visible {
+        .status.visible {
             opacity: 1;
         }
     </style>
@@ -81,48 +75,49 @@
 <body>
     <div class="header">
         <button onclick="download()">.html</button>
-        <button onclick="download(1)">.txt</button>
-        <button onclick="download(1, 1)">.t<em>e</em>xt</button>
-        <button onclick="save()">save</button>
-        <button onclick="load()">load</button>
+        <button onclick="download(true)">.txt</button>
+        <button onclick="download(true, true)">.t<b>e</b>xt</button>
+        <button onclick="saveToLocalStorage()" aria-label="Save to local storage">MS</button>
+        <button onclick="loadFromLocalStorage()" aria-label="Load from local storage">MR</button>
     </div>
-    <div class="note" autofocus contenteditable></div>
-    <button class="mess button"></button>
+    <div id="note" autofocus contenteditable="true"></div>
+    <div id="status" class="status"></div>
     <script>
-        const [n, m] = ['.note', '.mess'].map(i => document.querySelector(i));
-        window.addEventListener('load', () => (n.focus(), load()));
+        const note = document.getElementById('note');
+        const status = document.getElementById('status');
+        window.addEventListener('load', () => note.focus());
         function download(plain = false, textContent = false) {
-            const
-                dat = plain ? textContent ? n.textContent : n.innerText : n.innerHTML,
-                ext = plain ? textContent ? 'full.txt' : 'txt' : 'html',
-                typ = plain ? 'plain' : 'html',
-                blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
-                url = URL.createObjectURL(blb),
+            const blob = plain ?
+                new Blob([textContent ? note.textContent : note.innerText], { type: 'text/plain;charset=utf8' }) :
+                new Blob([note.innerHTML], { type: 'text/html;charset=utf8' }),
+                url = URL.createObjectURL(blob),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-                nam = `note.${now}.${ext}`,
+                ext = plain ? textContent ? 'full.txt' : 'txt' : 'html',
                 a = document.createElement('a');
             a.href = url;
-            a.download = nam;
+            a.download = `note.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
-            notify(`downloading ${nam}`);
         }
-        function notify(s, error) {
-            m.textContent = s;
-            m.classList.add('visible');
-            error && m.classList.add('error');
+        function aler(s) {
+            status.textContent = s;
+            status.classList.add('visible');
             setTimeout(() => {
-                m.classList.remove('visible', 'error');
+                status.classList.remove('visible');
             }, 1500);
         }
-        function save() {
-            try {
-                localStorage.setItem('html', n.innerHTML), notify('saved');
-            } catch (e) { notify(e, true); }
+        function saveToLocalStorage() {
+            localStorage.setItem('html', note.innerHTML);
+            aler('saved');
         }
-        function load() {
-            const h = localStorage.getItem('html');
-            if (h) n.innerHTML = h; else notify("can't", true);
+        function loadFromLocalStorage() {
+            const savedContent = localStorage.getItem('html');
+            if (savedContent) {
+                note.innerHTML = savedContent;
+                aler('loaded');
+            } else {
+                aler('NO!');
+            }
         }
     </script>
 </body>
