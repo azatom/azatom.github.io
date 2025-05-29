@@ -56,9 +56,9 @@
 
         .note {
             margin: 0;
-            padding: 0.5rem;
-            padding-top: 2.4rem;
-            padding-bottom: env(safe-area-inset-bottom);
+            padding: 0;
+            margin-top: 2.4rem;
+            margin-bottom: env(safe-area-inset-bottom);
             width: 100%;
             min-height: calc(100vh - 2.4rem);
             font-size: 1rem;
@@ -70,7 +70,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave into localStorage\A- download: html/textContent/innerText\A- swap between 2 versions\A v.2";
+            content: "- type here or paste image\A- autosave\A- download formats: html visible.txt hiddenToo.txt\A- swap: between sheets\A v.3";
             display: block;
             color: #aaa;
         }
@@ -81,15 +81,15 @@
     <div class="header">
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
-        <button onclick="download(1, 1)">.t𝕖xt</button>
+        <button onclick="download(1, 1)">.tð•–xt</button>
         <button onclick="swap()" class="swap">swap</button>
         <button onclick="clr()" class="log"></button>
     </div>
-    <div class="note" autofocus contenteditable></div>
+    <div class="note" contenteditable></div>
     <script>
-        const [note, head, log, eswp] = ['.note', '.header', '.header>.log', '.swap'].map(i => document.querySelector(i));
+        const [note, head, log, sp] = ['.note', '.header', '.header>.log', '.swap'].map(i => document.querySelector(i));
         let sto;
-        window.addEventListener('load', () => (load(), note.focus()));
+        window.addEventListener('load', load);
         document.addEventListener('visibilitychange', devisibled);
         window.addEventListener('beforeunload', sav);
         note.addEventListener('scroll', scroll);
@@ -111,7 +111,7 @@
         }
         function sav() {
             debr();
-            localStorage.setItem('html', note.innerHTML);
+            try { localStorage.setItem('html', note.innerHTML); } catch (e) { alert(e); }
             log.textContent = note.innerHTML.length;
         }
         function autosave() {
@@ -122,13 +122,14 @@
             let t = localStorage.getItem('mem') || '';
             debr();
             localStorage.setItem('mem', note.innerHTML);
-            eswp.textContent = note.innerHTML.length;
+            sp.textContent = note.innerHTML.length;
             note.innerHTML = t;
             log.textContent = t.length;
         }
         function load() {
             localStorage.getItem('html') && (log.textContent = (note.innerHTML = localStorage.getItem('html')).length);
-            localStorage.getItem('mem') && (eswp.textContent = localStorage.getItem('mem').length);
+            localStorage.getItem('mem') && (sp.textContent = localStorage.getItem('mem').length);
+            note.focus();
         }
         function clr() { confirm('clear it?') && (note.textContent = '', sav()); }
         function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
