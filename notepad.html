@@ -83,12 +83,13 @@
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
-        <button onclick="swap(this)">swap</button>v1
+        <button onclick="swap(this)">swap</button>
+        <span>v2</span>
     </div>
     <div class="note" autofocus contenteditable></div>
     <button class="mess button hidden"></button>
     <script>
-        const [note, mess, head] = ['.note', '.mess', '.header'].map(i => document.querySelector(i));
+        const [note, mess, head, sp] = ['.note', '.mess', '.header', 'span'].map(i => document.querySelector(i));
         let sto;
         window.addEventListener('load', () => (load(), note.focus()));
         note.addEventListener('scroll', () => head.classList.toggle('scrolled', note.scrollTop > 0));
@@ -116,11 +117,14 @@
             mess.classList.remove('hidden');
             setTimeout(() => mess.classList.add('hidden'), 2e3);
         }
-        function sav() { localStorage.setItem('html', note.innerHTML); }
+        function sav() {
+            localStorage.setItem('html', note.innerHTML);
+            sp.textContent = note.innerHTML.length;
+        }
         function load() {
             try {
                 const h = localStorage.getItem('html');
-                if (!h) throw "can't";
+                if (!h) throw "can't: " + h;
                 note.innerHTML = h;
                 notify(`loaded ${h.length}`);
             } catch (e) { notify(e); }
@@ -134,8 +138,7 @@
         }
         function swap(e) {
             try {
-                let t;
-                localStorage.getItem('mem', t);
+                let t = localStorage.getItem('mem') || '';
                 localStorage.setItem('mem', note.innerHTML);
                 note.innerHTML = t;
                 this.textContent = mem.length;
