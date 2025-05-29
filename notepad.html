@@ -69,7 +69,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave into localStorage\A- download: html/textContent/innerText\A- swap between 2 versions";
+            content: "- type here or paste image\A- autosave into localStorage\A- download: html/textContent/innerText\A- swap between 2 versions\A v1";
             display: block;
             color: #aaa;
         }
@@ -126,7 +126,7 @@
             log.textContent = t.length;
         }
         function load() {
-            localStorage.getItem('mem') && (log.textContent = (note.innerHTML = localStorage.getItem('html')).length);
+            localStorage.getItem('html') && (log.textContent = (note.innerHTML = localStorage.getItem('html')).length);
             localStorage.getItem('mem') && (eswp.textContent = localStorage.getItem('mem').length);
         }
         function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
