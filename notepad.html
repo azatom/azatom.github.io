@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Notepad</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background: #fff;
+                font-family: sans-serif;
+            }
+
+            .header {
+                position: sticky;
+                top: 0;
+                background: #fff;
+                padding: 10px;
+                border-bottom: 1px solid #000;
+                z-index: 1;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                background: #007bff;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+            }
+
+            #note {
+                width: 100%;
+                height: calc(100vh - 60px);
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #000;
+                box-sizing: border-box;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <button onclick="download()">Download</button>
+        </div>
+        <textarea id="note" autofocus placeholder="Type here..."></textarea>
+        <script>
+            try {
+                const note = document.getElementById('note');
+                note.focus();
+                function download() {
+                    const blob = new Blob([note.value],{
+                        type: 'text/plain'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'note.txt';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            } catch (e) {
+                document.body.innerHTML += '<p>Error: ' + e.message + '</p>';
+            }
+        </script>
+    </body>
+</html>
