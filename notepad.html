@@ -50,6 +50,7 @@
             background: #fff;
             border: .1rem solid #aaa;
             color: #000;
+            overflow-x: hidden;
         }
 
         .note {
@@ -68,7 +69,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave into localStorage\A- download html/textContent/innerText\A- swap between 2 versions";
+            content: "- type here or paste image\A- autosave into localStorage\A- download: html/textContent/innerText\A- swap between 2 versions";
             display: block;
             color: #aaa;
         }
@@ -81,16 +82,16 @@
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
         <button onclick="swap(this)">swap</button>
-        <button class="txt">v1</button>
+        <button class="txt">v2</button>
     </div>
     <div class="note" autofocus contenteditable></div>
     <script>
-        const [note, head, sp] = ['.note', '.header', 'span'].map(i => document.querySelector(i));
+        const [note, head, sp] = ['.note', '.header', '.header>.txt'].map(i => document.querySelector(i));
         let sto;
         window.addEventListener('load', () => (load(), note.focus()));
-        note.addEventListener('scroll', scroll);
         document.addEventListener('visibilitychange', devisibled);
         window.addEventListener('beforeunload', sav);
+        note.addEventListener('scroll', scroll);
         note.addEventListener('input', autosave);
 
         function download(plain = false, textContent = false) {
@@ -101,13 +102,11 @@
                     [note.innerHTML, 'html', 'html'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
-                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-                nam = `note.${now}.${ext}`;
+                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
             a.href = url;
-            a.download = nam;
+            a.download = `note.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
-            sp.textContent = nam;
         }
         function sav() {
             debr();
@@ -116,7 +115,7 @@
         }
         function autosave() {
             clearTimeout(sto);
-            sto = setTimeout(() => sav, 1000);
+            sto = setTimeout(sav, 2000);
         }
         function swap(el) {
             let t = localStorage.getItem('mem') || '';
