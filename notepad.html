@@ -28,12 +28,13 @@
             transition: box-shadow 0.2s;
             user-select: none;
         }
-        
-        .header.scrolled {
-            box-shadow: #777 0 .2rem .2rem;
+
+        .scrolled {
+            box-shadow: #567 .3rem .3rem .3rem;
         }
 
-        button {
+        button,
+        select {
             flex: 1 1 18%;
             margin: .2rem;
             padding: .5rem;
@@ -42,8 +43,11 @@
             color: #fff;
             border: none;
             cursor: pointer;
-            display: inline-block;
             border-radius: .3rem;
+        }
+
+        option {
+            font-size: 2.5rem;
         }
 
         .log {
@@ -69,18 +73,25 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave\A- download formats: html visible.txt hiddenToo.txt\A- swap: between sheets\A v.4";
+            content: "- type here or paste image\A- autosave\A- download formats: html visible hiddenToo\A- swap: between sheets\A v.5";
             display: block;
             color: #aaa;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <button onclick="download()">.html</button>
-        <button onclick="download(1)">.txt</button>
-        <button onclick="download(1, 1)">.t𝕖xt</button>
+        <select onchange="download(this)">
+            <option value="" disabled selected class="hidden">Download</option>
+            <option value="html">.html</option>
+            <option value="txt">.txt</option>
+            <option value="text">.t𝕖xt</option>
+        </select>
         <button onclick="swap()" class="swap">swap</button>
         <button onclick="clr()" class="log"></button>
     </div>
@@ -94,12 +105,17 @@
         note.addEventListener('scroll', scroll);
         note.addEventListener('input', autosave);
 
-        function download(plain = false, textContent = false) {
+        function handleDownload(e) {
+            download(e.value);
+        }
+        function download(e) {
+            const fmt = e.value;
+            if (!fmt) return;
             const a = document.createElement('a'),
-                [dat, ext, typ] = plain ? textContent ?
-                    [note.textContent, 'full.txt', 'plain'] :
-                    [note.innerText, 'txt', 'plain'] :
-                    [note.innerHTML, 'html', 'html'],
+                [dat, ext, typ] = fmt === 'html' ?
+                    [note.innerHTML, 'html', 'html'] : fmt === 'text' ?
+                        [note.textContent, 'full.txt', 'plain'] :
+                        [note.innerText, 'txt', 'plain'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
@@ -107,6 +123,7 @@
             a.download = `note.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
+            e.value = '';
         }
         function sav() {
             debr();
