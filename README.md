@@ -1,5 +1,6 @@
 # azatom.github.io
-nothing interesting yet :)
+
+[notepad](notepad.html)
 
 [pattern](pattern.html)
 [lsystem](lsystem)
