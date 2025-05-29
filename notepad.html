@@ -59,6 +59,11 @@
             overflow-y: auto;
             will-change: transform;
         }
+        .note:empty:before {
+            content: "type here or paste image \00000a autosave into localStorage\A download html/textContent/innerText\A swapbetween 2 versions";
+            display: block;
+            color: #aaa;
+        }
 
         .mess {
             position: absolute;
@@ -84,9 +89,9 @@
         <button onclick="download(1)">.txt</button>
         <button onclick="download(1, 1)">.t𝕖xt</button>
         <button onclick="swap(this)">swap</button>
-        <span>v2</span>
+        <span>v3</span>
     </div>
-    <div class="note" autofocus contenteditable></div>
+    <pre class="note" autofocus contenteditable></pre>
     <button class="mess button hidden"></button>
     <script>
         const [note, mess, head, sp] = ['.note', '.mess', '.header', 'span'].map(i => document.querySelector(i));
