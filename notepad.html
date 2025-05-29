@@ -45,7 +45,7 @@
             border-radius: .3rem;
         }
 
-        #note {
+        .note {
             width: 100%;
             height: calc(100vh - 2.4rem);
             margin: 0;
@@ -56,7 +56,7 @@
             overflow: scroll;
         }
 
-        .status {
+        .mess {
             position: absolute;
             z-index: 999;
             top: .5rem;
@@ -72,7 +72,7 @@
             background: #f25;
         }
 
-        .status.visible {
+        .mess.visible {
             opacity: 1;
         }
     </style>
@@ -81,50 +81,48 @@
 <body>
     <div class="header">
         <button onclick="download()">.html</button>
-        <button onclick="download(true)">.txt</button>
-        <button onclick="download(true, true)">.t<em>e</em>xt</button>
-        <button onclick="save()" aria-label="Save to local storage">save</button>
-        <button onclick="load()" aria-label="Load from local storage">load</button>
+        <button onclick="download(1)">.txt</button>
+        <button onclick="download(1, 1)">.t<em>e</em>xt</button>
+        <button onclick="save()">save</button>
+        <button onclick="load()">load</button>
     </div>
-    <div id="note" autofocus contenteditable="true"></div>
-    <button id="status" class="status button"></button>
+    <div class="note" autofocus contenteditable></div>
+    <button class="mess button"></button>
     <script>
-        const note = document.getElementById('note');
-        const status = document.getElementById('status');
-        window.addEventListener('load', () => { note.focus(); load(); });
+        const [n, m] = ['.note', '.mess'].map(i => document.querySelector(i));
+        window.addEventListener('load', () => (n.focus(), load()));
         function download(plain = false, textContent = false) {
-            const blob = plain ?
-                new Blob([textContent ? note.textContent : note.innerText], { type: 'text/plain;charset=utf8' }) :
-                new Blob([note.innerHTML], { type: 'text/html;charset=utf8' }),
-                url = URL.createObjectURL(blob),
-                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
+            const
+                dat = plain ? textContent ? n.textContent : n.innerText : n.innerHTML,
                 ext = plain ? textContent ? 'full.txt' : 'txt' : 'html',
-                a = document.createElement('a'),
-                fname = `note.${now}.${ext}`;
+                typ = plain ? 'plain' : 'html',
+                blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
+                url = URL.createObjectURL(blb),
+                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
+                nam = `note.${now}.${ext}`,
+                a = document.createElement('a');
             a.href = url;
-            a.download = fname;
+            a.download = nam;
             a.click();
             URL.revokeObjectURL(url);
-            notify(`downloading ${fname}`);
+            notify(`downloading ${nam}`);
         }
         function notify(s, error) {
-            status.textContent = s;
-            status.classList.add('visible');
-            error && status.classList.add('error');
+            m.textContent = s;
+            m.classList.add('visible');
+            error && m.classList.add('error');
             setTimeout(() => {
-                status.classList.remove('visible', 'error');
+                m.classList.remove('visible', 'error');
             }, 1500);
         }
         function save() {
             try {
-                localStorage.setItem('html', note.innerHTML);
-                notify('saved');
-            }
-            catch (e) { notify(e, true); }
+                localStorage.setItem('html', n.innerHTML), notify('saved');
+            } catch (e) { notify(e, true); }
         }
         function load() {
-            const html = localStorage.getItem('html');
-            if (html) note.innerHTML = html;
+            const h = localStorage.getItem('html');
+            if (h) n.innerHTML = h; else notify("can't", true);
         }
     </script>
 </body>
