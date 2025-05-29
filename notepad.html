@@ -30,10 +30,11 @@
         }
 
         .header.scrolled {
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 5px rgba(0, 100, 100, 0.5);
         }
 
-        button {
+        button,
+        span {
             flex: 1 1 18%;
             margin: .2rem;
             padding: .5rem;
@@ -44,6 +45,11 @@
             cursor: pointer;
             display: inline-block;
             border-radius: .3rem;
+        }
+
+        span {
+            background: #fff;
+            color: #000;
         }
 
         .note {
@@ -59,26 +65,12 @@
             overflow-y: auto;
             will-change: transform;
         }
+
         .note:empty:before {
-            content: "type here or paste image \00000a autosave into localStorage\A download html/textContent/innerText\A swapbetween 2 versions";
+            white-space: pre;
+            content: "- type here or paste image\A- autosave into localStorage\A- download html/textContent/innerText\A- swap between 2 versions";
             display: block;
             color: #aaa;
-        }
-
-        .mess {
-            position: absolute;
-            z-index: 9;
-            top: .5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1f4;
-            color: #000;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .hidden {
-            display: none;
         }
     </style>
 </head>
@@ -91,16 +83,16 @@
         <button onclick="swap(this)">swap</button>
         <span>v3</span>
     </div>
-    <pre class="note" autofocus contenteditable></pre>
-    <button class="mess button hidden"></button>
+    <div class="note" autofocus contenteditable></div>
     <script>
-        const [note, mess, head, sp] = ['.note', '.mess', '.header', 'span'].map(i => document.querySelector(i));
+        const [note, head, sp] = ['.note', '.header', 'span'].map(i => document.querySelector(i));
         let sto;
         window.addEventListener('load', () => (load(), note.focus()));
-        note.addEventListener('scroll', () => head.classList.toggle('scrolled', note.scrollTop > 0));
-        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+        note.addEventListener('scroll', scroll);
+        document.addEventListener('visibilitychange', devisibled);
         window.addEventListener('beforeunload', sav);
         note.addEventListener('input', autosave);
+
         function download(plain = false, textContent = false) {
             const a = document.createElement('a'),
                 [dat, ext, typ] = plain ? textContent ?
@@ -115,40 +107,29 @@
             a.download = nam;
             a.click();
             URL.revokeObjectURL(url);
-            notify(`downloading ${nam}`);
-        }
-        function notify(s) {
-            mess.textContent = s;
-            mess.classList.remove('hidden');
-            setTimeout(() => mess.classList.add('hidden'), 2e3);
+            sp.textContent = nam;
         }
         function sav() {
+            debr();
             localStorage.setItem('html', note.innerHTML);
             sp.textContent = note.innerHTML.length;
         }
-        function load() {
-            try {
-                const h = localStorage.getItem('html');
-                if (!h) throw "can't: " + h;
-                note.innerHTML = h;
-                notify(`loaded ${h.length}`);
-            } catch (e) { notify(e); }
-        }
         function autosave() {
             clearTimeout(sto);
-            sto = setTimeout(() => {
-                sav();
-                notify('Autosaved');
-            }, 1000);
+            sto = setTimeout(() => sav, 1000);
         }
-        function swap(e) {
-            try {
-                let t = localStorage.getItem('mem') || '';
-                localStorage.setItem('mem', note.innerHTML);
-                note.innerHTML = t;
-                e.textContent = mem.length;
-            } catch (e) { notify(e); this.textContent = 'err'; }
+        function swap(el) {
+            let t = localStorage.getItem('mem') || '';
+            debr();
+            localStorage.setItem('mem', note.innerHTML);
+            el.textContent = note.innerHTML.length;
+            note.innerHTML = t;
+            sp.textContent = t.length;
         }
+        function load() { sp.textContent = (note.innerHTML = localStorage.getItem('html')).length; }
+        function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
+        function devisibled() { document.visibilityState === 'hidden' && sav(); }
+        function scroll() { head.classList.toggle('scrolled', note.scrollTop > 0); }
     </script>
 </body>
 
