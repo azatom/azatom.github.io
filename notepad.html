@@ -20,20 +20,13 @@
             top: 0;
             background: #fff;
             padding: 0;
-            z-index: 1;
+            z-index: 8;
             display: flex;
             justify-content: space-around;
         }
 
-        em {
-            color: #8cf;
-        }
-
-        .header>button {
-            flex: 1;
-        }
-
         button {
+            flex: 1;
             margin: .2rem;
             padding: .5rem;
             font-size: 1rem;
@@ -58,19 +51,18 @@
 
         .mess {
             position: absolute;
-            z-index: 999;
+            z-index: 9;
             top: .5rem;
             left: 50%;
             transform: translateX(-50%);
             background: #1f4;
             color: #000;
-            opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
         }
 
-        .visible {
-            opacity: 1;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -79,46 +71,49 @@
     <div class="header">
         <button onclick="download()">.html</button>
         <button onclick="download(1)">.txt</button>
-        <button onclick="download(1, 1)">.t<em>e</em>xt</button>
+        <button onclick="download(1, 1)">.t𝕖xt</button>
         <button onclick="save()">save</button>
         <button onclick="load()">load</button>
-        <button onclick="[note.innerHTML,mem]=[mem,note.innerHTML]">clsw</button>
+        <button onclick="[note.innerHTML,mem]=[mem,note.innerHTML]">swap</button>
     </div>
     <div class="note" autofocus contenteditable></div>
-    <button class="mess button"></button>
+    <button class="mess button hidden"></button>
     <script>
         const [note, mess] = ['.note', '.mess'].map(i => document.querySelector(i));
         let mem = '';
         window.addEventListener('load', () => (note.focus(), load()));
         function download(plain = false, textContent = false) {
-            const
-                dat = plain ? textContent ? note.textContent : note.innerText : note.innerHTML,
-                ext = plain ? textContent ? 'full.txt' : 'txt' : 'html',
-                typ = plain ? 'plain' : 'html',
+            const a = document.createElement('a'),
+                [dat, ext, typ] = plain ? textContent ?
+                    [note.textContent, 'full.txt', 'plain'] :
+                    [note.innerText, 'txt', 'plain'] :
+                    [note.innerHTML, 'html', 'html'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-                nam = `note.${now}.${ext}`,
-                a = document.createElement('a');
+                nam = `note.${now}.${ext}`;
             a.href = url;
             a.download = nam;
             a.click();
             URL.revokeObjectURL(url);
             notify(`downloading ${nam}`);
         }
-        function notify(s, error) {
+        function notify(s) {
             mess.textContent = s;
-            mess.classList.add('visible');
-            setTimeout(() => mess.classList.remove('visible'), 1500);
+            mess.classList.remove('hidden');
+            setTimeout(() => mess.classList.add('hidden'), 2e3);
         }
         function save() {
             try {
-                localStorage.setItem('html', note.innerHTML), notify('saved');
+                localStorage.setItem('html', note.innerHTML), notify(`saved ${note.innerHTML.length}`);
             } catch (e) { notify(e); }
         }
         function load() {
-            const h = localStorage.getItem('html');
-            if (h) note.innerHTML = h; else notify("can't");
+            try {
+                const h = localStorage.getItem('html');
+                if (!h) throw 'can not';
+                note.innerHTML = h;
+            } catch (e) { notify(e); }
         }
     </script>
 </body>
