@@ -11,20 +11,23 @@
             padding: 0;
             background: #fff;
             font-family: sans-serif;
+            background-color: #bbb;
         }
 
         .header {
-            height: 2rem;
+            height: 2.4rem;
             position: sticky;
             top: 0;
             background: #fff;
-            padding: 1rem;
-            border-bottom: .1rem solid #000;
+            padding: 0;
             z-index: 1;
+            display: flex;
+            justify-content: space-around;
         }
 
         button {
-            width: 40%;
+            flex: 1;
+            margin: .2rem;
             padding: .5rem;
             font-size: 1rem;
             background: #08f;
@@ -32,36 +35,39 @@
             border: none;
             cursor: pointer;
             display: inline-block;
-            margin: 0.2rem;
+            border-radius: .3rem;
         }
 
         #note {
             width: 100%;
-            height: calc(100vh - 2rem);
-            padding: 1rem;
+            height: calc(100vh - 2.4rem);
+            margin: 0;
+            padding: 0;
             font-size: 1rem;
             box-sizing: border-box;
-            margin: 0;
+            background-color: #fff;
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <button onclick="download()">.html</button> <button onclick="download(true)">.txt</button>
+        <button onclick="download()">.html</button>
+        <button onclick="download(true)">.txt</button>
+        <button onclick="download(true, true)">.text</button>
     </div>
     <div id="note" autofocus contenteditable="true"></div>
     <script>
         const note = document.getElementById('note');
         note.focus();
-        function download(plain = false) {
+        function download(plain = false, all = false) {
             const blob = plain ?
-                new Blob([note.innerText], { type: 'text/plain;charset=utf8' }) :
-                new Blob([note.innerHTML], { type: 'text/html;charset=utf8' });
-            const url = URL.createObjectURL(blob);
-            const now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
-            const ext = plain ? 'txt' : 'html';
-            const a = document.createElement('a');
+                new Blob([all ? note.textContent : note.innerText], { type: 'text/plain;charset=utf8' }) :
+                new Blob([note.innerHTML], { type: 'text/html;charset=utf8' }),
+                url = URL.createObjectURL(blob),
+                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
+                ext = plain ? all ? 'full.txt' : 'txt' : 'html',
+                a = document.createElement('a');
             a.href = url;
             a.download = `note.${now}.${ext}`;
             a.click();
