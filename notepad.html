@@ -102,8 +102,8 @@
             <option value="text">.t𝕖xt (hiddens)</option>
         </select>
         <button onclick="swap()" class="swap">swap</button>
-        <button onclick="clr()" class="log"></button>
-        <button onclick="incFont()" class="sq">A+</button>
+        <button onclick="confirm('clear it?') && (note.textContent = '', sav())" class="log"></button>
+        <button onclick="note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * 1.1 + 'px'" class="sq">A+</button>
         <button onclick="note.style['fontFamily']='monospace'" class="sq">m</button>
         <button onclick="note.style['whiteSpace']='pre'" class="sq">p</button>
     </div>
@@ -113,9 +113,9 @@
 
         window.addEventListener('load', load);
         window.addEventListener('beforeunload', sav);
-        document.addEventListener('visibilitychange', devisibled);
-        note.addEventListener('scroll', scroll);
-        note.addEventListener('input', autosave);
+        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+        note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
+        note.addEventListener('input', () => (clearTimeout(st.t), st.t = setTimeout(sav, 1000)));
 
         function download(e) {
             const fmt = e.value;
@@ -134,17 +134,12 @@
             e.value = '';
         }
         function sav() {
-            debr();
+            if (note.innerHTML === '<br>') note.innerHTML = '';
             try { localStorage.setItem('html', note.innerHTML); } catch (e) { alert(e); }
             log.textContent = note.innerHTML.length;
         }
-        function autosave() {
-            clearTimeout(st.t);
-            st.t = setTimeout(sav, 1000);
-        }
         function swap() {
             let t = localStorage.getItem('mem') || '';
-            debr();
             localStorage.setItem('mem', note.innerHTML);
             sp.textContent = note.innerHTML.length;
             note.innerHTML = t;
@@ -155,11 +150,6 @@
             localStorage.getItem('mem') && (sp.textContent = localStorage.getItem('mem').length);
             note.focus();
         }
-        function clr() { confirm('clear it?') && (note.textContent = '', sav()); }
-        function debr() { if (note.innerHTML === '<br>') note.innerHTML = ''; }
-        function devisibled() { document.visibilityState === 'hidden' && sav(); }
-        function scroll(e) { header.classList.toggle('scrolled', note.scrollTop > 0); }
-        function incFont() { note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * 1.1 + 'px'; }
     </script>
 </body>
 
