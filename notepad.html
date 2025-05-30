@@ -7,16 +7,16 @@
     <title>Notapad</title>
     <style>
         body {
+            --s: 2.3rem;
             margin: 0;
             padding: 0;
             background: #fff;
             font-family: sans-serif;
             background-color: #bbb;
-            --s: 2.3rem;
-            padding-top: env(safe-area-inset-top);
+            /*padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
+            padding-right: env(safe-area-inset-right);*/
         }
 
         .header {
@@ -34,13 +34,7 @@
             user-select: none;
         }
 
-        .scrolled {
-            box-shadow: #567 .3rem .3rem .3rem;
-        }
-
-        button,
-        select,
-        .sq {
+        button, select, .sq {
             flex: 1 1 5%;
             margin: .2rem;
             padding: 0;
@@ -54,8 +48,7 @@
             max-height: var(--s);
         }
 
-        .sq,
-        .sq>option {
+        .sq, .sq>option {
             flex: 0 0 auto;
             width: var(--s);
             height: var(--s);
@@ -64,21 +57,9 @@
             justify-content: center;
         }
 
-        option {
-            font-size: 2rem;
-        }
-
-        .sq>option {
-            font-size: 1rem;
-        }
-
-        .hl {
-            background: #bcd;
-        }
-
         .note {
             margin: 0;
-            padding: 0;
+            padding: .2rem;
             margin-top: calc(var(--s) + .4rem);
             margin-bottom: env(safe-area-inset-bottom);
             width: 100%;
@@ -93,18 +74,14 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.5";
+            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.6";
             display: block;
             color: #aba;
         }
 
-        .hidden {
-            display: none;
-        }
-
         .dropdown {
             position: absolute;
-            top: calc(var(--s) - 1.7rem);
+            top: var(--s);
             right: 0.5rem;
             display: none;
             grid-template-columns: repeat(2, calc(var(--s) + .4rem));
@@ -130,9 +107,17 @@
             border-radius: 0.3rem;
         }
 
-        .dropdown.show {
-            display: grid;
+        sub {
+            font-size: 0.6rem;
+            margin-top: 0.8rem;
         }
+
+        .scrolled { box-shadow: #567 0 0.1rem 0.3rem 0; }
+        option { font-size: 2rem; }
+        .sq>option { font-size: 1rem; }
+        .hl { background: #d96; }
+        .hidden { display: none; }
+        .dropdown.show { display: grid; }
     </style>
 </head>
 
@@ -157,45 +142,58 @@
     <div class="note" contenteditable></div>
     <script>
         const [note, header, b2, b1, dd] = ['.note', '.header', '.log', '.swap', '.dropdown'].map(i => document.querySelector(i)),
-            dow = e => {
-                const a = document.createElement('a'),
-                    [dat, ext, typ] = e.value === 'html' ?
-                        [note.innerHTML, 'html', 'html'] : e.value === 'text' ?
-                            [note.textContent, 'full.txt', 'plain'] :
-                            [note.innerText, 'txt', 'plain'],
-                    blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
-                    url = URL.createObjectURL(blb),
-                    now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
-                a.href = url;
-                a.download = `note.${now}.${ext}`;
-                a.click();
-                URL.revokeObjectURL(url);
-                e.value = '';
-            },
-            len = s => new Intl.NumberFormat().format(s.length),
-            sav = () => {
-                if (note.innerHTML === '<br>') note.innerHTML = '';
-                try { localStorage.setItem('sht0', note.innerHTML); } catch (e) { alert(e); }
-                b2.textContent = len(note.innerHTML) + ' - ' + len(note.textContent) + ' - ' + len(note.innerText);
-                b2.classList.add('hl'); clearTimeout(b2.t); b2.t = setTimeout(() => b2.classList.remove('hl'), 400);
-            },
-            swp = () => {
-                let t = localStorage.getItem('sht1');
-                localStorage.setItem('sht1', localStorage.getItem('sht0') || '');
-                localStorage.setItem('sht0', t || '');
-                lod();
-            },
-            lod = () => {
-                note.innerHTML = localStorage.getItem('sht0') || '';
-                let l = note.innerText.split(/\r\n|\r|\n/).length,
-                    o = note.innerText.length - note.textContent.length - l;
-                b2.textContent = len(note.innerHTML) + ' ' + len(note.textContent) + '+' + l + (o < 0 ? '' : '+') + o;
-                b1.textContent = '₂' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));
-                note.focus();
-            },
-            togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
-            togD = () => dd.classList.toggle('show'),
-            incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
+        dow = e => {
+            const a = document.createElement('a'),
+                [dat, ext, typ] = e.value === 'html' ?
+                    [note.innerHTML, 'html', 'html'] : e.value === 'text' ?
+                        [note.textContent, 'full.txt', 'plain'] :
+                        [note.innerText, 'txt', 'plain'],
+                blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
+                url = URL.createObjectURL(blb),
+                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
+            a.href = url;
+            a.download = `note.${now}.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+            e.value = '';
+        },
+        len = s => new Intl.NumberFormat().format(s.length),
+        sb2 = () => {
+            let l = note.innerText.split(/\r\n|\r|\n/).length,
+            o = note.innerText.length - note.textContent.length - l;
+            b2.textContent = len(note.innerHTML) + ' ' + len(note.textContent) + '+' + l + (o < 0 ? '' : '+') + o;
+        },
+        sav = () => {
+            if (note.innerHTML === '<br>') note.innerHTML = '';
+            b2.classList.add('hl'); clearTimeout(b2.t);
+            try {
+                localStorage.setItem('sht0', note.innerHTML);
+                b2.t = setTimeout(() => b2.classList.remove('hl'), 400);
+            } catch (e) { alert(e); }
+            sb2();
+        },
+        swp = () => {
+            let t1 = localStorage.getItem('sht1') || '', t0 = note.innerHTML;
+            localStorage.setItem('sht0', '');
+            localStorage.setItem('sht1', '');
+            try {
+                localStorage.setItem('sht1', t0);
+                note.innerHTML = t1;
+            } catch (e) {
+                localStorage.setItem('sht1', t1);
+                alert(e);
+            }
+            sav();
+        },
+        lod = () => {
+            note.innerHTML = localStorage.getItem('sht0') || '';
+            sb2();
+            b1.innerHTML = '<sub>2</sub>' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));
+            note.focus();
+        },
+        togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
+        togD = () => dd.classList.toggle('show'),
+        incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
         window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
