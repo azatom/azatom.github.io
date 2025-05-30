@@ -74,7 +74,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.6";
+            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.7";
             display: block;
             color: #aba;
         }
@@ -158,6 +158,9 @@
             e.value = '';
         },
         len = s => new Intl.NumberFormat().format(s.length),
+        sb1 = () => {
+            b1.innerHTML = '<sub>2</sub>' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));
+        },
         sb2 = () => {
             let l = note.innerText.split(/\r\n|\r|\n/).length,
             o = note.innerText.length - note.textContent.length - l;
@@ -179,6 +182,7 @@
             try {
                 localStorage.setItem('sht1', t0);
                 note.innerHTML = t1;
+                sb1();
             } catch (e) {
                 localStorage.setItem('sht1', t1);
                 alert(e);
@@ -188,7 +192,7 @@
         lod = () => {
             note.innerHTML = localStorage.getItem('sht0') || '';
             sb2();
-            b1.innerHTML = '<sub>2</sub>' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));
+            sb1();
             note.focus();
         },
         togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
