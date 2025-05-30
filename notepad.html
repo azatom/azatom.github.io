@@ -35,9 +35,9 @@
 
         button,
         select {
-            flex: 1 1 15%;
+            flex: 1 1 5%;
             margin: .2rem;
-            padding: .5rem;
+            padding: 0;
             font-size: 1rem;
             background: #08f;
             color: #fff;
@@ -87,9 +87,9 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave\A- download formats: html visible hiddenToo\A- swap: between sheets\A v.3";
+            content: "- type here or paste image\A- autosave\A- download formats: html visible hiddenToo\A- swap: between sheets\A v.4";
             display: block;
-            color: #3d7;
+            color: #aba;
         }
 
         .hidden {
@@ -107,8 +107,8 @@
             <option value="text">.t𝕖xt (hiddens)</option>
         </select>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" class="log"></button>
-        <button onclick="swp()" class="swap">swap</button>
-        <button onclick="note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * 1.1 + 'px'" class="sq">A+</button>
+        <button onclick="swp()" class="swap sq">s</button>
+        <button onclick="note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * 1.41 + 'px'" class="sq">A+</button>
         <button onclick="note.style['fontFamily']='monospace'" class="sq">m</button>
         <button onclick="note.style['whiteSpace']='pre'" class="sq">p</button>
     </div>
@@ -145,8 +145,10 @@
             },
             lod = () => {
                 note.innerHTML = localStorage.getItem('sht0') || '';
-                b2.textContent = len(note.innerHTML) + ' - ' + len(note.textContent) + ' - ' + len(note.innerText);
-                b1.textContent = 'other: ' + len(localStorage.getItem('sht1') || '');
+                let l = note.innerText.split(/\r\n|\r|\n/).length,
+                    o = note.innerText.length - note.textContent.length - l;
+                b2.textContent = len(note.innerHTML) + ' ' + len(note.textContent) + '+' + l + (o < 0 ? '' : '+') + o;
+                b1.textContent = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));
                 note.focus();
             };
         window.addEventListener('load', lod);
