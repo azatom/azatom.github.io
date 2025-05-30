@@ -56,7 +56,7 @@
         }
 
         option {
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
 
         .log {
@@ -64,6 +64,10 @@
             border: .1rem solid #aaa;
             color: #000;
             overflow-x: hidden;
+        }
+
+        .hl {
+            background: #bcd;
         }
 
         .note {
@@ -78,13 +82,14 @@
             background-color: #fff;
             overflow-y: auto;
             will-change: transform;
+            cursor: text;
         }
 
         .note:empty:before {
             white-space: pre;
-            content: "- type here or paste image\A- autosave\A- download formats: html visible hiddenToo\A- swap: between sheets\A v.2";
+            content: "- type here or paste image\A- autosave\A- download formats: html visible hiddenToo\A- swap: between sheets\A v.3";
             display: block;
-            color: #aaa;
+            color: #3d7;
         }
 
         .hidden {
@@ -95,13 +100,13 @@
 
 <body>
     <div class="header">
-        <select onchange="download(this)">
+        <select onchange="dow(this)">
             <option value="" disabled selected class="hidden">Download</option>
             <option value="html">.html</option>
             <option value="txt">.txt (newlines)</option>
             <option value="text">.t𝕖xt (hiddens)</option>
         </select>
-        <button onclick="swap()" class="swap">swap</button>
+        <button onclick="swp()" class="swap">swap</button>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" class="log"></button>
         <button onclick="note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * 1.1 + 'px'" class="sq">A+</button>
         <button onclick="note.style['fontFamily']='monospace'" class="sq">m</button>
@@ -109,15 +114,8 @@
     </div>
     <div class="note" contenteditable></div>
     <script>
-        const st = {}, [note, header, log, sp] = ['.note', '.header', '.header>.log', '.swap'].map(i => document.querySelector(i));
-
-        window.addEventListener('load', load);
-        window.addEventListener('beforeunload', sav);
-        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
-        note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
-        note.addEventListener('input', () => (clearTimeout(st.t), st.t = setTimeout(sav, 1000)));
-
-        function download(e) {
+        const [note, header, b2, b1] = ['.note', '.header', '.log', '.swap'].map(i => document.querySelector(i)),
+        dow = e => {
             const fmt = e.value;
             const a = document.createElement('a'),
                 [dat, ext, typ] = fmt === 'html' ?
@@ -132,24 +130,30 @@
             a.click();
             URL.revokeObjectURL(url);
             e.value = '';
-        }
-        function sav() {
+        },
+        len = s => new Intl.NumberFormat().format(s.length),
+        sav = () => {
             if (note.innerHTML === '<br>') note.innerHTML = '';
-            try { localStorage.setItem('html', note.innerHTML); } catch (e) { alert(e); }
-            log.textContent = note.innerHTML.length;
-        }
-        function swap() {
-            let t = localStorage.getItem('mem') || '';
-            localStorage.setItem('mem', note.innerHTML);
-            sp.textContent = note.innerHTML.length;
-            note.innerHTML = t;
-            log.textContent = t.length;
-        }
-        function load() {
-            localStorage.getItem('html') && (log.textContent = (note.innerHTML = localStorage.getItem('html')).length);
-            localStorage.getItem('mem') && (sp.textContent = localStorage.getItem('mem').length);
+            try { localStorage.setItem('sht0', note.innerHTML); } catch (e) { alert(e); }
+            b2.textContent = len(note.innerHTML);
+            b2.classList.add('hl'); clearTimeout(b2.t); b2.t = setTimeout(() => b2.classList.remove('hl'), 400);
+        },
+        swp = () => {
+            let t = localStorage.getItem('sht1');
+            localStorage.setItem('sht1', localStorage.getItem('sht0') || '');
+            localStorage.setItem('sht0', t || '');
+            lod();
+        },
+        lod = () => {
+            b2.textContent = len(note.innerHTML = (localStorage.getItem('sht0') || ''));
+            b1.textContent = len(localStorage.getItem('sht1') || '');
             note.focus();
-        }
+        };
+        window.addEventListener('load', lod);
+        window.addEventListener('beforeunload', sav);
+        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+        note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
+        note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
     </script>
 </body>
 
