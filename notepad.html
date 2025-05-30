@@ -114,9 +114,11 @@
         }
         .dropdown2 button {
             height: var(--s);
+            flex-basis: auto;
             text-align: left;
             padding: 0 .5rem;
             white-space: nowrap;
+            justify-content: flex-start;
         }
 
         .sq {
@@ -173,6 +175,7 @@
             b2.textContent = a.download = `note.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
+            dd.classList.remove('show');
         },
         len = s => new Intl.NumberFormat().format(s.length),
         sb1 = () => {
@@ -215,16 +218,15 @@
         togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
         togF = () => df.classList.toggle('show'),
         togD = () => dd.classList.toggle('show'),
-        //togD = () => {dd.classList.toggle('show');df.classList.remove('show');},
         incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
 
         window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
-        //document.addEventListener('click', (e) => {
-        //    !df.contains(e.target) && !e.target.closest('#df') && df.classList.remove('show');
-        //    !dd.contains(e.target) && !e.target.closest('#dd') && dd.classList.remove('show');
-        //});
+        // document.addEventListener('click', (e) => {
+        //     !df.contains(e.target) && !e.target.closest('#df') && df.classList.remove('show');
+        //     !dd.contains(e.target) && !e.target.closest('#dd') && dd.classList.remove('show');
+        // });
         note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
     </script>
