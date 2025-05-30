@@ -131,7 +131,7 @@
             margin-top: .8rem;
         }
         
-        b{font-size: 200%;}
+        b{font-size: 150%;}
         .scrolled { box-shadow: #567 0 .1rem .3rem 0; }
         option { font-size: 2rem; }
         .sq>option { font-size: 1rem; }
@@ -144,7 +144,7 @@
 
 <body>
     <div class="header">
-        <div class="sq" onclick="togD()"><b>⇩</b></div>
+        <div class="sq" onclick="() => dd.classList.toggle('show')"><b>⇩</b></div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt (newlines)</button>
@@ -152,7 +152,7 @@
         </div>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" class="log"></button>
         <button onclick="swp()" class="swap sq">s</button>
-        <div class="sq" onclick="togF()">𝓕</div>
+        <div class="sq" onclick="() => df.classList.toggle('show')"><b>𝔉</b></div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="incF(-1)">a-</button>
             <button class="sq" onclick="incF(1)">A+</button>
@@ -217,8 +217,6 @@
             note.focus();
         },
         togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
-        togF = () => df.classList.toggle('show'),
-        togD = () => dd.classList.toggle('show'),
         incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
 
         window.addEventListener('load', lod);
