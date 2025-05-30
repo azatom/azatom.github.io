@@ -72,7 +72,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.8";
+            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.3";
             display: block;
             color: #aba;
         }
@@ -130,11 +130,8 @@
             font-size: .6rem;
             margin-top: .8rem;
         }
-        
-        b{font-size: 150%;}
+
         .scrolled { box-shadow: #567 0 .1rem .3rem 0; }
-        option { font-size: 2rem; }
-        .sq>option { font-size: 1rem; }
         .hl { background: #d96; }
         .hidden { display: none; }
         .dropdown.show { display: grid; }
@@ -144,19 +141,19 @@
 
 <body>
     <div class="header">
-        <div class="sq" onclick="dd.classList.toggle('show')"><b>⇩</b></div>
+        <div class="sq" onclick="drpT(event, dd, df)">â‡©</div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt (newlines)</button>
-            <button onclick="dow('text')">.t𝕖xt (hiddens)</button>
+            <button onclick="dow('text')">.tð•–xt (hiddens)</button>
         </div>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" class="log"></button>
         <button onclick="swp()" class="swap sq">s</button>
-        <div class="sq" onclick="df.classList.toggle('show')"><b>𝔉</b></div>
+        <div class="sq" onclick="drpT(event, df, dd)">ð”‰</div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="incF(-1)">a-</button>
             <button class="sq" onclick="incF(1)">A+</button>
-            <button class="sq" onclick="togS('fontFamily', 'monospace')">𝚖</button>
+            <button class="sq" onclick="togS('fontFamily', 'monospace')">ðš–</button>
             <button class="sq" onclick="togS('whiteSpace', 'pre')">w</button>
         </div>
     </div>
@@ -167,8 +164,8 @@
             const a = document.createElement('a'),
                 [dat, ext, typ] = e === 'html' ?
                     [note.innerHTML, 'html', 'html'] : e === 'text' ?
-                        [note.textContent, 'full.txt', 'plain'] :
-                        [note.innerText, 'txt', 'plain'],
+                    [note.textContent, 'full.txt', 'plain'] :
+                    [note.innerText, 'txt', 'plain'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
@@ -189,7 +186,8 @@
         },
         sav = () => {
             if (note.innerHTML === '<br>') note.innerHTML = '';
-            b2.classList.add('hl'); clearTimeout(b2.t);
+            b2.classList.add('hl');
+            clearTimeout(b2.t);
             try {
                 localStorage.setItem('sht0', note.innerHTML);
                 b2.t = setTimeout(() => b2.classList.remove('hl'), 400);
@@ -216,16 +214,18 @@
             sb1();
             note.focus();
         },
+        drpT = (e, d, o) => {
+            e.stopPropagation();
+            d.classList.toggle('show');
+            o.classList.remove('show');
+        },
         togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
         incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
 
         window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
-        // document.addEventListener('click', (e) => {
-        //     !df.contains(e.target) && !e.target.closest('#df') && df.classList.remove('show');
-        //     !dd.contains(e.target) && !e.target.closest('#dd') && dd.classList.remove('show');
-        // });
+        document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
         note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
     </script>
