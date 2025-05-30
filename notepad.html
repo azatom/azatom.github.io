@@ -30,7 +30,7 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-around;
-            transition: box-shadow 0.2s;
+            transition: box-shadow .2s;
             user-select: none;
         }
 
@@ -48,10 +48,8 @@
             max-height: var(--s);
         }
 
-        .sq, .sq>option {
+        .sq {
             flex: 0 0 auto;
-            width: var(--s);
-            height: var(--s);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -74,7 +72,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.7";
+            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.8";
             display: block;
             color: #aba;
         }
@@ -82,20 +80,18 @@
         .dropdown {
             position: absolute;
             top: var(--s);
-            right: 0.5rem;
+            right: .5rem;
             display: none;
             grid-template-columns: repeat(2, calc(var(--s) + .4rem));
-            gap: 0.2rem;
+            gap: .2rem;
             background: #fff;
             border: 1px solid #ccc;
-            border-radius: 0.3rem;
+            border-radius: .3rem;
             z-index: 10;
-            padding: 0.2rem;
+            padding: .2rem;
         }
 
         .dropdown button {
-            width: var(--s);
-            height: var(--s);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,58 +100,79 @@
             color: #fff;
             border: none;
             cursor: pointer;
-            border-radius: 0.3rem;
+            border-radius: .3rem;
+        }
+
+        .dropdown2 {
+            left: .5rem;
+            right: initial;
+            grid-template-columns: none;
+            display: none;
+            flex-direction: column;
+            align-items: stretch;
+            min-width: max-content;
+        }
+        .dropdown2 button {
+            height: var(--s);
+            text-align: left;
+            padding: 0 .5rem;
+            white-space: nowrap;
+        }
+
+        .sq {
+            width: var(--s);
+            height: var(--s);
         }
 
         sub {
-            font-size: 0.6rem;
-            margin-top: 0.8rem;
+            font-size: .6rem;
+            margin-top: .8rem;
         }
 
-        .scrolled { box-shadow: #567 0 0.1rem 0.3rem 0; }
+        .scrolled { box-shadow: #567 0 .1rem .3rem 0; }
         option { font-size: 2rem; }
         .sq>option { font-size: 1rem; }
         .hl { background: #d96; }
         .hidden { display: none; }
         .dropdown.show { display: grid; }
+        .dropdown2.show { display: flex; }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <select onchange="dow(this)">
-            <option value="" disabled selected class="hidden">Download</option>
-            <option value="html">.html</option>
-            <option value="txt">.txt (newlines)</option>
-            <option value="text">.t𝕖xt (hiddens)</option>
-        </select>
+        <div class="sq" onclick="togD()">🡇</div>
+        <div class="dropdown dropdown2" id="dd">
+            <button onclick="dow('html')">.html</button>
+            <button onclick="dow('txt')">.txt (newlines)</button>
+            <button onclick="dow('text')">.t𝕖xt (hiddens)</button>
+        </div>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" class="log"></button>
         <button onclick="swp()" class="swap sq">s</button>
-        <div class="sq" onclick="togD()">𝓕</div>
-        <div class="dropdown">
-            <button onclick="incF(-1)">a-</button>
-            <button onclick="incF(1)">A+</button>
-            <button onclick="togS('fontFamily', 'monospace')">𝚖</button>
-            <button onclick="togS('whiteSpace', 'pre')">𝚙</button>
+        <div class="sq" onclick="togF()">𝓕</div>
+        <div class="dropdown" id="df">
+            <button class="sq" onclick="incF(-1)">a-</button>
+            <button class="sq" onclick="incF(1)">A+</button>
+            <button class="sq" onclick="togS('fontFamily', 'monospace')">𝚖</button>
+            <button class="sq" onclick="togS('whiteSpace', 'pre')">w</button>
         </div>
     </div>
     <div class="note" contenteditable></div>
     <script>
-        const [note, header, b2, b1, dd] = ['.note', '.header', '.log', '.swap', '.dropdown'].map(i => document.querySelector(i)),
+        const [note, header, b2, b1, df, dd] = ['.note', '.header', '.log', '.swap', '#df', '#dd'].map(i => document.querySelector(i)),
         dow = e => {
             const a = document.createElement('a'),
-                [dat, ext, typ] = e.value === 'html' ?
-                    [note.innerHTML, 'html', 'html'] : e.value === 'text' ?
+                [dat, ext, typ] = e === 'html' ?
+                    [note.innerHTML, 'html', 'html'] : e === 'text' ?
                         [note.textContent, 'full.txt', 'plain'] :
                         [note.innerText, 'txt', 'plain'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
             a.href = url;
-            a.download = `note.${now}.${ext}`;
+            b2.textContent = a.download = `note.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
-            e.value = '';
         },
         len = s => new Intl.NumberFormat().format(s.length),
         sb1 = () => {
@@ -164,7 +181,7 @@
         sb2 = () => {
             let l = note.innerText.split(/\r\n|\r|\n/).length,
             o = note.innerText.length - note.textContent.length - l;
-            b2.textContent = len(note.innerHTML) + ' ' + len(note.textContent) + '+' + l + (o < 0 ? '' : '+') + o;
+            b2.textContent = len(note.innerHTML) + ' ' + len(note.textContent) + ' +' + l + (o < 0 ? ' ' : ' +') + o;
         },
         sav = () => {
             if (note.innerHTML === '<br>') note.innerHTML = '';
@@ -196,16 +213,18 @@
             note.focus();
         },
         togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
+        togF = () => df.classList.toggle('show'),
         togD = () => dd.classList.toggle('show'),
+        //togD = () => {dd.classList.toggle('show');df.classList.remove('show');},
         incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
+
         window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
-        document.addEventListener('click', (e) =>
-            !dd.contains(e.target) &&
-            !e.target.classList.contains('sq') &&
-            dd.classList.remove('show')
-        );
+        //document.addEventListener('click', (e) => {
+        //    !df.contains(e.target) && !e.target.closest('#df') && df.classList.remove('show');
+        //    !dd.contains(e.target) && !e.target.closest('#dd') && dd.classList.remove('show');
+        //});
         note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
     </script>
