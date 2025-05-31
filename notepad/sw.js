@@ -1,4 +1,4 @@
-const cacheName = 'n-cache-v0';
+const cacheName = 'n-cache-v.1';
 const urlsToCache = [
   './notepad.html',
   './offline.html',

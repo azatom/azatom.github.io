@@ -1,34 +1,18 @@
 {
-  "theme_color": "#ffffff",
-  "lang": "en",
   "name": "not-e-pad",
-  "orientation": "portrait",
-  "prefer_related_applications": false,
-  "scope": ".",
   "short_name": "notepad",
   "start_url": "./notepad.html",
-  "description": "not-epad",
-  "dir": "ltr",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay"
-  ],
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
-  "categories": [
-    "util"
-  ],
-  "features": [
-    "Cross-Platform",
-    "User-Friendly",
-    "Notepad"
-  ],
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "sizes": "192x192",
       "src": "192x192.png",
       "type": "image/png"
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "scope": ".",
+  "description": "not-epad"
 }
