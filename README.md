@@ -1,6 +1,6 @@
 move along
 
-[notepad](notepad.html)
+[notepad](notepad)
 
 [pattern](pattern.html)
 
