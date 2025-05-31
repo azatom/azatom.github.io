@@ -176,8 +176,8 @@
         },
         tsl = s => new Intl.NumberFormat().format(s.length),
         sb1 = () => b1.innerHTML = '<sub>2</sub>' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
-        sb2 = (l = note.innerText.split(/\r\n|\r|\n/).length, o = note.innerText.length - note.textContent.length - l) => 
-            b2.textContent = tsl(note.innerHTML) + ' ' + tsl(note.textContent) + ' +' + l + (o < 0 ? ' ' : ' +') + o,
+        sb2 = (n = note.innerText.split(/\r\n|\r|\n/).length - 1, o = note.innerText.length - note.textContent.length - n) => 
+            b2.textContent = tsl(note.innerHTML) + ' ' + tsl(note.textContent) + ' +' + n + (o < 0 ? ' ' : ' +') + o,
         sav = () => {
             if (note.innerHTML === '<br>') note.innerHTML = '';
             b2.classList.add('hl');
