@@ -10,9 +10,8 @@
             --s: 2.3rem;
             margin: 0;
             padding: 0;
-            background: #fff;
             font-family: sans-serif;
-            background-color: #bbb;
+            background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
             padding-top: env(safe-area-inset-top);
             padding-right: env(safe-area-inset-right);
             padding-bottom: env(safe-area-inset-bottom);
@@ -64,15 +63,15 @@
             height: calc(100vh - var(--s) - .4rem);
             font-size: 1rem;
             box-sizing: border-box;
-            background-color: #fff;
             overflow-y: auto;
             will-change: transform;
             cursor: text;
+            background: #fffffff7;
         }
 
         .note:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.3";
+            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.3b";
             display: block;
             color: #aba;
         }
