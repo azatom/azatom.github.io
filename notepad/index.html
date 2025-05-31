@@ -84,7 +84,6 @@
 
         .np:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave: localstorage\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A- the button with byte/linesizes clears current sheet\A- the shwwtswapping button shows the log2(bytesize)\A\A v.3";
             display: block;
             color: #aba;
         }
@@ -173,7 +172,8 @@
     </div>
     <div class="np" contenteditable></div>
     <script>
-        const [np, stick, b2, b1, df, dd] = ['.np', '.stick', '#log', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
+        const ver = 'v.043',
+        [np, stick, b2, b1, df, dd] = ['.np', '.stick', '#log', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
         dow = e => {
             const a = document.createElement('a'),
                 [dat, ext, typ] = e === 'html' ?
@@ -221,6 +221,7 @@
             np.innerHTML = localStorage.getItem('sht0') || '';
             sb2();
             sb1();
+            document.querySelector('.np:empty:before').setAttribute('content', `"- type or paste image \A- autosave: localstorage\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A- the button with byte/linesizes clears current sheet\A- the shwwtswapping button shows the log2(bytesize)\A\A ${ver}"`);
             np.focus();
         },
         cdo = (e, d, o) => {
@@ -242,10 +243,10 @@
             np.focus();
         };
 
-        window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
         document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
+        document.addEventListener('DOMContentLoaded', lod);
         np.addEventListener('scroll', () => stick.classList.toggle('scrolled', np.scrollTop > 0));
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
     </script>
