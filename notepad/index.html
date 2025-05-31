@@ -63,6 +63,15 @@
             justify-content: center;
         }
 
+        .sq:active, button:active, .pressed {
+            background: #06d;
+            box-shadow: 0 .3rem .3rem #0008 inset; 
+        }
+
+        .sq:active, .pressed.sq {
+            transform: scale(.9);
+        }
+
         .note {
             margin: 0;
             padding: .2rem;
@@ -76,6 +85,7 @@
             will-change: transform;
             cursor: text;
             background: #fffffff7;
+            white-space: pre;
         }
 
         .note:empty:before {
@@ -149,7 +159,7 @@
 
 <body>
     <div class="header">
-        <div class="sq" onclick="drpT(event, dd, df)">⇩</div>
+        <div class="sq" onclick="cdo(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt (newlines)</button>
@@ -157,13 +167,13 @@
         </div>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" id="log">:)</button>
         <button onclick="swp()" class="sq" id="swap">sw</button>
-        <button onclick="predate()" class="sq" id="ud">📆</button>
-        <div class="sq" onclick="drpT(event, df, dd)">𝔉</div>
+        <button onclick="prd()" class="sq" id="ud">📆</button>
+        <div class="sq" onclick="cdo(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
-            <button class="sq" onclick="incF(-1)">a-</button>
-            <button class="sq" onclick="incF(1)">A+</button>
-            <button class="sq" onclick="togS('fontFamily', 'monospace')">𝚖</button>
-            <button class="sq" onclick="togS('whiteSpace', 'pre')">w</button>
+            <button class="sq" onclick="ifs(-1)">a-</button>
+            <button class="sq" onclick="ifs(1)">A+</button>
+            <button class="sq" onclick="tgs('fontFamily', 'monospace')">𝚖</button>
+            <button class="sq" onclick="tgs('whiteSpace', 'pre', 'normal')">wr pre</button>
             <button class="sq" onclick="foo()">?</button>
         </div>
     </div>
@@ -219,14 +229,24 @@
             sb1();
             note.focus();
         },
-        drpT = (e, d, o) => {
+        cdo = (e, d, o) => {
             e.stopPropagation();
             d.classList.toggle('show');
             o.classList.remove('show');
         },
-        togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
+        tgs = (k, ...v) => note.style[k] = note.style[k] === v[0] ? v[1] || '' : v[0],
         foo = () => (null);
-        incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
+        ifs = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
+        prd = () => {
+            let a = '', r = document.createRange(), s = window.getSelection();
+            a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
+            note.innerHTML = a + '<br>' + note.innerHTML;
+            r.setStart(note.firstChild, a.length);
+            r.collapse(true);
+            s.removeAllRanges();
+            s.addRange(r);
+            note.focus();
+        };
 
         window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
@@ -234,11 +254,6 @@
         document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
         note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
-        function predate() {
-            let s = '';
-            s += new Date().toISOString().replace('T',' ').replace(/\..*/,'');
-            note.innerHTML = s + ' <br>' + note.innerHTML;
-        }
     </script>
 </body>
 
