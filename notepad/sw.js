@@ -1,4 +1,4 @@
-const cacheName = 'n-cache-v.043';
+const cacheName = 'n-cache-v.044';
 const urlsToCache = [
   './',
   './index.html',

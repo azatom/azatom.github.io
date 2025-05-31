@@ -9,12 +9,14 @@
     <script>navigator?.serviceWorker.register('./sw.js');</script>
     <link rel="manifest" href="./manifest.json">
     <style>
+        html {
+            background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
+        }
         body {
             --s: 2.3rem;
             margin: 0;
             padding: 0;
             font-family: sans-serif;
-            /* background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem; */
             padding-top: env(safe-area-inset-top);
             padding-right: env(safe-area-inset-right);
             padding-bottom: env(safe-area-inset-bottom);
@@ -67,6 +69,7 @@
         }
 
         .np {
+            --ph: 'hi';
             margin: 0;
             padding: .2rem;
             margin-top: calc(var(--s) + .4rem);
@@ -84,6 +87,7 @@
 
         .np:empty:before {
             white-space: pre;
+            content: var(--ph) ' ho';
             display: block;
             color: #aba;
         }
@@ -172,7 +176,7 @@
     </div>
     <div class="np" contenteditable></div>
     <script>
-        const ver = 'v.043',
+        const ver = 'v.044',
         [np, stick, b2, b1, df, dd] = ['.np', '.stick', '#log', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
         dow = e => {
             const a = document.createElement('a'),
@@ -221,7 +225,7 @@
             np.innerHTML = localStorage.getItem('sht0') || '';
             sb2();
             sb1();
-            document.querySelector('.np:empty:before').setAttribute('content', `"- type or paste image \A- autosave: localstorage\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A- the button with byte/linesizes clears current sheet\A- the shwwtswapping button shows the log2(bytesize)\A\A ${ver}"`);
+            np.style.setProperty('--ph', `"- type or paste image \\A- autosave: localstorage\\A- download formats: html, visible, hiddenToo\\A- swap: between sheets\\A- the button with byte/linesizes clears current sheet\\A- the shwwtswapping button shows the log2(bytesize)\\A\\A ${ver}"`);
             np.focus();
         },
         cdo = (e, d, o) => {
