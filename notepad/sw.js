@@ -1,4 +1,4 @@
-const ver = 'v.js03';
+const ver = 'v.js04';
 const cacheName = `n-cache-${ver}`;
 const urlsToCache = [
   './',
