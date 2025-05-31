@@ -226,11 +226,11 @@
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
         function foo() {
             let s = '';
-            s += note.style.body.padding + '<br>';
-            s += note.style.body.paddingTop + '<br>';
-            s += note.style.body.paddingRight + '<br>';
-            s += note.style.body.paddingBottom + '<br>';
-            s += note.style.body.paddingLeft + '<br>';
+            s += document.body.padding + '<br>';
+            s += document.body.paddingTop + '<br>';
+            s += document.body.paddingRight + '<br>';
+            s += document.body.paddingBottom + '<br>';
+            s += document.body.paddingLeft + '<br>';
             note.innerHTML = s + '<br>' + note.innerHTML;
         }
     </script>
