@@ -1,7 +1,7 @@
 {
   "name": "not-e-pad",
   "short_name": "notepad",
-  "start_url": "./notepad.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",

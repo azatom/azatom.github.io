@@ -1,6 +1,7 @@
 const cacheName = 'n-cache-v.1';
 const urlsToCache = [
-  './notepad.html',
+  './',
+  './index.html',
   './offline.html',
   './sw.js',
   './manifest.json',
