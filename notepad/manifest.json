@@ -1,15 +1,12 @@
 {
-  "background_color": "#111111",
-  "theme_color": "#111111",
-  "navigation_color": "#ff0000",
   "lang": "en",
-  "name": "c3nameManifest",
+  "name": "not-e-pad",
   "orientation": "portrait",
   "prefer_related_applications": false,
   "scope": ".",
-  "short_name": "c3ShortManifest",
-  "start_url": "./index.html",
-  "description": "c3DescManifest",
+  "short_name": "notepad",
+  "start_url": "./notepad.html",
+  "description": "not-epad",
   "dir": "ltr",
   "display": "standalone",
   "display_override": [
@@ -19,13 +16,12 @@
     "client_mode": "focus-existing"
   },
   "categories": [
-    "games",
-    "puzzle"
+    "util"
   ],
   "features": [
     "Cross-Platform",
     "User-Friendly",
-    "Strategic Gameplay"
+    "Notepad"
   ],
   "icons": [
     {
