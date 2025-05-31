@@ -147,8 +147,9 @@
             <button onclick="dow('txt')">.txt (newlines)</button>
             <button onclick="dow('text')">.t𝕖xt (hiddens)</button>
         </div>
-        <button onclick="confirm('clear it?') && (note.textContent = '', sav())" id="log"></button>
-        <button onclick="swp()" class="sq" id="swap">s</button>
+        <button onclick="confirm('clear it?') && (note.textContent = '', sav())" id="log">:)</button>
+        <button onclick="swp()" class="sq" id="swap">sw</button>
+        <button onclick="und()" class="sq" id="ud">k</button>
         <div class="sq" onclick="drpT(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="incF(-1)">a-</button>
@@ -216,6 +217,7 @@
             o.classList.remove('show');
         },
         togS = (k, v, s = note.style) => s[k] = s[k] === v ? '' : v,
+        und = () => (null);
         incF = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';
 
         window.addEventListener('load', lod);
@@ -226,11 +228,11 @@
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
         function foo() {
             let s = '';
-            s += document.body.padding + '<br>';
-            s += document.body.paddingTop + '<br>';
-            s += document.body.paddingRight + '<br>';
-            s += document.body.paddingBottom + '<br>';
-            s += document.body.paddingLeft + '<br>';
+            s += window.getComputedStyle(document.body).getPropertyValue('padding') + '<br>';
+            s += window.getComputedStyle(document.body).getPropertyValue('padding-top') + '<br>';
+            s += window.getComputedStyle(document.body).getPropertyValue('padding-right') + '<br>';
+            s += window.getComputedStyle(document.body).getPropertyValue('padding-bottom') + '<br>';
+            s += window.getComputedStyle(document.body).getPropertyValue('padding-left') + '<br>';
             note.innerHTML = s + '<br>' + note.innerHTML;
         }
     </script>
