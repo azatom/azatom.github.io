@@ -6,13 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
     <title>Notepad↓</title>
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-          .then(() => console.log('Service Worker registered'))
-          .catch(err => console.error('Service Worker registration failed:', err));
-      }
-    </script>
+    <script>navigator?.serviceWorker.register('./sw.js');</script>
     <link rel="manifest" href="./manifest.json">
     <style>
         body {
@@ -20,14 +14,14 @@
             margin: 0;
             padding: 0;
             font-family: sans-serif;
-            background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
+            /* background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem; */
             padding-top: env(safe-area-inset-top);
             padding-right: env(safe-area-inset-right);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: env(safe-area-inset-left);
         }
 
-        .header {
+        .stick {
             height: calc(var(--s) + .4rem);
             position: fixed;
             top: 0;
@@ -72,7 +66,7 @@
             transform: scale(.9);
         }
 
-        .note {
+        .np {
             margin: 0;
             padding: .2rem;
             margin-top: calc(var(--s) + .4rem);
@@ -88,7 +82,7 @@
             white-space: pre;
         }
 
-        .note:empty:before {
+        .np:empty:before {
             white-space: pre;
             content: "- type or paste image \A- autosave: localstorage\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A- the button with byte/linesizes clears current sheet\A- the shwwtswapping button shows the log2(bytesize)\A\A v.3";
             display: block;
@@ -149,7 +143,7 @@
             margin-top: .8rem;
         }
 
-        .scrolled { box-shadow: #567 0 .1rem .3rem 0; }
+        .scrolled { box-shadow: #567 0 .2rem .3rem 0; }
         .hl { background: #d96; }
         .hidden { display: none; }
         .dropdown.show { display: grid; }
@@ -158,15 +152,15 @@
 </head>
 
 <body>
-    <div class="header">
+    <div class="stick">
         <div class="sq" onclick="cdo(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt (newlines)</button>
             <button onclick="dow('text')">.t𝕖xt (hiddens)</button>
         </div>
-        <button onclick="confirm('clear it?') && (note.textContent = '', sav())" id="log">:)</button>
-        <button onclick="swp()" class="sq" id="swap">sw</button>
+        <button onclick="confirm('clear it?') && sav(np.textContent = '')" id="log">:)</button>
+        <button onclick="swp()" class="sq" id="sw">sw</button>
         <button onclick="prd()" class="sq" id="ud">📆</button>
         <div class="sq" onclick="cdo(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
@@ -177,45 +171,45 @@
             <button class="sq" onclick="foo()">?</button>
         </div>
     </div>
-    <div class="note" contenteditable></div>
+    <div class="np" contenteditable></div>
     <script>
-        const [note, header, b2, b1, df, dd] = ['.note', '.header', '#log', '#swap', '#df', '#dd'].map(i => document.querySelector(i)),
+        const [np, stick, b2, b1, df, dd] = ['.np', '.stick', '#log', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
         dow = e => {
             const a = document.createElement('a'),
                 [dat, ext, typ] = e === 'html' ?
-                    [note.innerHTML, 'html', 'html'] : e === 'text' ?
-                    [note.textContent, 'full.txt', 'plain'] :
-                    [note.innerText, 'txt', 'plain'],
+                    [np.innerHTML, 'html', 'html'] : e === 'text' ?
+                    [np.textContent, 'full.txt', 'plain'] :
+                    [np.innerText, 'txt', 'plain'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
             a.href = url;
-            b2.textContent = a.download = `note.${now}.${ext}`;
+            b2.textContent = a.download = `np.${now}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
             dd.classList.remove('show');
         },
         tsl = s => new Intl.NumberFormat().format(s.length),
         sb1 = () => b1.innerHTML = '<sub>2</sub>' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
-        sb2 = (n = note.innerText.split(/\r\n|\r|\n/).length - 1, o = note.innerText.length - note.textContent.length - n) => 
-            b2.textContent = tsl(note.innerHTML) + ' -' + tsl(note.textContent) + ' +' + n + (o < 0 ? ' ' : ' +') + o,
+        sb2 = (n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) => 
+            b2.textContent = tsl(np.innerHTML) + ' -' + tsl(np.textContent) + ' +' + n + (o < 0 ? ' ' : ' +') + o,
         sav = () => {
-            if (note.innerHTML === '<br>') note.innerHTML = '';
+            if (np.innerHTML === '<br>') np.innerHTML = '';
             b2.classList.add('hl');
             clearTimeout(b2.t);
             try {
-                localStorage.setItem('sht0', note.innerHTML);
+                localStorage.setItem('sht0', np.innerHTML);
                 b2.t = setTimeout(() => b2.classList.remove('hl'), 400);
             } catch (e) { alert(e); }
             sb2();
         },
         swp = () => {
-            let t1 = localStorage.getItem('sht1') || '', t0 = note.innerHTML;
+            let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
             localStorage.setItem('sht0', '');
             localStorage.setItem('sht1', '');
             try {
                 localStorage.setItem('sht1', t0);
-                note.innerHTML = t1;
+                np.innerHTML = t1;
                 sb1();
             } catch (e) {
                 localStorage.setItem('sht1', t1);
@@ -224,36 +218,36 @@
             sav();
         },
         lod = () => {
-            note.innerHTML = localStorage.getItem('sht0') || '';
+            np.innerHTML = localStorage.getItem('sht0') || '';
             sb2();
             sb1();
-            note.focus();
+            np.focus();
         },
         cdo = (e, d, o) => {
             e.stopPropagation();
             d.classList.toggle('show');
             o.classList.remove('show');
         },
-        tgs = (k, ...v) => note.style[k] = note.style[k] === v[0] ? v[1] || '' : v[0],
+        tgs = (k, ...v) => np.style[k] = np.style[k] === v[0] ? v[1] || '' : v[0],
         foo = () => (null);
-        ifs = f => note.style.fontSize = parseFloat(window.getComputedStyle(note).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
+        ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
         prd = () => {
             let a = '', r = document.createRange(), s = window.getSelection();
             a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
-            note.innerHTML = a + '<br>' + note.innerHTML;
-            r.setStart(note.firstChild, a.length);
+            np.innerHTML = a + '<br>' + np.innerHTML;
+            r.setStart(np.firstChild, a.length);
             r.collapse(true);
             s.removeAllRanges();
             s.addRange(r);
-            note.focus();
+            np.focus();
         };
 
         window.addEventListener('load', lod);
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
         document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
-        note.addEventListener('scroll', () => header.classList.toggle('scrolled', note.scrollTop > 0));
-        note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
+        np.addEventListener('scroll', () => stick.classList.toggle('scrolled', np.scrollTop > 0));
+        np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
     </script>
 </body>
 
