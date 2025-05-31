@@ -80,7 +80,7 @@
 
         .note:empty:before {
             white-space: pre;
-            content: "- type or paste image \A- autosave\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A v.3";
+            content: "- type or paste image \A- autosave: localstorage\A- download formats: html, visible, hiddenToo\A- swap: between sheets\A- the button with byte/linesizes clears current sheet\A- the shwwtswapping button shows the log2(bytesize)\A\A v.3";
             display: block;
             color: #aba;
         }
@@ -157,7 +157,7 @@
         </div>
         <button onclick="confirm('clear it?') && (note.textContent = '', sav())" id="log">:)</button>
         <button onclick="swp()" class="sq" id="swap">sw</button>
-        <button onclick="und()" class="sq" id="ud">k</button>
+        <button onclick="und()" class="sq" id="ud">📆</button>
         <div class="sq" onclick="drpT(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="incF(-1)">a-</button>
@@ -188,7 +188,7 @@
         tsl = s => new Intl.NumberFormat().format(s.length),
         sb1 = () => b1.innerHTML = '<sub>2</sub>' + (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
         sb2 = (n = note.innerText.split(/\r\n|\r|\n/).length - 1, o = note.innerText.length - note.textContent.length - n) => 
-            b2.textContent = tsl(note.innerHTML) + ' ' + tsl(note.textContent) + ' +' + n + (o < 0 ? ' ' : ' +') + o,
+            b2.textContent = tsl(note.innerHTML) + ' -' + tsl(note.textContent) + ' +' + n + (o < 0 ? ' ' : ' +') + o,
         sav = () => {
             if (note.innerHTML === '<br>') note.innerHTML = '';
             b2.classList.add('hl');
@@ -236,12 +236,8 @@
         note.addEventListener('input', () => (clearTimeout(note.t), note.t = setTimeout(sav, 1000)));
         function foo() {
             let s = '';
-            s += window.getComputedStyle(document.body).getPropertyValue('padding') + '<br>';
-            s += window.getComputedStyle(document.body).getPropertyValue('padding-top') + '<br>';
-            s += window.getComputedStyle(document.body).getPropertyValue('padding-right') + '<br>';
-            s += window.getComputedStyle(document.body).getPropertyValue('padding-bottom') + '<br>';
-            s += window.getComputedStyle(document.body).getPropertyValue('padding-left') + '<br>';
-            note.innerHTML = s + '<br>' + note.innerHTML;
+            s += new Date().toISOString().replace('T',' ').replace(/\..*/,'');
+            note.innerHTML = s + ' <br>' + note.innerHTML;
         }
     </script>
 </body>
