@@ -1,5 +1,7 @@
-const ver = 'v.js0603c';
-const cacheName = `np-cache-${ver}`;
+const ver = 'c';
+//application/x-www-form-urlencoded
+//multipart/form-data
+const cacheName = `npCache-${ver}`;
 
 const urlsToCache = [
   './',
@@ -15,21 +17,33 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-self.addEventListener('message', (event) => {
-  event.data.action === 'skipWaiting' && self.skipWaiting();
-  event.data.type === 'getSharedData' && event.source.postMessage({ sharedData: 'example data' });
-});
-
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  if (event.request.method === 'POST') {
-    setTimeout(()=>{
-    const chan = new BroadcastChannel("foo");
-    chan.postMessage(event.request);
-    chan.close();
-    event.respondWith(handleShare(event.request));
-    },4000);
+  if (event.request.method === 'POST' && url.pathname.endsWith('/index.html')) {
+    event.respondWith(
+      (async () => {
+        try {
+          const formData = await event.request.formData();
+          const sharedData = {
+            text: formData.get('text') || '',
+            title: formData.get('title') || '',
+            url: formData.get('url') || '',
+          };
+
+          // Send the shared data to the client
+          const clients = await self.clients.matchAll({ includeUncontrolled: true });
+          clients.forEach(client => client.postMessage({ type: 'sharedData', data: sharedData }));
+
+          // Redirect to the app's main page
+          return Response.redirect('./index.html', 303);
+        } catch (error) {
+          console.error('Error handling POST request:', error);
+          return new Response('Error processing shared data.', { status: 500 });
+        }
+      })()
+    );
+    return;
   }
 
   if (url.origin === self.location.origin) {
@@ -66,11 +80,3 @@ self.addEventListener('activate', (event) => {
   );
   self.clients.claim();
 });
-
-async function handleShare(request) {
-  const formData = await request.formData();
-  const text = formData.get('text') || '';
-  const title = formData.get('title') || '';
-  const url = formData.get('url') || '';
-  return Response.redirect(`./index.html?shared=true&title=${encodeURIComponent(title)}&text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, 303);
-}

@@ -5,16 +5,14 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>Notepad↓</title>
+    <title>npTitle</title>
     <script>
-        const ver = 'v.html0603c';
+        const ver = 'C';
         navigator?.serviceWorker.register('./sw.js');
     </script>
     <link rel="manifest" href="./manifest.json">
     <style>
-        html {
-            background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
-        }
+        html { background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem; }
         body {
             --s: 2.3rem;
             margin: 0;
@@ -182,14 +180,13 @@
         <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎</button>
         <button onclick="document.execCommand('undo')" class="sq">←</button>
         <button onclick="document.execCommand('redo')" class="sq">→</button>
-        <button onclick="this.textContent=':)'" id="lg">🗑︎🗑🗑️</button>
+        <button onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent]" id="lg">:)</button>
         <div class="sq" onclick="cdo(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="ifs(-1)">a-</button>
             <button class="sq" onclick="ifs(1)">A+</button>
             <button class="sq" onclick="tgs('fontFamily', 'monospace')">𝚖</button>
             <button class="sq" onclick="tgs('whiteSpace', 'pre', 'normal')">wr pre</button>
-            <button class="sq" onclick="foo()">?</button>
         </div>
     </div>
     <div class="np" contenteditable></div>
@@ -205,7 +202,7 @@
                 url = URL.createObjectURL(blb),
                 now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
             a.href = url;
-            lg.textContent = a.download = `np.${now}.${ext}`;
+            msg(a.download = `np.${now}.${ext}`);
             a.click();
             URL.revokeObjectURL(url);
             dd.classList.remove('show');
@@ -224,7 +221,7 @@
             try {
                 localStorage.setItem('sht0', np.innerHTML);
                 lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
-            } catch (e) { msg(lg.textContent=e); }
+            } catch (e) { msg(e); }
             sb2();
         },
         swp = () => {
@@ -237,12 +234,12 @@
                 sb1();
             } catch (e) {
                 localStorage.setItem('sht1', t1);
-                msg(lg.textContent=e);
+                msg(e);
             }
             sav();
         },
         lod = () => {
-            // hsd();
+            hsd();
             np.innerHTML = localStorage.getItem('sht0') || '';
             sb2();
             sb1();
@@ -254,7 +251,7 @@
             const title = params.get('title') || '';
             const text = params.get('text') || '';
             const url = params.get('url') || '';
-            msg(lg.textContent='tt: <' + text + '>');
+            window.location.search && msg('WLS: <' + window.location.search + '>');
         },
         cdo = (e, d, o) => {
             e.stopPropagation();
@@ -262,7 +259,6 @@
             o.classList.remove('show');
         },
         tgs = (k, ...v) => np.style[k] = np.style[k] === v[0] ? v[1] || '' : v[0],
-        foo = () => (null);
         ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
         prd = () => {
             let a = '', r = document.createRange(), s = window.getSelection();
@@ -276,6 +272,15 @@
         },
         msg = s => alert(lg.textContent = s);
 
+        navigator?.serviceWorker.addEventListener('message', (event) => {
+            if (event.data.type === 'sharedData') {
+                const { text, title, url } = event.data.data;
+                const np = document.querySelector('.np');
+                np.textContent = `Title: ${title}\nText: ${text}\nURL: ${url}`;
+                alert(`Shared Data Received:\nTitle: ${title}\nText: ${text}\nURL: ${url}`);
+            }
+        });
+
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
         document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
@@ -284,22 +289,10 @@
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
     </script>
     <script>
-        const respChan = new BroadcastChannel('foo');
-        respChan.onmessage = (data) => {
-            setTimeout(()=>np.textContent = JSON.stringify(data),3000);
-        };
-
-        if (window.location.pathname.includes('share')) {
-            async function handleSharedData() {
-                const formData = await navigator.serviceWorker.ready.then(sw => {
-                    return sw.active.postMessage({ type: 'getSharedData' });
-                });
-                msg(lg.textContent=`Shared Data: ${JSON.stringify(formData)}`);
-            }
-            handleSharedData();
-        }
-        navigator.serviceWorker.controller.postMessage({ type: 'getSharedData' });
-        navigator.serviceWorker.addEventListener('message', e => msg(lg.textContent='Received from SW:', e.data.sharedData));
+        navigator?.serviceWorker.addEventListener('message', (event) => 
+            event.data.type === 'sharedData' &&
+            msg('shared:' + JSON.stringify(event.data.data))
+        );
     </script>
 </body>
 
