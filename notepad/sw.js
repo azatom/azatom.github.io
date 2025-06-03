@@ -1,6 +1,4 @@
-const ver = 'c';
-//application/x-www-form-urlencoded
-//multipart/form-data
+const ver = 'd';
 const cacheName = `npCache-${ver}`;
 
 const urlsToCache = [
@@ -31,9 +29,13 @@ self.addEventListener('fetch', (event) => {
             url: formData.get('url') || '',
           };
 
-          // Send the shared data to the client
-          const clients = await self.clients.matchAll({ includeUncontrolled: true });
-          clients.forEach(client => client.postMessage({ type: 'sharedData', data: sharedData }));
+          // Get the client that triggered the request
+          const client = await self.clients.get(event.clientId);
+
+          if (client) {
+            // Send the shared data to the correct client
+            client.postMessage({ type: 'sharedData', data: sharedData });
+          }
 
           // Redirect to the app's main page
           return Response.redirect('./index.html', 303);
