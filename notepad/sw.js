@@ -1,4 +1,4 @@
-const ver = 'd';
+const ver = 'e';
 const cacheName = `npCache-${ver}`;
 
 const urlsToCache = [
