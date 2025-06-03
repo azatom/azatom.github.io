@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#ffffff">
     <title>Notepad↓</title>
     <script>
-        const ver = 'v.html0603b';
+        const ver = 'v.html0603c';
         navigator?.serviceWorker.register('./sw.js');
     </script>
     <link rel="manifest" href="./manifest.json">
@@ -162,7 +162,7 @@
         }
 
         .scrolled { box-shadow: #567 0 .2rem .3rem 0; }
-        .hl { background: #d96; }
+        .hl { background: #e95; }
         .hidden { display: none; }
         .dropdown.show { display: grid; }
         .dropdown2.show { display: flex; }
@@ -224,7 +224,7 @@
             try {
                 localStorage.setItem('sht0', np.innerHTML);
                 lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
-            } catch (e) { alert(e); }
+            } catch (e) { msg(lg.textContent=e); }
             sb2();
         },
         swp = () => {
@@ -237,7 +237,7 @@
                 sb1();
             } catch (e) {
                 localStorage.setItem('sht1', t1);
-                alert(e);
+                msg(lg.textContent=e);
             }
             sav();
         },
@@ -254,7 +254,7 @@
             const title = params.get('title') || '';
             const text = params.get('text') || '';
             const url = params.get('url') || '';
-            alert('tt: <' + text + '>');
+            msg(lg.textContent='tt: <' + text + '>');
         },
         cdo = (e, d, o) => {
             e.stopPropagation();
@@ -273,7 +273,8 @@
             s.removeAllRanges();
             s.addRange(r);
             np.focus();
-        };
+        },
+        msg = s => alert(lg.textContent = s);
 
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
@@ -288,19 +289,17 @@
             setTimeout(()=>np.textContent = JSON.stringify(data),3000);
         };
 
-        if (window.location.pathname.contains('share')) {
+        if (window.location.pathname.includes('share')) {
             async function handleSharedData() {
                 const formData = await navigator.serviceWorker.ready.then(sw => {
                     return sw.active.postMessage({ type: 'getSharedData' });
                 });
-                alert(`Shared Data: ${JSON.stringify(formData)}`);
+                msg(lg.textContent=`Shared Data: ${JSON.stringify(formData)}`);
             }
             handleSharedData();
         }
         navigator.serviceWorker.controller.postMessage({ type: 'getSharedData' });
-        navigator.serviceWorker.addEventListener('message', (event) => {
-            alert('Received from SW:', event.data.sharedData);
-        });
+        navigator.serviceWorker.addEventListener('message', e => msg(lg.textContent='Received from SW:', e.data.sharedData));
     </script>
 </body>
 
