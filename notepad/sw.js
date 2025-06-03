@@ -1,4 +1,4 @@
-const ver = 'v.js0603';
+const ver = 'v.js0603b';
 const cacheName = `np-cache-${ver}`;
 
 const urlsToCache = [

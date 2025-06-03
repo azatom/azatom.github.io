@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#ffffff">
     <title>Notepad↓</title>
     <script>
-        const ver = 'v.html0603';
+        const ver = 'v.html0603b';
         navigator?.serviceWorker.register('./sw.js');
     </script>
     <link rel="manifest" href="./manifest.json">
@@ -26,7 +26,7 @@
             padding-left: env(safe-area-inset-left);
         }
 
-        .stick {
+        .sh {
             height: calc(var(--s) + .4rem);
             position: fixed;
             top: 0;
@@ -170,7 +170,7 @@
 </head>
 
 <body>
-    <div class="stick">
+    <div class="sh">
         <div class="sq ico" onclick="cdo(event, dd, df)">⇩<!--svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/></svg--></div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
@@ -179,10 +179,10 @@
         </div>
         <button onclick="swp()" class="sq" id="sw">sw</button>
         <button onclick="prd()" class="sq" id="ud">📆</button>
-        <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎🗑🗑️</button>
+        <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎</button>
         <button onclick="document.execCommand('undo')" class="sq">←</button>
         <button onclick="document.execCommand('redo')" class="sq">→</button>
-        <button onclick="this.textContent=':)'" id="lg">:)</button>
+        <button onclick="this.textContent=':)'" id="lg">🗑︎🗑🗑️</button>
         <div class="sq" onclick="cdo(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="ifs(-1)">a-</button>
@@ -194,7 +194,7 @@
     </div>
     <div class="np" contenteditable></div>
     <script>
-        const [np, stick, b2, lg, b1, df, dd] = ['.np', '.stick', '#cl', '#lg', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
+        const [np, sh, cl, lg, sw, df, dd] = ['.np', '.sh', '#cl', '#lg', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
         dow = e => {
             const a = document.createElement('a'),
                 [dat, ext, typ] = e === 'html' ?
@@ -211,7 +211,7 @@
             dd.classList.remove('show');
         },
         tsl = s => new Intl.NumberFormat().format(s.length),
-        sb1 = () => b1.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
+        sb1 = () => sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
         sb2 = (n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) => {
             dd.children[0].setAttribute('data-a', tsl(np.innerHTML));
             dd.children[1].setAttribute('data-a', tsl(np.textContent));
@@ -219,11 +219,11 @@
         },
         sav = () => {
             if (np.innerHTML === '<br>') np.innerHTML = '';
-            b2.classList.add('hl');
-            clearTimeout(b2.t);
+            lg.classList.add('hl');
+            clearTimeout(lg.t);
             try {
                 localStorage.setItem('sht0', np.innerHTML);
-                b2.t = setTimeout(() => b2.classList.remove('hl'), 40);
+                lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
             } catch (e) { alert(e); }
             sb2();
         },
@@ -279,7 +279,7 @@
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
         document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
         document.addEventListener('DOMContentLoaded', lod);
-        np.addEventListener('scroll', () => stick.classList.toggle('scrolled', np.scrollTop > 0));
+        np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
     </script>
     <script>
