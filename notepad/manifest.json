@@ -1,6 +1,6 @@
 {
   "name": "not-e-pad",
-  "short_name": "notepad",
+  "short_name": "no-tepad",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -12,7 +12,17 @@
       "type": "image/png"
     }
   ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "text": "text",
+      "title": "title",
+      "url": "link"
+    }
+  },
   "prefer_related_applications": false,
   "scope": ".",
-  "description": "not-epad"
+  "description": "not-ep-a-d"
 }
