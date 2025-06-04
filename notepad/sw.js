@@ -1,4 +1,4 @@
-const ver = 'e';
+const ver = 'C';
 const cacheName = `npCache-${ver}`;
 
 const urlsToCache = [
@@ -23,24 +23,20 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         try {
           const formData = await event.request.formData();
-          const sharedData = {
+          const shared = {
             text: formData.get('text') || '',
             title: formData.get('title') || '',
             url: formData.get('url') || '',
+            ver: ver
           };
 
-          // Get the client that triggered the request
           const client = await self.clients.get(event.clientId);
-
           if (client) {
-            // Send the shared data to the correct client
-            client.postMessage({ type: 'sharedData', data: sharedData });
+            client.postMessage({ type: 'shared', formData: formData, data: shared, client: client });
           }
 
-          // Redirect to the app's main page
           return Response.redirect('./index.html', 303);
         } catch (error) {
-          console.error('Error handling POST request:', error);
           return new Response('Error processing shared data.', { status: 500 });
         }
       })()

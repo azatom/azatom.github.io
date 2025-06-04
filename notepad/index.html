@@ -7,8 +7,19 @@
     <meta name="theme-color" content="#ffffff">
     <title>npTitle</title>
     <script>
-        const ver = 'e';
+        const ver = 'd';
         navigator?.serviceWorker.register('./sw.js');
+        navigator?.serviceWorker.addEventListener('message', e => 
+            e.data.type === 'shared' && msg('shared:' + JSON.stringify(e.data))
+        );
+//        navigator?.serviceWorker.addEventListener('message', e => {
+//            if (e.data.type === 'shared') {
+//                const { text, title, url } = e.data.data;
+//                const np = document.querySelector('.np');
+//                np.textContent = `Title: ${title}\nText: ${text}\nURL: ${url}`;
+//                alert(`Shared Data Received:\nTitle: ${title}\nText: ${text}\nURL: ${url}`);
+//            }
+//        });
     </script>
     <link rel="manifest" href="./manifest.json">
     <style>
@@ -171,16 +182,17 @@
     <div class="sh">
         <div class="sq ico" onclick="cdo(event, dd, df)">⇩<!--svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/></svg--></div>
         <div class="dropdown dropdown2" id="dd">
+            <input type="checkbox" value="share">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt</button>
             <button onclick="dow('text')">.t𝕖𝕩t</button>
         </div>
-        <button onclick="swp()" class="sq" id="sw">sw</button>
         <button onclick="prd()" class="sq" id="ud">📆</button>
         <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎</button>
-        <button onclick="document.execCommand('undo')" class="sq">←</button>
-        <button onclick="document.execCommand('redo')" class="sq">→</button>
-        <button onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent]" id="lg">:)</button>
+        <button onclick="document.execCommand('undo')" title="undo" class="sq">↶</button>
+        <button onclick="document.execCommand('redo')" title="redo" class="sq">↷</button>
+        <button onclick="swp()" class="sq" id="sw">sw</button>
+        <button onclick="sav([lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent])" id="lg">:)</button>
         <div class="sq" onclick="cdo(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
             <button class="sq" onclick="ifs(-1)">a-</button>
@@ -258,8 +270,8 @@
             d.classList.toggle('show');
             o.classList.remove('show');
         },
-        tgs = (k, ...v) => np.style[k] = np.style[k] === v[0] ? v[1] || '' : v[0],
-        ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
+        tgs = (k, ...v) => np.style[k] = (np.style[k].replace(/ *!important$/,'') === v[0] ? v[1] || '' : v[0]) + ' !important',
+        ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px !important',
         prd = () => {
             let a = '', r = document.createRange(), s = window.getSelection();
             a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
@@ -272,27 +284,12 @@
         },
         msg = s => alert(lg.textContent = s);
 
-        navigator?.serviceWorker.addEventListener('message', (event) => {
-            if (event.data.type === 'sharedData') {
-                const { text, title, url } = event.data.data;
-                const np = document.querySelector('.np');
-                np.textContent = `Title: ${title}\nText: ${text}\nURL: ${url}`;
-                alert(`Shared Data Received:\nTitle: ${title}\nText: ${text}\nURL: ${url}`);
-            }
-        });
-
         window.addEventListener('beforeunload', sav);
         document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
         document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
         document.addEventListener('DOMContentLoaded', lod);
         np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
-    </script>
-    <script>
-        navigator?.serviceWorker.addEventListener('message', (event) => 
-            event.data.type === 'sharedData' &&
-            msg('shared:' + JSON.stringify(event.data.data))
-        );
     </script>
 </body>
 
