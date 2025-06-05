@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#ffffff">
     <title>npTitle</title>
     <script>
-        const ver = 'A';
+        const ver = 'B';
     </script>
     <link rel="manifest" href="./manifest.json">
     <style>
@@ -339,9 +339,9 @@
             const params = new URLSearchParams(window.location.search);
             const sharedId = params.get('sharedId');
 
-            urlParams.delete('sharedId');
+            /*urlParams.delete('sharedId');
             window.history.replaceState({}, document.title, window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : ''));
-
+*/
             if (sharedId) {
                 try {
                     const cache = await caches.open('shared-data-cache');
