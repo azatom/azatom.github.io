@@ -1,5 +1,6 @@
 const ver = 'a';
 const cacheName = `npCache-${ver}`;
+const sharedDataCacheName = 'shared-data-cache';
 
 const urlsToCache = [
   './',
@@ -23,30 +24,44 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         try {
           const formData = await event.request.formData();
-          const shared = {
+          const sharedData = {
             text: formData.get('text') || '',
             title: formData.get('title') || '',
             url: formData.get('url') || '',
-            ver: ver
           };
-          
-          const clients = await self.clients.matchAll();
-          const toPost = { type: 'shared', data: shared, cid: event.clientId,numclients: clients.length };
-          clients.forEach(client => client.postMessage({...toPost,
-            clid:client.id
-          }));
 
-          // const clients = await self.clients.matchAll({ includeUncontrolled: true });
-          // clients.forEach(client => client.postMessage(toPost));
+          // Generate a unique ID for the shared data
+          const sharedId = crypto.randomUUID();
+          const sharedDataResponse = new Response(JSON.stringify(sharedData), {
+            headers: { 'Content-Type': 'application/json' }
+          });
 
-          // const client = await self.clients.get(event.clientId);
-          // if (client) { client.postMessage(toPost); }
+          // Store the shared data in the cache
+          const cache = await caches.open(sharedDataCacheName);
+          await cache.put(new Request(`/shared-data/${sharedId}`), sharedDataResponse);
 
-          return Response.redirect('./index.html', 303);
+          // Redirect to the app with the sharedId in the URL
+          const redirectUrl = new URL(url.pathname, url.origin);
+          redirectUrl.searchParams.set('sharedId', sharedId);
+          return Response.redirect(redirectUrl.toString(), 303);
         } catch (error) {
-          return new Response(`Error processing shared data. ${ver} \n ${error}`, { status: 500 });
+          console.error('Error handling POST request:', error);
+          return new Response('Error processing shared data.', { status: 500 });
         }
       })()
+    );
+    return;
+  }
+
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('./index.html')
+        .then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return fetch(event.request).catch(() => caches.match('offline.html'));
+        })
     );
     return;
   }
@@ -57,14 +72,12 @@ self.addEventListener('fetch', (event) => {
         if (cachedResponse) return cachedResponse;
         return fetch(event.request)
           .then(async (networkResponse) => {
-            (await caches.open(cacheName)).put(event.request, networkResponse.clone());
+            if (networkResponse.ok && networkResponse.type === 'basic') {
+              (await caches.open(cacheName)).put(event.request, networkResponse.clone());
+            }
             return networkResponse;
           })
-          .catch(async () =>
-            event.request.mode === 'navigate' ?
-              caches.match('offline.html') :
-              caches.match(event.request)
-          );
+          .catch(async () => caches.match(event.request));
       })
     );
   } else {
@@ -73,7 +86,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const whitelist = [cacheName];
+  const whitelist = [cacheName, sharedDataCacheName];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
