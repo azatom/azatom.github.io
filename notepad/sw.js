@@ -1,4 +1,4 @@
-const ver = 'C';
+const ver = 'a';
 const cacheName = `npCache-${ver}`;
 
 const urlsToCache = [
@@ -29,15 +29,22 @@ self.addEventListener('fetch', (event) => {
             url: formData.get('url') || '',
             ver: ver
           };
+          
+          const clients = await self.clients.matchAll();
+          const toPost = { type: 'shared', data: shared, cid: event.clientId,numclients: clients.length };
+          clients.forEach(client => client.postMessage({...toPost,
+            clid:client.id
+          }));
 
-          const client = await self.clients.get(event.clientId);
-          if (client) {
-            client.postMessage({ type: 'shared', formData: formData, data: shared, client: client });
-          }
+          // const clients = await self.clients.matchAll({ includeUncontrolled: true });
+          // clients.forEach(client => client.postMessage(toPost));
+
+          // const client = await self.clients.get(event.clientId);
+          // if (client) { client.postMessage(toPost); }
 
           return Response.redirect('./index.html', 303);
         } catch (error) {
-          return new Response('Error processing shared data.', { status: 500 });
+          return new Response(`Error processing shared data. ${ver} \n ${error}`, { status: 500 });
         }
       })()
     );

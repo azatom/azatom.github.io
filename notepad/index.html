@@ -7,10 +7,10 @@
     <meta name="theme-color" content="#ffffff">
     <title>npTitle</title>
     <script>
-        const ver = 'd';
+        const ver = 'A';
         navigator?.serviceWorker.register('./sw.js');
         navigator?.serviceWorker.addEventListener('message', e => 
-            e.data.type === 'shared' && msg('shared:' + JSON.stringify(e.data))
+            /*e.data.type === 'shared' && */ msg('shared:' + JSON.stringify(e.data))
         );
 //        navigator?.serviceWorker.addEventListener('message', e => {
 //            if (e.data.type === 'shared') {
@@ -175,6 +175,19 @@
         .hidden { display: none; }
         .dropdown.show { display: grid; }
         .dropdown2.show { display: flex; }
+
+        @media (max-width: 20.25rem) {
+            .np { margin-top: calc(2 * var(--s) + .8rem); }
+            .sh {
+                height: calc(2 * var(--s) + .8rem);
+                flex-wrap: wrap;
+            }
+            .sq {
+                flex: 1 1 calc(25% - .4rem);
+                max-height: var(--s);
+            }
+        }
+        #cbx:after{content: 'share';}
     </style>
 </head>
 
@@ -182,11 +195,12 @@
     <div class="sh">
         <div class="sq ico" onclick="cdo(event, dd, df)">⇩<!--svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/></svg--></div>
         <div class="dropdown dropdown2" id="dd">
-            <input type="checkbox" value="share">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt</button>
             <button onclick="dow('text')">.t𝕖𝕩t</button>
+            <input type="checkbox" id="cx">
         </div>
+        <button onclick="shr()" class="sq" id="sr">S</button>
         <button onclick="prd()" class="sq" id="ud">📆</button>
         <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎</button>
         <button onclick="document.execCommand('undo')" title="undo" class="sq">↶</button>
@@ -197,13 +211,14 @@
         <div class="dropdown" id="df">
             <button class="sq" onclick="ifs(-1)">a-</button>
             <button class="sq" onclick="ifs(1)">A+</button>
-            <button class="sq" onclick="tgs('fontFamily', 'monospace')">𝚖</button>
-            <button class="sq" onclick="tgs('whiteSpace', 'pre', 'normal')">wr pre</button>
+            <button class="sq" onclick="tgs(np, 'font-family', '', 'monospace')">𝚖</button>
+            <button class="sq" onclick="tgs(np, 'white-space', 'pre', '');tgs(this, 'white-space', 'pre', '')">wr pre</button>
+            <button class="sq" onclick="tgs(document.body, 'zoom', '', '1.5', '2', '.5')">+</button>
         </div>
     </div>
     <div class="np" contenteditable></div>
     <script>
-        const [np, sh, cl, lg, sw, df, dd] = ['.np', '.sh', '#cl', '#lg', '#sw', '#df', '#dd'].map(i => document.querySelector(i)),
+        const [np, sh, cl, lg, sw, df, dd, cx] = ['.np', '.sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i)),
         dow = e => {
             const a = document.createElement('a'),
                 [dat, ext, typ] = e === 'html' ?
@@ -212,12 +227,19 @@
                     [np.innerText, 'txt', 'plain'],
                 blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
                 url = URL.createObjectURL(blb),
-                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);
+                now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
+                nam = `np.${now}.${ext}`;
+            if (cx.checked) return shr({title:nam,text:dat});
             a.href = url;
-            msg(a.download = `np.${now}.${ext}`);
+            msg(a.download = nam);
             a.click();
             URL.revokeObjectURL(url);
             dd.classList.remove('show');
+        },
+        shr = (data) => {
+            function canBrowserShareData(data) {if (!navigator.share || !navigator.canShare) {return false;}return navigator.canShare(data);}
+            async function shareData() {try {await navigator.share(data);} catch (e) {msg(`Error: ${e}`);}}
+            if (canBrowserShareData(data)) {shareData(data);}
         },
         tsl = s => new Intl.NumberFormat().format(s.length),
         sb1 = () => sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
@@ -257,6 +279,7 @@
             sb1();
             np.style.setProperty('--ph', `"- type or paste image \\A- autosave: localstorage\\A- download formats: html, visible, hiddenToo\\A- swap: between sheets\\A- the button with byte/linesizes clears current sheet\\A- the shwwtswapping button shows the log2(bytesize)\\A\\A ${ver}"`);
             np.focus();
+            lg.textContent = ver;
         },
         hsd = () => {
             const params = new URLSearchParams(window.location.search);
@@ -270,8 +293,9 @@
             d.classList.toggle('show');
             o.classList.remove('show');
         },
-        tgs = (k, ...v) => np.style[k] = (np.style[k].replace(/ *!important$/,'') === v[0] ? v[1] || '' : v[0]) + ' !important',
-        ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px !important',
+        // tgs = (e, k, ...v) => e.style[k] = (e.style[k] === v[0] ? v[1] || '' : v[0]),
+        tgs = (e, k, ...v) => e.style.setProperty(k, v[(v.findIndex(a=>a===e.style.getPropertyValue(k))+v.length+1)%v.length], 'important'),
+        ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
         prd = () => {
             let a = '', r = document.createRange(), s = window.getSelection();
             a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
