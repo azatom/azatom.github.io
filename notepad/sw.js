@@ -1,4 +1,4 @@
-const ver = '250606a';
+const ver = '0606b';
 const cacheName = `npCache-${ver}`;
 const sharedDataCacheName = 'shared-data-cache';
 

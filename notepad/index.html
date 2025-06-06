@@ -146,7 +146,7 @@
     .dropdown.show {display: grid;}
     .dropdown2.show {display: flex;}
     #cx:after{content: 'share';}
-    @media (max-width: 10rem) {
+    @media (max-width: 21rem) {
         #np {margin-top: calc(2 * var(--s) + .8rem);}
         #sh {
             height: calc(2 * var(--s) + .8rem);
@@ -162,57 +162,57 @@
 
 <body>
     <div id="sh">
-        <div class="sq ico" onclick="cdo(event, dd, df)">⇩</div>
+        <div class="sq ico" onclick="openDropdown(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
-            <button onclick="dow('html')">.html</button>
-            <button onclick="dow('txt')">.txt</button>
-            <button onclick="dow('text')">.t𝕖𝕩t</button>
+            <button onclick="exports('html')">.html</button>
+            <button onclick="exports('txt')">.txt</button>
+            <button onclick="exports('text')">.t𝕖𝕩t</button>
             <input type="checkbox" id="cx">
         </div>
-        <button onclick="prd()" class="sq" id="ud">📆</button>
-        <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎</button>
+        <button onclick="prependDate()" class="sq" id="ud">📆</button>
+        <button onclick="confirm('clear it?') && store(np.textContent = '')" class="sq" id="cl">🗑︎</button>
         <button onclick="document.execCommand('undo')" title="undo" class="sq">↶</button>
         <button onclick="document.execCommand('redo')" title="redo" class="sq">↷</button>
-        <button onclick="swp()" class="sq" id="sw">sw</button>
-        <button onclick="sav([lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent])" id="lg">:)</button>
-        <div class="sq" onclick="cdo(event, df, dd)">𝔉</div>
+        <button onclick="swap()" class="sq" id="sw">sw</button>
+        <button onclick="store([lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent])" id="lg">:)</button>
+        <div class="sq" onclick="openDropdown(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
-            <button class="sq" onclick="ifs(-1)">a-</button>
-            <button class="sq" onclick="ifs(1)">A+</button>
-            <button class="sq" onclick="tgs(np, 'font-family', 'sans', 'monospace')">𝚖</button>
-            <button class="sq" onclick="tgs(np, 'white-space', 'pre', 'normal');tgs(this, 'white-space', 'pre', '')">wr pre</button>
-            <button class="sq" onclick="tgs(document.body, 'zoom', '1.5', '2', '.5', '1')">+</button>
+            <button class="sq" onclick="adjustFontSize(-1)">a-</button>
+            <button class="sq" onclick="adjustFontSize(1)">A+</button>
+            <button class="sq" onclick="toggleProp(np, 'font-family', 'sans', 'monospace')">𝚖</button>
+            <button class="sq" onclick="toggleProp(np, 'white-space', 'pre', 'normal');toggleProp(this, 'white-space', 'pre', '')">wr pre</button>
+            <button class="sq" onclick="toggleProp(document.body, 'zoom', '1.5', '2', '.5', '1')">+</button>
             <button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')">Z</button>
         </div>
     </div>
     <div id="np" contenteditable></div>
 <script>
-    let ver = 'a';
+    let ver = '0606B';
     let np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
-    window.addEventListener('beforeunload', sav);
-    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+    window.addEventListener('beforeunload', store);
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && store());
     document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
-    document.addEventListener('DOMContentLoaded', lod);
+    document.addEventListener('DOMContentLoaded', init);
 
-    function dow(e) {
+    function exports(e) {
         const a = document.createElement('a'),
-            [dat, ext, typ] = e === 'html' ?
+            [text, ext, type] = e === 'html' ?
             [np.innerHTML, 'html', 'html'] : e === 'text' ?
             [np.textContent, 'full.txt', 'plain'] :
             [np.innerText, 'txt', 'plain'],
-            blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
-            url = URL.createObjectURL(blb),
+            blob = new Blob([text], { type: `text/${type};charset=utf8` }),
+            url = URL.createObjectURL(blob),
             now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-            nam = `np.${now}.${ext}`;
-        if (cx.checked) return shr({ title: nam, text: dat });
+            tit = `np.${now}.${ext}`;
+        if (cx.checked) return share({ title: tit, text: text });
         a.href = url;
-        msg(a.download = nam);
+        msg(a.download = tit);
         a.click();
         URL.revokeObjectURL(url);
         dd.classList.remove('show');
     }
-    function shr(data){
+    function share(data) {
         function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
         async function shareData() { try { await navigator.share(data); } catch (e) { msg(`Error: ${e}`); } }
         if (canBrowserShareData(data)) { shareData(data); }
@@ -224,7 +224,7 @@
         dd.children[1].setAttribute('data-a', tsl(np.textContent));
         dd.children[2].setAttribute('data-a', n + (o < 0 ? ' ' : ' +') + o);
     }
-    function sav() {
+    function store() {
         if (np.innerHTML === '<br>') np.innerHTML = '';
         lg.classList.add('hl');
         clearTimeout(lg.t);
@@ -234,7 +234,7 @@
         } catch (e) { msg(e); }
         sb2();
     }
-    function swp() {
+    function swap() {
         let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
         localStorage.setItem('sht0', '');
         localStorage.setItem('sht1', '');
@@ -246,16 +246,16 @@
             localStorage.setItem('sht1', t1);
             msg(e);
         }
-        sav();
+        store();
     }
-    function cdo(e, d, o) {
+    function openDropdown(e, d, o) {
         e.stopPropagation();
         d.classList.toggle('show');
         o.classList.remove('show');
     }
-    function tgs(e, k, ...v){ e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]);}
-    function ifs(f){ np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';}
-    function prd() {
+    function toggleProp(e, k, ...v){ e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]);}
+    function adjustFontSize(f){ np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';}
+    function prependDate() {
         let a = '', r = document.createRange(), s = window.getSelection();
         a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
         np.innerHTML = a + '<br>' + np.innerHTML;
@@ -266,7 +266,7 @@
         np.focus();
     }
     function msg(s){ alert(lg.textContent = s);}
-    async function lsd() {
+    async function loadShared() {
         const params = new URLSearchParams(window.location.search);
         const sharedId = params.get('sharedId');
         if (sharedId) {
@@ -281,7 +281,7 @@
             params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
         }
     }
-    function lod() {
+    function init() {
         [np, sh, cl, lg, sw, df, dd, cx] = ['#np', '#sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i));
         np.innerHTML = localStorage.getItem('sht0') || '';
         sb2();
@@ -290,8 +290,8 @@
         np.focus();
         lg.textContent = getComputedStyle(document.documentElement).fontSize;//ver;
         np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
-        np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
-        lsd();
+        np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
+        loadShared();
     }
 </script>
 </body>
