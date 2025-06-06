@@ -1,4 +1,4 @@
-const ver = '051743';
+const ver = '250606b';
 const cacheName = `npCache-${ver}`;
 const sharedDataCacheName = 'shared-data-cache';
 
@@ -29,18 +29,12 @@ self.addEventListener('fetch', (event) => {
             title: formData.get('title') || '',
             url: formData.get('url') || '',
           };
-
-          // Generate a unique ID for the shared data
           const sharedId = crypto.randomUUID();
           const sharedDataResponse = new Response(JSON.stringify(sharedData), {
             headers: { 'Content-Type': 'application/json' }
           });
-
-          // Store the shared data in the cache
           const cache = await caches.open(sharedDataCacheName);
           await cache.put(new Request(`/shared-data/${sharedId}`), sharedDataResponse);
-
-          // Redirect to the app with the sharedId in the URL
           const redirectUrl = new URL(url.pathname, url.origin);
           redirectUrl.searchParams.set('sharedId', sharedId);
           return Response.redirect(redirectUrl.toString(), 303);

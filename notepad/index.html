@@ -8,7 +8,112 @@
     <meta name="theme-color" content="#ffffff">
     <title>npTitle</title>
     <script>
-        const ver = '051743h';
+        let ver = 'b';
+        let np, sh, cl, lg, sw, df, dd, cx;
+        const dow = e => {
+                const a = document.createElement('a'),
+                    [dat, ext, typ] = e === 'html' ?
+                        [np.innerHTML, 'html', 'html'] : e === 'text' ?
+                            [np.textContent, 'full.txt', 'plain'] :
+                            [np.innerText, 'txt', 'plain'],
+                    blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
+                    url = URL.createObjectURL(blb),
+                    now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
+                    nam = `np.${now}.${ext}`;
+                if (cx.checked) return shr({ title: nam, text: dat });
+                a.href = url;
+                msg(a.download = nam);
+                a.click();
+                URL.revokeObjectURL(url);
+                dd.classList.remove('show');
+            },
+            shr = (data) => {
+                function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
+                async function shareData() { try { await navigator.share(data); } catch (e) { msg(`Error: ${e}`); } }
+                if (canBrowserShareData(data)) { shareData(data); }
+            },
+            tsl = s => new Intl.NumberFormat().format(s.length),
+            sb1 = () => sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
+            sb2 = (n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) => {
+                dd.children[0].setAttribute('data-a', tsl(np.innerHTML));
+                dd.children[1].setAttribute('data-a', tsl(np.textContent));
+                dd.children[2].setAttribute('data-a', n + (o < 0 ? ' ' : ' +') + o);
+            },
+            sav = () => {
+                if (np.innerHTML === '<br>') np.innerHTML = '';
+                lg.classList.add('hl');
+                clearTimeout(lg.t);
+                try {
+                    localStorage.setItem('sht0', np.innerHTML);
+                    lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
+                } catch (e) { msg(e); }
+                sb2();
+            },
+            swp = () => {
+                let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
+                localStorage.setItem('sht0', '');
+                localStorage.setItem('sht1', '');
+                try {
+                    localStorage.setItem('sht1', t0);
+                    np.innerHTML = t1;
+                    sb1();
+                } catch (e) {
+                    localStorage.setItem('sht1', t1);
+                    msg(e);
+                }
+                sav();
+            },
+            cdo = (e, d, o) => {
+                e.stopPropagation();
+                d.classList.toggle('show');
+                o.classList.remove('show');
+            },
+            tgs = (e, k, ...v) => e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]),
+            ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
+            prd = () => {
+                let a = '', r = document.createRange(), s = window.getSelection();
+                a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
+                np.innerHTML = a + '<br>' + np.innerHTML;
+                r.setStart(np.firstChild, a.length);
+                r.collapse(true);
+                s.removeAllRanges();
+                s.addRange(r);
+                np.focus();
+            },
+            msg = s => alert(lg.textContent = s),
+            lsd = async () => {
+                const params = new URLSearchParams(window.location.search);
+                const sharedId = params.get('sharedId');
+                if (sharedId) {
+                    try {
+                        const cache = await caches.open('shared-data-cache');
+                        const response = await cache.match(`/shared-data/${sharedId}`);
+                        if (response) {
+                            np.textContent = JSON.stringify(await response.json());
+                            await cache.delete(`/shared-data/${sharedId}`);
+                        } else { throw('No shared data found for sharedId:' + sharedId); }
+                    } catch (e) { msg('Error loading shared data:' + e); }
+                    params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+                }
+            },
+            lod = () => {
+                [np, sh, cl, lg, sw, df, dd, cx] = ['#np', '#sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i));
+                np.innerHTML = localStorage.getItem('sht0') || '';
+                sb2();
+                sb1();
+                np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver}"`);
+                np.focus();
+                lg.textContent = getComputedStyle(document.documentElement).fontSize;//ver;
+                np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
+                np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
+                lsd();
+            };
+
+        navigator?.serviceWorker.register('./sw.js');
+        window.addEventListener('beforeunload', sav);
+        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+        document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
+        document.addEventListener('DOMContentLoaded', lod);
     </script>
     <link rel="manifest" href="./manifest.json">
     <style>
@@ -27,7 +132,7 @@
             padding-left: env(safe-area-inset-left);
         }
 
-        .sh {
+        #sh {
             height: calc(var(--s) + .4rem);
             position: fixed;
             top: 0;
@@ -77,7 +182,7 @@
             transform: scale(.9);
         }
 
-        .np {
+        #np {
             --ph: 'hi';
             margin: 0;
             padding: .2rem;
@@ -94,7 +199,7 @@
             white-space: pre;
         }
 
-        .np:empty:before {
+        #np:empty:before {
             white-space: pre;
             content: var(--ph);
             display: block;
@@ -188,12 +293,12 @@
             display: flex;
         }
 
-        @media (max-width: 20.25rem) {
-            .np {
+        @media (max-width: 10rem) {
+            #np {
                 margin-top: calc(2 * var(--s) + .8rem);
             }
 
-            .sh {
+            #sh {
                 height: calc(2 * var(--s) + .8rem);
                 flex-wrap: wrap;
             }
@@ -204,14 +309,14 @@
             }
         }
 
-        #cbx:after {
+        #cx:after {
             content: 'share';
         }
     </style>
 </head>
 
 <body>
-    <div class="sh">
+    <div id="sh">
         <div class="sq ico" onclick="cdo(event, dd, df)">⇩<!--svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/></svg--></div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
@@ -219,7 +324,6 @@
             <button onclick="dow('text')">.t𝕖𝕩t</button>
             <input type="checkbox" id="cx">
         </div>
-        <button onclick="shr()" class="sq" id="sr">S</button>
         <button onclick="prd()" class="sq" id="ud">📆</button>
         <button onclick="confirm('clear it?') && sav(np.textContent = '')" class="sq" id="cl">🗑︎</button>
         <button onclick="document.execCommand('undo')" title="undo" class="sq">↶</button>
@@ -233,133 +337,10 @@
             <button class="sq" onclick="tgs(np, 'font-family', '', 'monospace')">𝚖</button>
             <button class="sq" onclick="tgs(np, 'white-space', 'pre', '');tgs(this, 'white-space', 'pre', '')">wr pre</button>
             <button class="sq" onclick="tgs(document.body, 'zoom', '', '1.5', '2', '.5')">+</button>
+            <button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')">Z</button>
         </div>
     </div>
-    <div class="np" contenteditable></div>
-    <script>
-        const [np, sh, cl, lg, sw, df, dd, cx] = ['.np', '.sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i)),
-            dow = e => {
-                const a = document.createElement('a'),
-                    [dat, ext, typ] = e === 'html' ?
-                        [np.innerHTML, 'html', 'html'] : e === 'text' ?
-                            [np.textContent, 'full.txt', 'plain'] :
-                            [np.innerText, 'txt', 'plain'],
-                    blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
-                    url = URL.createObjectURL(blb),
-                    now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-                    nam = `np.${now}.${ext}`;
-                if (cx.checked) return shr({ title: nam, text: dat });
-                a.href = url;
-                msg(a.download = nam);
-                a.click();
-                URL.revokeObjectURL(url);
-                dd.classList.remove('show');
-            },
-            shr = (data) => {
-                function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
-                async function shareData() { try { await navigator.share(data); } catch (e) { msg(`Error: ${e}`); } }
-                if (canBrowserShareData(data)) { shareData(data); }
-            },
-            tsl = s => new Intl.NumberFormat().format(s.length),
-            sb1 = () => sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
-            sb2 = (n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) => {
-                dd.children[0].setAttribute('data-a', tsl(np.innerHTML));
-                dd.children[1].setAttribute('data-a', tsl(np.textContent));
-                dd.children[2].setAttribute('data-a', n + (o < 0 ? ' ' : ' +') + o);
-            },
-            sav = () => {
-                if (np.innerHTML === '<br>') np.innerHTML = '';
-                lg.classList.add('hl');
-                clearTimeout(lg.t);
-                try {
-                    localStorage.setItem('sht0', np.innerHTML);
-                    lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
-                } catch (e) { msg(e); }
-                sb2();
-            },
-            swp = () => {
-                let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
-                localStorage.setItem('sht0', '');
-                localStorage.setItem('sht1', '');
-                try {
-                    localStorage.setItem('sht1', t0);
-                    np.innerHTML = t1;
-                    sb1();
-                } catch (e) {
-                    localStorage.setItem('sht1', t1);
-                    msg(e);
-                }
-                sav();
-            },
-            lod = () => {
-               //hsd();
-                np.innerHTML = localStorage.getItem('sht0') || '';
-                sb2();
-                sb1();
-                np.style.setProperty('--ph', `"- type or paste image \\A- autosave: localstorage\\A- download formats: html, visible, hiddenToo\\A- swap: between sheets\\A- the button with byte/linesizes clears current sheet\\A- the shwwtswapping button shows the log2(bytesize)\\A\\A ${ver}"`);
-                np.focus();
-                lg.textContent = ver;
-            },
-            hsd = () => {
-                const params = new URLSearchParams(window.location.search);
-                const title = params.get('title') || '';
-                const text = params.get('text') || '';
-                const url = params.get('url') || '';
-                window.location.search && msg('WLS: <' + window.location.search + '>');
-            },
-            cdo = (e, d, o) => {
-                e.stopPropagation();
-                d.classList.toggle('show');
-                o.classList.remove('show');
-            },
-            // tgs = (e, k, ...v) => e.style[k] = (e.style[k] === v[0] ? v[1] || '' : v[0]),
-            tgs = (e, k, ...v) => e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length], 'important'),
-            ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
-            prd = () => {
-                let a = '', r = document.createRange(), s = window.getSelection();
-                a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
-                np.innerHTML = a + '<br>' + np.innerHTML;
-                r.setStart(np.firstChild, a.length);
-                r.collapse(true);
-                s.removeAllRanges();
-                s.addRange(r);
-                np.focus();
-            },
-            msg = s => alert(lg.textContent = s);
-
-        navigator?.serviceWorker.register('./sw.js');
-        window.addEventListener('beforeunload', sav);
-        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
-        document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
-        document.addEventListener('DOMContentLoaded', lod);
-        np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
-        np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
-
-        async function loadSharedData() {
-            const params = new URLSearchParams(window.location.search);
-            const sharedId = params.get('sharedId');
-
-            /*urlParams.delete('sharedId');
-            window.history.replaceState({}, document.title, window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : ''));
-*/
-            if (sharedId) {
-                try {
-                    const cache = await caches.open('shared-data-cache');
-                    const response = await cache.match(`/shared-data/${sharedId}`);
-                    if (response) {
-                        const sharedData = await response.json();
-                        np.textContent = `Title: ${sharedData.title}\nText: ${sharedData.text}\nURL: ${sharedData.url}`;
-                        await cache.delete(`/shared-data/${sharedId}`);
-                    } else {
-                        msg('No shared data found for sharedId:' + sharedId);
-                    }
-                } catch (error) {
-                    msg('Error loading shared data:' + error);
-                }
-            }
-        }
-        loadSharedData();
-    </script>
+    <div id="np" contenteditable></div>
 </body>
 
 </html>
