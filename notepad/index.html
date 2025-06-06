@@ -7,317 +7,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
     <title>npTitle</title>
-    <script>
-        let ver = 'b';
-        let np, sh, cl, lg, sw, df, dd, cx;
-        const dow = e => {
-                const a = document.createElement('a'),
-                    [dat, ext, typ] = e === 'html' ?
-                        [np.innerHTML, 'html', 'html'] : e === 'text' ?
-                            [np.textContent, 'full.txt', 'plain'] :
-                            [np.innerText, 'txt', 'plain'],
-                    blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
-                    url = URL.createObjectURL(blb),
-                    now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-                    nam = `np.${now}.${ext}`;
-                if (cx.checked) return shr({ title: nam, text: dat });
-                a.href = url;
-                msg(a.download = nam);
-                a.click();
-                URL.revokeObjectURL(url);
-                dd.classList.remove('show');
-            },
-            shr = (data) => {
-                function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
-                async function shareData() { try { await navigator.share(data); } catch (e) { msg(`Error: ${e}`); } }
-                if (canBrowserShareData(data)) { shareData(data); }
-            },
-            tsl = s => new Intl.NumberFormat().format(s.length),
-            sb1 = () => sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')),
-            sb2 = (n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) => {
-                dd.children[0].setAttribute('data-a', tsl(np.innerHTML));
-                dd.children[1].setAttribute('data-a', tsl(np.textContent));
-                dd.children[2].setAttribute('data-a', n + (o < 0 ? ' ' : ' +') + o);
-            },
-            sav = () => {
-                if (np.innerHTML === '<br>') np.innerHTML = '';
-                lg.classList.add('hl');
-                clearTimeout(lg.t);
-                try {
-                    localStorage.setItem('sht0', np.innerHTML);
-                    lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
-                } catch (e) { msg(e); }
-                sb2();
-            },
-            swp = () => {
-                let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
-                localStorage.setItem('sht0', '');
-                localStorage.setItem('sht1', '');
-                try {
-                    localStorage.setItem('sht1', t0);
-                    np.innerHTML = t1;
-                    sb1();
-                } catch (e) {
-                    localStorage.setItem('sht1', t1);
-                    msg(e);
-                }
-                sav();
-            },
-            cdo = (e, d, o) => {
-                e.stopPropagation();
-                d.classList.toggle('show');
-                o.classList.remove('show');
-            },
-            tgs = (e, k, ...v) => e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]),
-            ifs = f => np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px',
-            prd = () => {
-                let a = '', r = document.createRange(), s = window.getSelection();
-                a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
-                np.innerHTML = a + '<br>' + np.innerHTML;
-                r.setStart(np.firstChild, a.length);
-                r.collapse(true);
-                s.removeAllRanges();
-                s.addRange(r);
-                np.focus();
-            },
-            msg = s => alert(lg.textContent = s),
-            lsd = async () => {
-                const params = new URLSearchParams(window.location.search);
-                const sharedId = params.get('sharedId');
-                if (sharedId) {
-                    try {
-                        const cache = await caches.open('shared-data-cache');
-                        const response = await cache.match(`/shared-data/${sharedId}`);
-                        if (response) {
-                            np.textContent = JSON.stringify(await response.json());
-                            await cache.delete(`/shared-data/${sharedId}`);
-                        } else { throw('No shared data found for sharedId:' + sharedId); }
-                    } catch (e) { msg('Error loading shared data:' + e); }
-                    params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
-                }
-            },
-            lod = () => {
-                [np, sh, cl, lg, sw, df, dd, cx] = ['#np', '#sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i));
-                np.innerHTML = localStorage.getItem('sht0') || '';
-                sb2();
-                sb1();
-                np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver}"`);
-                np.focus();
-                lg.textContent = getComputedStyle(document.documentElement).fontSize;//ver;
-                np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
-                np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
-                lsd();
-            };
-
-        navigator?.serviceWorker.register('./sw.js');
-        window.addEventListener('beforeunload', sav);
-        document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
-        document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
-        document.addEventListener('DOMContentLoaded', lod);
-    </script>
-    <link rel="manifest" href="./manifest.json">
-    <style>
-        html {
-            background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
-        }
-
-        body {
-            --s: 2.3rem;
-            margin: 0;
-            padding: 0;
-            font-family: sans-serif;
-            padding-top: env(safe-area-inset-top);
-            padding-right: env(safe-area-inset-right);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-        }
-
+<link rel="manifest" href="./manifest.json">
+<style>
+    html { background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem; }
+    body {
+        --s: 2.3rem;
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        padding-top: env(safe-area-inset-top);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+    }
+    #sh {
+        height: calc(var(--s) + .4rem);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: #fff;
+        padding: 0;
+        z-index: 8;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        transition: box-shadow .2s;
+        user-select: none;
+    }
+    button,select,.sq {
+        flex: 1 1 5%;
+        margin: .2rem;
+        padding: 0;
+        font-size: 1.5rem;
+        background: #08f;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: .3rem;
+        overflow: hidden;
+        max-height: var(--s);
+    }
+    .sq {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sq:active,button:active,.pressed {
+        background: #06d;
+        box-shadow: 0 .3rem .3rem #0008 inset;
+    }
+    .sq:active,.pressed.sq {transform: scale(.9);}
+    #np {
+        --ph: 'hi';
+        margin: 0;
+        padding: .2rem;
+        margin-top: calc(var(--s) + .4rem);
+        margin-bottom: env(safe-area-inset-bottom);
+        width: 100%;
+        height: calc(100vh - var(--s) - .4rem);
+        font-size: 1rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+        will-change: transform;
+        cursor: text;
+        background: #fffffff7;
+        white-space: pre;
+    }
+    #np:empty:before {
+        white-space: pre;
+        content: var(--ph);
+        display: block;
+        color: #aba;
+    }
+    .dropdown {
+        position: absolute;
+        top: var(--s);
+        right: .5rem;
+        display: none;
+        grid-template-columns: repeat(2, calc(var(--s) + .4rem));
+        gap: .2rem;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: .3rem;
+        z-index: 10;
+        padding: .2rem;
+    }
+    .dropdown button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        background: #08f;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: .3rem;
+    }
+    .dropdown2 {
+        left: .5rem;
+        right: initial;
+        grid-template-columns: none;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: max-content;
+    }
+    .dropdown2 button {
+        height: var(--s);
+        flex-basis: auto;
+        text-align: left;
+        padding: 0 .5rem;
+        white-space: nowrap;
+        justify-content: space-between;
+    }
+    .sq {
+        display: flex;
+        width: var(--s);
+        height: var(--s);
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        line-height: normal;
+    }
+    .ico {
+        font-size: 2.2rem;
+        font-weight: bold;
+    }
+    .dropdown2 button::after {
+        content: attr(data-a);
+        margin-left: .5rem;
+        font-size: .9rem;
+        color: #333;
+    }
+    .scrolled {box-shadow: #567 0 .2rem .3rem 0;}
+    .hl {background: #e95;}
+    .hidden {display: none;}
+    .dropdown.show {display: grid;}
+    .dropdown2.show {display: flex;}
+    #cx:after{content: 'share';}
+    @media (max-width: 10rem) {
+        #np {margin-top: calc(2 * var(--s) + .8rem);}
         #sh {
-            height: calc(var(--s) + .4rem);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: #fff;
-            padding: 0;
-            z-index: 8;
-            display: flex;
+            height: calc(2 * var(--s) + .8rem);
             flex-wrap: wrap;
-            justify-content: space-around;
-            transition: box-shadow .2s;
-            user-select: none;
         }
-
-        button,
-        select,
         .sq {
-            flex: 1 1 5%;
-            margin: .2rem;
-            padding: 0;
-            font-size: 1.5rem;
-            background: #08f;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: .3rem;
-            overflow: hidden;
+            flex: 1 1 calc(25% - .4rem);
             max-height: var(--s);
         }
-
-        .sq {
-            flex: 0 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sq:active,
-        button:active,
-        .pressed {
-            background: #06d;
-            box-shadow: 0 .3rem .3rem #0008 inset;
-        }
-
-        .sq:active,
-        .pressed.sq {
-            transform: scale(.9);
-        }
-
-        #np {
-            --ph: 'hi';
-            margin: 0;
-            padding: .2rem;
-            margin-top: calc(var(--s) + .4rem);
-            margin-bottom: env(safe-area-inset-bottom);
-            width: 100%;
-            height: calc(100vh - var(--s) - .4rem);
-            font-size: 1rem;
-            box-sizing: border-box;
-            overflow-y: auto;
-            will-change: transform;
-            cursor: text;
-            background: #fffffff7;
-            white-space: pre;
-        }
-
-        #np:empty:before {
-            white-space: pre;
-            content: var(--ph);
-            display: block;
-            color: #aba;
-        }
-
-        .dropdown {
-            position: absolute;
-            top: var(--s);
-            right: .5rem;
-            display: none;
-            grid-template-columns: repeat(2, calc(var(--s) + .4rem));
-            gap: .2rem;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: .3rem;
-            z-index: 10;
-            padding: .2rem;
-        }
-
-        .dropdown button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            background: #08f;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: .3rem;
-        }
-
-        .dropdown2 {
-            left: .5rem;
-            right: initial;
-            grid-template-columns: none;
-            display: none;
-            flex-direction: column;
-            align-items: stretch;
-            min-width: max-content;
-        }
-
-        .dropdown2 button {
-            height: var(--s);
-            flex-basis: auto;
-            text-align: left;
-            padding: 0 .5rem;
-            white-space: nowrap;
-            justify-content: space-between;
-        }
-
-        .sq {
-            display: flex;
-            width: var(--s);
-            height: var(--s);
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            line-height: normal;
-        }
-
-        .ico {
-            font-size: 2.2rem;
-            font-weight: bold;
-        }
-
-        .dropdown2 button::after {
-            content: attr(data-a);
-            margin-left: .5rem;
-            font-size: .9rem;
-            color: #333;
-        }
-
-        .scrolled {
-            box-shadow: #567 0 .2rem .3rem 0;
-        }
-
-        .hl {
-            background: #e95;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .dropdown.show {
-            display: grid;
-        }
-
-        .dropdown2.show {
-            display: flex;
-        }
-
-        @media (max-width: 10rem) {
-            #np {
-                margin-top: calc(2 * var(--s) + .8rem);
-            }
-
-            #sh {
-                height: calc(2 * var(--s) + .8rem);
-                flex-wrap: wrap;
-            }
-
-            .sq {
-                flex: 1 1 calc(25% - .4rem);
-                max-height: var(--s);
-            }
-        }
-
-        #cx:after {
-            content: 'share';
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body>
     <div id="sh">
-        <div class="sq ico" onclick="cdo(event, dd, df)">⇩<!--svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/></svg--></div>
+        <div class="sq ico" onclick="cdo(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
             <button onclick="dow('html')">.html</button>
             <button onclick="dow('txt')">.txt</button>
@@ -334,13 +179,120 @@
         <div class="dropdown" id="df">
             <button class="sq" onclick="ifs(-1)">a-</button>
             <button class="sq" onclick="ifs(1)">A+</button>
-            <button class="sq" onclick="tgs(np, 'font-family', '', 'monospace')">𝚖</button>
-            <button class="sq" onclick="tgs(np, 'white-space', 'pre', '');tgs(this, 'white-space', 'pre', '')">wr pre</button>
-            <button class="sq" onclick="tgs(document.body, 'zoom', '', '1.5', '2', '.5')">+</button>
+            <button class="sq" onclick="tgs(np, 'font-family', 'sans', 'monospace')">𝚖</button>
+            <button class="sq" onclick="tgs(np, 'white-space', 'pre', 'normal');tgs(this, 'white-space', 'pre', '')">wr pre</button>
+            <button class="sq" onclick="tgs(document.body, 'zoom', '1.5', '2', '.5', '1')">+</button>
             <button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')">Z</button>
         </div>
     </div>
     <div id="np" contenteditable></div>
-</body>
+<script>
+    let ver = 'a';
+    let np, sh, cl, lg, sw, df, dd, cx;
+    navigator?.serviceWorker.register('./sw.js');
+    window.addEventListener('beforeunload', sav);
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sav());
+    document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
+    document.addEventListener('DOMContentLoaded', lod);
 
+    function dow(e) {
+        const a = document.createElement('a'),
+            [dat, ext, typ] = e === 'html' ?
+            [np.innerHTML, 'html', 'html'] : e === 'text' ?
+            [np.textContent, 'full.txt', 'plain'] :
+            [np.innerText, 'txt', 'plain'],
+            blb = new Blob([dat], { type: `text/${typ};charset=utf8` }),
+            url = URL.createObjectURL(blb),
+            now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
+            nam = `np.${now}.${ext}`;
+        if (cx.checked) return shr({ title: nam, text: dat });
+        a.href = url;
+        msg(a.download = nam);
+        a.click();
+        URL.revokeObjectURL(url);
+        dd.classList.remove('show');
+    }
+    function shr(data){
+        function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
+        async function shareData() { try { await navigator.share(data); } catch (e) { msg(`Error: ${e}`); } }
+        if (canBrowserShareData(data)) { shareData(data); }
+    }
+    function tsl(s){return new Intl.NumberFormat().format(s.length);}
+    function sb1(){ sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));}
+    function sb2(n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) {
+        dd.children[0].setAttribute('data-a', tsl(np.innerHTML));
+        dd.children[1].setAttribute('data-a', tsl(np.textContent));
+        dd.children[2].setAttribute('data-a', n + (o < 0 ? ' ' : ' +') + o);
+    }
+    function sav() {
+        if (np.innerHTML === '<br>') np.innerHTML = '';
+        lg.classList.add('hl');
+        clearTimeout(lg.t);
+        try {
+            localStorage.setItem('sht0', np.innerHTML);
+            lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
+        } catch (e) { msg(e); }
+        sb2();
+    }
+    function swp() {
+        let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
+        localStorage.setItem('sht0', '');
+        localStorage.setItem('sht1', '');
+        try {
+            localStorage.setItem('sht1', t0);
+            np.innerHTML = t1;
+            sb1();
+        } catch (e) {
+            localStorage.setItem('sht1', t1);
+            msg(e);
+        }
+        sav();
+    }
+    function cdo(e, d, o) {
+        e.stopPropagation();
+        d.classList.toggle('show');
+        o.classList.remove('show');
+    }
+    function tgs(e, k, ...v){ e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]);}
+    function ifs(f){ np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';}
+    function prd() {
+        let a = '', r = document.createRange(), s = window.getSelection();
+        a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
+        np.innerHTML = a + '<br>' + np.innerHTML;
+        r.setStart(np.firstChild, a.length);
+        r.collapse(true);
+        s.removeAllRanges();
+        s.addRange(r);
+        np.focus();
+    }
+    function msg(s){ alert(lg.textContent = s);}
+    async function lsd() {
+        const params = new URLSearchParams(window.location.search);
+        const sharedId = params.get('sharedId');
+        if (sharedId) {
+            try {
+                const cache = await caches.open('shared-data-cache');
+                const response = await cache.match(`/shared-data/${sharedId}`);
+                if (response) {
+                    np.textContent = JSON.stringify(await response.json());
+                    await cache.delete(`/shared-data/${sharedId}`);
+                } else { throw('No shared data found for sharedId:' + sharedId); }
+            } catch (e) { msg('Error loading shared data:' + e); }
+            params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+        }
+    }
+    function lod() {
+        [np, sh, cl, lg, sw, df, dd, cx] = ['#np', '#sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i));
+        np.innerHTML = localStorage.getItem('sht0') || '';
+        sb2();
+        sb1();
+        np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver}"`);
+        np.focus();
+        lg.textContent = getComputedStyle(document.documentElement).fontSize;//ver;
+        np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
+        np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(sav, 1000)));
+        lsd();
+    }
+</script>
+</body>
 </html>
