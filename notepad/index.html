@@ -162,31 +162,29 @@
         <div class="sq ico" onclick="openDropdown(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
             <input type="checkbox" id="cx">
-            <button onclick="downOrShare('html')">.html</button>
-            <button onclick="downOrShare('txt')">.txt</button>
-            <button onclick="downOrShare('text')">.t𝕖𝕩t</button>
+            <button onclick="downOrShare('html')" title="innerHTML">.html</button>
+            <button onclick="downOrShare('txt')" title="innerText">.txt</button>
+            <button onclick="downOrShare('text')" title="textContent">.t𝕖𝕩t</button>
         </div>
-        <button onclick="prependDate()" class="sq" id="ud">📆</button>
-        <button onclick="confirm('clear it?') && store(np.textContent = '')" class="sq" id="cl">🗑︎</button>
-        <button onclick="document.execCommand('undo')" title="undo" class="sq">↶</button>
-        <button onclick="document.execCommand('redo')" title="redo" class="sq">↷</button>
-        <button onclick="swap()" class="sq" id="sw">sw</button>
-        <button onclick="store([lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent])" id="lg">:)</button>
-        <div class="sq" onclick="openDropdown(event, df, dd)">𝔉</div>
+        <button class="sq" id="ud" onclick="prependDate()" title="date">📆</button>
+        <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
+        <button class="sq"         onclick="document.execCommand('undo')" title="undo">↶</button>
+        <button class="sq" id="sw" onclick="swap()">sw</button>
+        <button            id="lg" onclick="store([lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent])">:)</button>
+        <div class="sq"            onclick="openDropdown(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
-            <button class="sq" onclick="adjustFontSize(-1)">a-</button>
-            <button class="sq" onclick="adjustFontSize(1)">A+</button>
-            <button class="sq" onclick="toggleProp(np, 'font-family', 'sans', 'monospace')">𝚖</button>
-            <button class="sq" onclick="toggleProp(np, 'white-space', 'pre', 'normal');toggleProp(this, 'white-space', 'pre', '')">wr pre</button>
-            <button class="sq" onclick="toggleProp(document.body, 'zoom', '1.5', '2', '.5', '1')">+</button>
-            <button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')">Z</button>
+        <button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
+        <button class="sq" onclick="adjustFontSize(1)" title="f+">A+</button>
+        <button class="sq" onclick="toggleProp(np, 'font-family', 'sans', 'monospace')" title="monospace">𝚖</button>
+        <button class="sq" onclick="toggleProp(np, 'white-space', 'pre', 'normal');toggleProp(this, 'white-space', 'pre', '')" title="wrap">wr pre</button>
+        <button class="sq" onclick="toggleProp(document.body, 'zoom', '1.5', '2', '.5', '1')" title="z+">+</button>
+        <button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')" title="zap style">Z</button>
+        <button class="sq" onclick="document.execCommand('redo')" title="redo">↷</button>
         </div>
     </div>
     <div id="np" contenteditable></div>
-    <div id=asdf style="width: var(--max);"></div>
 <script>
-    let ver = '060618';
-    let np, sh, cl, lg, sw, df, dd, cx;
+    let ver = '060619', np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
     window.addEventListener('beforeunload', store);
     document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && store());
@@ -217,7 +215,7 @@
     }
     function tsl(s){return new Intl.NumberFormat().format(s.length);}
     function sb1(){ sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));}
-    function sb2(n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) {
+    function sb0(n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) {
         [...dd.querySelectorAll('button')].map((e, i)=>e.setAttribute('data-a', [tsl(np.innerHTML), tsl(np.textContent), n + (o < 0 ? ' ' : ' +') + o][i]));
     }
     function store() {
@@ -228,7 +226,7 @@
             localStorage.setItem('sht0', np.innerHTML);
             lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
         } catch (e) { msg(e); }
-        sb2();
+        sb0();
     }
     function swap() {
         let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
@@ -287,7 +285,7 @@
         np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
         loadShared();
-        sb2();
+        sb0();
         sb1();
         np.focus();
     }
