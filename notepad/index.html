@@ -9,7 +9,7 @@
     body {
         --s: 2.3rem;
         --m: .2rem;
-        --max: calc(8 * (var(--s) + 2 * var(--m)));
+        --ss: calc(var(--s) + 2 * var(--m));
         margin: 0;
         padding: 0;
         font-family: sans-serif;
@@ -19,7 +19,7 @@
         padding-left: env(safe-area-inset-left);
     }
     #sh {
-        height: calc(var(--s) + .4rem);
+        height: var(--ss);
         position: fixed;
         top: 0;
         width: 100%;
@@ -32,7 +32,7 @@
         transition: box-shadow .2s;
         user-select: none;
     }
-    button,select,.sq {
+    button, select, .sq {
         flex: 1 1 5%;
         margin: var(--m);
         padding: 0;
@@ -51,19 +51,19 @@
         align-items: center;
         justify-content: center;
     }
-    .sq:active,button:active,.pressed {
+    .sq:active, button:active, .pressed {
         background: #06d;
         box-shadow: 0 .3rem .3rem #0008 inset;
     }
-    .sq:active,.pressed.sq {transform: scale(.9);}
+    .sq:active, .pressed.sq {transform: scale(.9);}
     #np {
         --ph: 'hi';
         margin: 0;
         padding: var(--m);
-        margin-top: calc(var(--s) + 2 * var(--m));
+        margin-top: var(--ss);
         margin-bottom: env(safe-area-inset-bottom);
         width: 100%;
-        height: calc(100vh - var(--s) - 2 * var(--m));
+        height: calc(100vh - var(--ss));
         font-size: 1rem;
         box-sizing: border-box;
         overflow-y: auto;
@@ -82,7 +82,7 @@
         top: var(--s);
         right: .5rem;
         display: none;
-        grid-template-columns: repeat(2, calc(var(--s) + .4rem));
+        grid-template-columns: repeat(2, var(--ss));
         gap: var(--m);
         background: #fff;
         border: 1px solid #ccc;
@@ -144,9 +144,9 @@
     .dropdown2.show {display: flex;}
     #cx:after{content: 'share';}
     @media (max-width: 21rem) {
-        #np {margin-top: calc(2 * (var(--s) + 2 * var(--m)));}
+        #np {margin-top: calc(2 * var(--ss))}
         #sh {
-            height: calc(2 * (var(--s) + 2 * var(--m)));
+            height: calc(2 * var(--ss));
             flex-wrap: wrap;
         }
         .sq {
@@ -161,10 +161,10 @@
     <div id="sh">
         <div class="sq ico" onclick="openDropdown(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
+            <input type="checkbox" id="cx">
             <button onclick="downOrShare('html')">.html</button>
             <button onclick="downOrShare('txt')">.txt</button>
             <button onclick="downOrShare('text')">.t𝕖𝕩t</button>
-            <input type="checkbox" id="cx">
         </div>
         <button onclick="prependDate()" class="sq" id="ud">📆</button>
         <button onclick="confirm('clear it?') && store(np.textContent = '')" class="sq" id="cl">🗑︎</button>
@@ -185,7 +185,7 @@
     <div id="np" contenteditable></div>
     <div id=asdf style="width: var(--max);"></div>
 <script>
-    let ver = '0523235123';
+    let ver = '3';
     let np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
     window.addEventListener('beforeunload', store);
@@ -212,15 +212,13 @@
     }
     function share(data) {
         function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
-        async function shareData() { try { await navigator.share(data); } catch (e) { msg(`Error: ${e}`); } }
+        async function shareData() { try { await navigator.share(data); } catch (e) {} }
         if (canBrowserShareData(data)) { shareData(data); }
     }
     function tsl(s){return new Intl.NumberFormat().format(s.length);}
     function sb1(){ sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1'));}
     function sb2(n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) {
-        dd.children[0].setAttribute('data-a', tsl(np.innerHTML));
-        dd.children[1].setAttribute('data-a', tsl(np.textContent));
-        dd.children[2].setAttribute('data-a', n + (o < 0 ? ' ' : ' +') + o);
+        [...dd.querySelectorAll('button')].map((e, i)=>e.setAttribute('data-a', [tsl(np.innerHTML), tsl(np.textContent), n + (o < 0 ? ' ' : ' +') + o][i]));
     }
     function store() {
         if (np.innerHTML === '<br>') np.innerHTML = '';
