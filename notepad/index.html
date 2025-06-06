@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html>
-
-<head>
+<!DOCTYPE html><html><head>
     <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
     <title>npTitle</title>
-<link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="./manifest.json">
 <style>
     html { background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem; }
     body {
         --s: 2.3rem;
+        --m: .2rem;
+        --max: calc(8 * (var(--s) + 2 * var(--m)));
         margin: 0;
         padding: 0;
         font-family: sans-serif;
@@ -36,7 +34,7 @@
     }
     button,select,.sq {
         flex: 1 1 5%;
-        margin: .2rem;
+        margin: var(--m);
         padding: 0;
         font-size: 1.5rem;
         background: #08f;
@@ -61,18 +59,17 @@
     #np {
         --ph: 'hi';
         margin: 0;
-        padding: .2rem;
-        margin-top: calc(var(--s) + .4rem);
+        padding: var(--m);
+        margin-top: calc(var(--s) + 2 * var(--m));
         margin-bottom: env(safe-area-inset-bottom);
         width: 100%;
-        height: calc(100vh - var(--s) - .4rem);
+        height: calc(100vh - var(--s) - 2 * var(--m));
         font-size: 1rem;
         box-sizing: border-box;
         overflow-y: auto;
         will-change: transform;
         cursor: text;
         background: #fffffff7;
-        white-space: pre;
     }
     #np:empty:before {
         white-space: pre;
@@ -86,12 +83,12 @@
         right: .5rem;
         display: none;
         grid-template-columns: repeat(2, calc(var(--s) + .4rem));
-        gap: .2rem;
+        gap: var(--m);
         background: #fff;
         border: 1px solid #ccc;
         border-radius: .3rem;
         z-index: 10;
-        padding: .2rem;
+        padding: var(--m);
     }
     .dropdown button {
         display: flex;
@@ -140,20 +137,20 @@
         font-size: .9rem;
         color: #333;
     }
-    .scrolled {box-shadow: #567 0 .2rem .3rem 0;}
+    .scrolled {box-shadow: #567 0 var(--m) var(--m) 0;}
     .hl {background: #e95;}
     .hidden {display: none;}
     .dropdown.show {display: grid;}
     .dropdown2.show {display: flex;}
     #cx:after{content: 'share';}
     @media (max-width: 21rem) {
-        #np {margin-top: calc(2 * var(--s) + .8rem);}
+        #np {margin-top: calc(2 * (var(--s) + 2 * var(--m)));}
         #sh {
-            height: calc(2 * var(--s) + .8rem);
+            height: calc(2 * (var(--s) + 2 * var(--m)));
             flex-wrap: wrap;
         }
         .sq {
-            flex: 1 1 calc(25% - .4rem);
+            flex: 1 1 calc(25% - 2 * var(--m));
             max-height: var(--s);
         }
     }
@@ -164,9 +161,9 @@
     <div id="sh">
         <div class="sq ico" onclick="openDropdown(event, dd, df)">⇩</div>
         <div class="dropdown dropdown2" id="dd">
-            <button onclick="exports('html')">.html</button>
-            <button onclick="exports('txt')">.txt</button>
-            <button onclick="exports('text')">.t𝕖𝕩t</button>
+            <button onclick="downOrShare('html')">.html</button>
+            <button onclick="downOrShare('txt')">.txt</button>
+            <button onclick="downOrShare('text')">.t𝕖𝕩t</button>
             <input type="checkbox" id="cx">
         </div>
         <button onclick="prependDate()" class="sq" id="ud">📆</button>
@@ -186,8 +183,9 @@
         </div>
     </div>
     <div id="np" contenteditable></div>
+    <div id=asdf style="width: var(--max);"></div>
 <script>
-    let ver = '0606B';
+    let ver = '0606D';
     let np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
     window.addEventListener('beforeunload', store);
@@ -195,22 +193,22 @@
     document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
     document.addEventListener('DOMContentLoaded', init);
 
-    function exports(e) {
-        const a = document.createElement('a'),
-            [text, ext, type] = e === 'html' ?
+    function nowFmt(t = new Date()){return t.toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);}
+    function downOrShare(e) {
+        const [text, ext, type] = e === 'html' ?
             [np.innerHTML, 'html', 'html'] : e === 'text' ?
             [np.textContent, 'full.txt', 'plain'] :
             [np.innerText, 'txt', 'plain'],
-            blob = new Blob([text], { type: `text/${type};charset=utf8` }),
-            url = URL.createObjectURL(blob),
-            now = new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15),
-            tit = `np.${now}.${ext}`;
-        if (cx.checked) return share({ title: tit, text: text });
+            title = `np.${nowFmt()}.${ext}`;
+        if (cx.checked) return share({ title: title, text: text });
+        const a = document.createElement('a'),
+            url = URL.createObjectURL(new Blob([text], { type: `text/${type};charset=utf8` }));
         a.href = url;
-        msg(a.download = tit);
+        a.download = title;
         a.click();
         URL.revokeObjectURL(url);
         dd.classList.remove('show');
+        msg(title);
     }
     function share(data) {
         function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
@@ -254,7 +252,7 @@
         o.classList.remove('show');
     }
     function toggleProp(e, k, ...v){ e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]);}
-    function adjustFontSize(f){ np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px';}
+    function adjustFontSize(f){ np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f>0?1.4:5/7) + 'px';}
     function prependDate() {
         let a = '', r = document.createRange(), s = window.getSelection();
         a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
@@ -272,9 +270,10 @@
         if (sharedId) {
             try {
                 const cache = await caches.open('shared-data-cache');
-                const response = await cache.match(`/shared-data/${sharedId}`);
+                const data = (await cache.match(`/shared-data/${sharedId}`))?.json();
                 if (response) {
-                    np.textContent = JSON.stringify(await response.json());
+                    np.textContent = data.text;
+                    lg.textContent = data.title + (data.url ? ' ' + data.url : '');
                     await cache.delete(`/shared-data/${sharedId}`);
                 } else { throw('No shared data found for sharedId:' + sharedId); }
             } catch (e) { msg('Error loading shared data:' + e); }
@@ -282,13 +281,13 @@
         }
     }
     function init() {
-        [np, sh, cl, lg, sw, df, dd, cx] = ['#np', '#sh', '#cl', '#lg', '#sw', '#df', '#dd', '#cx'].map(i => document.querySelector(i));
+        [np,sh,cl,lg,sw,df,dd,cx]=['np','sh','cl','lg','sw','df','dd','cx'].map(i=>document.querySelector(`#${i}`));
         np.innerHTML = localStorage.getItem('sht0') || '';
         sb2();
         sb1();
-        np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver}"`);
+        np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver} ${location.hostname}"`);
         np.focus();
-        lg.textContent = getComputedStyle(document.documentElement).fontSize;//ver;
+        lg.textContent = getComputedStyle(document.documentElement).fontSize;
         np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
         loadShared();
