@@ -19,7 +19,32 @@
     "params": {
       "text": "text",
       "title": "title",
-      "url": "url"
+      "url": "url",
+      "files": [
+        {
+          "name": "textFiles",
+          "accept": [
+            "text/plain",
+            ".txt"
+          ]
+        },
+        {
+          "name": "htmlFiles",
+          "accept": [
+            "text/html",
+            ".html"
+          ]
+        },
+        {
+          "name": "images",
+          "accept": [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif"
+          ]
+        }
+      ]
     }
   },
   "prefer_related_applications": false,

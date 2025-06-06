@@ -1,4 +1,4 @@
-const ver = '2';
+const ver = '060618';
 const cacheName = `npCache-${ver}`;
 const sharedDataCacheName = 'shared-data-cache';
 
@@ -33,10 +33,14 @@ async function handlePostRequest(event, url) {
     (async () => {
       try {
         const formData = await event.request.formData();
+        const textFiles = formData.getAll("textFiles");
+        const htmlFiles = formData.getAll("htmlFiles");
+        const imageFiles = formData.getAll("images");
         const sharedData = {
           text: formData.get('text') || '',
           title: formData.get('title') || '',
           url: formData.get('url') || '',
+          etc: textFiles.length + ' '+ htmlFiles.length + ' ' + imageFiles.length
         };
         const sharedId = crypto.randomUUID();
         const sharedDataResponse = new Response(JSON.stringify(sharedData), {
