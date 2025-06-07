@@ -206,7 +206,7 @@
         <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
         <button class="sq"         onclick="document.execCommand('undo')" title="undo">↶</button>
         <button class="sq" id="sw" onclick="swap()">sw</button>
-        <button class="rt" id="lg" onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];np.innerHTML=lg.textContent = getComputedStyle(document.documentElement).fontSize + getComputedStyle(document.querySelector('body')).width
+        <button class="rt" id="lg" onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];np.innerHTML=lg.textContent = 'fs:' + getComputedStyle(document.documentElement).fontSize + ' dpr:' + devicePixelRatio + ' w:' + getComputedStyle(document.querySelector('body')).width
 +'<br>'+np.innerHTML;store()">:)</button>
         <div class="sq"            onclick="openDropdown(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
@@ -221,7 +221,7 @@
     </div>
     <div id="np" contenteditable></div>
 <script>
-    let ver = '060619', np, sh, cl, lg, sw, df, dd, cx;
+    let ver = '060713h', np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
     window.addEventListener('beforeunload', store);
     document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && store());
@@ -331,6 +331,28 @@
         sb1();
         np.focus();
     }
+    function adjustResponsiveStyles() {
+        const sh = document.querySelector('#sh');
+        const sq = document.querySelectorAll('.sq');
+        const effectiveWidth = window.innerWidth / parseFloat(getComputedStyle(document.documentElement).fontSize);
+        if (effectiveWidth < 21) {
+            sh.style.height = `calc(2 * var(--ss))`;
+            sh.style.flexWrap = 'wrap';
+            sq.forEach(button => {
+                button.style.flex = `1 1 calc(25% - 2 * var(--m))`;
+                button.style.maxHeight = `var(--s)`;
+            });
+        } else {
+            sh.style.height = `var(--ss)`;
+            sh.style.flexWrap = 'nowrap';
+            sq.forEach(button => {
+                button.style.flex = `1 1 5%`;
+                button.style.maxHeight = `var(--s)`;
+            });
+        }
+    }
+    window.addEventListener('resize', adjustResponsiveStyles);
+    document.addEventListener('DOMContentLoaded', adjustResponsiveStyles);
 </script>
 </body>
 </html>
