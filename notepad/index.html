@@ -195,7 +195,7 @@
 
 <body>
     <div id="sh">
-        <div class="sq ico" onclick="openDropdown(event, dd, df)">⇩</div>
+        <button class="sq ico" onclick="openDropdown(event, dd, df)">⇩</button>
         <div class="dropdown dropdown2" id="dd">
             <input type="checkbox" id="cx">
             <button onclick="downOrShare('html')" title="innerHTML">.html</button>
@@ -206,9 +206,8 @@
         <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
         <button class="sq"         onclick="document.execCommand('undo')" title="undo">↶</button>
         <button class="sq" id="sw" onclick="swap()">sw</button>
-        <button class="rt" id="lg" onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];np.innerHTML=lg.textContent = 'fs:' + getComputedStyle(document.documentElement).fontSize + ' dpr:' + devicePixelRatio + ' w:' + getComputedStyle(document.querySelector('body')).width
-+'<br>'+np.innerHTML;store()">:)</button>
-        <div class="sq"            onclick="openDropdown(event, df, dd)">𝔉</div>
+        <button class="rt" id="lg" onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];np.innerHTML=lg.textContent = 'fs:' + getComputedStyle(document.documentElement).fontSize + ' dpr:' + devicePixelRatio + ' w:' + getComputedStyle(document.querySelector('body')).width+'<br>'+np.innerHTML;store()">:)</button>
+        <button class="sq ico" onclick="openDropdown(event, df, dd)">𝔉</button>
         <div class="dropdown" id="df">
         <button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
         <button class="sq" onclick="adjustFontSize(1)" title="f+">A+</button>
@@ -221,12 +220,25 @@
     </div>
     <div id="np" contenteditable></div>
 <script>
-    let ver = '060713h', np, sh, cl, lg, sw, df, dd, cx;
+    let ver = '060714h', np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
     window.addEventListener('beforeunload', store);
     document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && store());
     document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
     document.addEventListener('DOMContentLoaded', init);
+
+    document.querySelectorAll('.sq.ico').forEach((e)=>e.addEventListener('mouseenter', (e) => {
+        const isDd = e.target.nextSibling.nextSibling.id === 'dd';
+        document.body.setAttribute('data-mousentered', true);
+        dd.classList.toggle('show', isDd);
+        df.classList.toggle('show', !isDd);
+    }));
+    document.querySelectorAll('.dropdown').forEach((e)=>e.addEventListener('mouseleave', (e) => {
+        if (!document.body.getAttribute('data-mousentered')) return;
+        document.body.removeAttribute('data-mousentered');
+        dd.classList.remove('show');
+        df.classList.remove('show');
+    }));
 
     function nowFmt(t = new Date()){return t.toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15);}
     function downOrShare(e) {
@@ -331,28 +343,30 @@
         sb1();
         np.focus();
     }
-    function adjustResponsiveStyles() {
-        const sh = document.querySelector('#sh');
-        const sq = document.querySelectorAll('.sq');
-        const effectiveWidth = window.innerWidth / parseFloat(getComputedStyle(document.documentElement).fontSize);
-        if (effectiveWidth < 21) {
-            sh.style.height = `calc(2 * var(--ss))`;
-            sh.style.flexWrap = 'wrap';
-            sq.forEach(button => {
-                button.style.flex = `1 1 calc(25% - 2 * var(--m))`;
-                button.style.maxHeight = `var(--s)`;
-            });
-        } else {
-            sh.style.height = `var(--ss)`;
-            sh.style.flexWrap = 'nowrap';
-            sq.forEach(button => {
-                button.style.flex = `1 1 5%`;
-                button.style.maxHeight = `var(--s)`;
-            });
-        }
-    }
-    window.addEventListener('resize', adjustResponsiveStyles);
-    document.addEventListener('DOMContentLoaded', adjustResponsiveStyles);
-</script>
+    </script>
+    <script>
+    // function adjustResponsiveStyles() {
+    //     const sh = document.querySelector('#sh');
+    //     const sq = document.querySelectorAll('.sq');
+    //     const effectiveWidth = window.innerWidth / parseFloat(getComputedStyle(document.documentElement).fontSize);
+    //     if (effectiveWidth < 21) {
+    //         sh.style.height = `calc(2 * var(--ss))`;
+    //         sh.style.flexWrap = 'wrap';
+    //         sq.forEach(button => {
+    //             button.style.flex = `1 1 calc(25% - 2 * var(--m))`;
+    //             button.style.maxHeight = `var(--s)`;
+    //         });
+    //     } else {
+    //         sh.style.height = `var(--ss)`;
+    //         sh.style.flexWrap = 'nowrap';
+    //         sq.forEach(button => {
+    //             button.style.flex = `1 1 5%`;
+    //             button.style.maxHeight = `var(--s)`;
+    //         });
+    //     }
+    // }
+    // window.addEventListener('resize', adjustResponsiveStyles);
+    // document.addEventListener('DOMContentLoaded', adjustResponsiveStyles);
+    </script>
 </body>
 </html>
