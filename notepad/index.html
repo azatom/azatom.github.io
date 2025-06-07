@@ -45,23 +45,13 @@
         overflow: hidden;
         max-height: var(--s);
     }
-    .sq {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .sq:active, button:active, .pressed {
-        background: #06d;
-        box-shadow: 0 .3rem .3rem #0008 inset;
-    }
-    .sq:active, .pressed.sq {transform: scale(.9);}
     #np {
         --ph: 'hi';
         margin: 0;
         padding: var(--m);
         margin-top: var(--ss);
         margin-bottom: env(safe-area-inset-bottom);
+        padding-bottom: var(--ss);
         width: 100%;
         height: calc(100vh - var(--ss));
         font-size: 1rem;
@@ -119,6 +109,7 @@
         justify-content: space-between;
     }
     .sq {
+        flex: 0 0 auto;
         display: flex;
         width: var(--s);
         height: var(--s);
@@ -126,6 +117,15 @@
         justify-content: center;
         font-size: 1.5rem;
         line-height: normal;
+    }
+    .sq:active, button:active, .pressed {
+        background: #06d;
+        box-shadow: 0 .3rem .3rem #0008 inset;
+    }
+    .sq:active, .pressed.sq {transform: scale(.9);}
+    .rt {
+        width: initial;
+        min-width: calc(2 * var(--s));
     }
     .ico {
         font-size: 2.2rem;
@@ -143,8 +143,11 @@
     .dropdown.show {display: grid;}
     .dropdown2.show {display: flex;}
     #cx:after{content: 'share';}
-    @media (max-width: 21rem) {
-        #np {margin-top: calc(2 * var(--ss))}
+    @media screen and (max-width: 21rem) {
+        #np {
+            margin-top: calc(2 * var(--ss));
+            padding-bottom: calc(2 * var(--ss));
+        }
         #sh {
             height: calc(2 * var(--ss));
             flex-wrap: wrap;
@@ -155,6 +158,39 @@
         }
     }
 </style>
+<script type="text/javascript">
+		window.addEventListener( "resize", handleResizeEvent );
+		setupMediaQueryListeners();
+		function handleResizeEvent( event ) {
+			console.group( "%cResize Event", "color: red" );
+			console.log( "Window width:", window.innerWidth );
+			console.log( "Pixel density:", window.devicePixelRatio );
+			console.groupEnd();
+		}
+		function handleMediaQueryChangeEvent( event ) {
+			console.group( "%cMediaQueryList Event", "color: purple" );
+			console.log( "Condition:", event.media );
+			console.log( "Matches:", event.matches );
+			console.groupEnd();
+		}
+		function setupMediaQueryListeners() {
+			var rules = document.styleSheets[ 0 ].cssRules;
+			var length = rules.length;
+			for ( var i = 0 ; i < length ; i++ ) {
+				var rule = rules[ i ];
+				var conditionText = ( rule.media && rule.media[ 0 ] );
+				if ( ! conditionText ) {
+					continue;
+				}
+				var mediaQueryList = window.matchMedia( conditionText );
+				mediaQueryList.addListener( handleMediaQueryChangeEvent );
+				console.group( "Setting up media listener" );
+				console.log( "Condition:", conditionText );
+				console.log( "Initial match:", mediaQueryList.matches );
+				console.groupEnd();
+			}			
+		}
+	</script>
 </head>
 
 <body>
@@ -170,7 +206,8 @@
         <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
         <button class="sq"         onclick="document.execCommand('undo')" title="undo">↶</button>
         <button class="sq" id="sw" onclick="swap()">sw</button>
-        <button            id="lg" onclick="store([lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent])">:)</button>
+        <button class="rt" id="lg" onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];np.innerHTML=lg.textContent = getComputedStyle(document.documentElement).fontSize + getComputedStyle(document.querySelector('body')).width
++'<br>'+np.innerHTML;store()">:)</button>
         <div class="sq"            onclick="openDropdown(event, df, dd)">𝔉</div>
         <div class="dropdown" id="df">
         <button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
@@ -279,10 +316,15 @@
     }
     function init() {
         [np,sh,cl,lg,sw,df,dd,cx]=['np','sh','cl','lg','sw','df','dd','cx'].map(i=>document.querySelector(`#${i}`));
-        lg.textContent = getComputedStyle(document.documentElement).fontSize;
         np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver} ${location.hostname}"`);
         np.innerHTML = localStorage.getItem('sht0') || '';
-        np.addEventListener('scroll', () => sh.classList.toggle('scrolled', np.scrollTop > 0));
+        const detectScroll = () => {
+            const scrolled = np.scrollTop > 0 || document.documentElement.scrollTop > 0 || document.body.scrollTop > 0;
+            np.classList.toggle('scrolled', scrolled);
+            sh.classList.toggle('scrolled', scrolled);
+        };
+        np.addEventListener('scroll', detectScroll);
+        window.addEventListener('scroll', detectScroll);
         np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
         loadShared();
         sb0();
