@@ -128,7 +128,7 @@
         min-width: calc(2 * var(--s));
     }
     .ico {
-        font-size: 2.2rem;
+        font-size: 2rem;
         font-weight: bold;
     }
     .dropdown2 button::after {
@@ -206,7 +206,7 @@
         <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
         <button class="sq"         onclick="document.execCommand('undo')" title="undo">↶</button>
         <button class="sq" id="sw" onclick="swap()">sw</button>
-        <button class="rt" id="lg" onclick="[lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];np.innerHTML=lg.textContent = 'fs:' + getComputedStyle(document.documentElement).fontSize + ' dpr:' + devicePixelRatio + ' w:' + getComputedStyle(document.querySelector('body')).width+'<br>'+np.innerHTML;store()">:)</button>
+        <button class="rt" id="lg" onclick="dbg()">:)</button>
         <button class="sq ico" onclick="openDropdown(event, df, dd)">𝔉</button>
         <div class="dropdown" id="df">
         <button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
@@ -220,19 +220,36 @@
     </div>
     <div id="np" contenteditable></div>
 <script>
-    let ver = '060714h', np, sh, cl, lg, sw, df, dd, cx;
+    let ver = 'aaa', np, sh, cl, lg, sw, df, dd, cx;
     navigator?.serviceWorker.register('./sw.js');
     window.addEventListener('beforeunload', store);
     document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && store());
-    document.addEventListener('click', e => [df, dd].forEach(f => f.contains(e.target) || f.classList.remove('show')));
+    document.addEventListener('click', e => [df, dd].forEach(d => d.contains(e.target) || d.classList.remove('show')));
     document.addEventListener('DOMContentLoaded', init);
 
-    document.querySelectorAll('.sq.ico').forEach((e)=>e.addEventListener('mouseenter', (e) => {
-        const isDd = e.target.nextSibling.nextSibling.id === 'dd';
+    function dbg() {
+        // [lg.textContent,np.innerHTML]=[np.innerHTML,lg.textContent];
+        np.innerHTML =
+            '<br>fs: ' + getComputedStyle(document.documentElement).fontSize +
+            '<br>dpr: ' + devicePixelRatio +
+            '<br>w: ' + getComputedStyle(document.querySelector('body')).width +
+            '<br>ver: ' + ver +
+            '<br>' + np.innerHTML;
+        // store();
+    }
+
+    document.querySelectorAll('.sq.ico').forEach((butt)=>butt.addEventListener('pointerevent', (e) => {
+        e.preventDefault();
+        const isDd = butt.nextElementSibling.id === 'dd';
         document.body.setAttribute('data-mousentered', true);
         dd.classList.toggle('show', isDd);
         df.classList.toggle('show', !isDd);
     }));
+    function openDropdown(e, d, o) {
+        e.stopPropagation();
+        d.classList.toggle('show');
+        o.classList.remove('show');
+    }
     document.querySelectorAll('.dropdown').forEach((e)=>e.addEventListener('mouseleave', (e) => {
         if (!document.body.getAttribute('data-mousentered')) return;
         document.body.removeAttribute('data-mousentered');
@@ -291,11 +308,6 @@
         }
         store();
     }
-    function openDropdown(e, d, o) {
-        e.stopPropagation();
-        d.classList.toggle('show');
-        o.classList.remove('show');
-    }
     function toggleProp(e, k, ...v){ e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]);}
     function adjustFontSize(f){ np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f>0?1.4:5/7) + 'px';}
     function prependDate() {
@@ -342,6 +354,7 @@
         sb0();
         sb1();
         np.focus();
+        lg.textContent = ver;
     }
     </script>
     <script>
