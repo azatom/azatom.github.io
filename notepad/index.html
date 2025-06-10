@@ -229,7 +229,7 @@
 
 <body>
 	<div id="sh">
-		<button class="sq ico" onclick="openDropdown(event, dd, df)">⇩</button>
+		<button class="sq ico">⇩</button>
 		<div class="dropdown dropdown2" id="dd">
 			<input type="checkbox" id="cx">
 			<button onclick="downOrShare('html')" title="innerHTML">.html</button>
@@ -238,10 +238,10 @@
 		</div>
 		<button class="sq" id="ud" onclick="prependDate()" title="date">📆</button>
 		<button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
-		<button class="sq" onclick="d.execCommand('undo')" title="undo">↶</button>
+		<button class="sq" id="ud" onclick="d.execCommand('undo')" title="undo">↶</button>
 		<button class="sq" id="sw" onclick="swap()">sw</button>
 		<button class="rt" id="lg" onclick="dbg()">:)</button>
-		<button class="sq ico" onclick="openDropdown(event, df, dd)">𝔉</button>
+		<button class="sq ico">𝔉</button>
 		<div class="dropdown" id="df">
 			<button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
 			<button class="sq" onclick="adjustFontSize(1)" title="f+">A+</button>
@@ -255,7 +255,7 @@
 	</div>
 	<div id="np" contenteditable></div>
 	<script>
-		let ver = '0610', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
+		let ver = '0609', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
 		navigator?.serviceWorker.register('./sw.js');
 		window.addEventListener('beforeunload', store);
 		d.addEventListener('visibilitychange', () => d.visibilityState === 'hidden' && store());
@@ -263,40 +263,44 @@
 		d.addEventListener('DOMContentLoaded', init);
 
 		function dbg() {
-			try {
-				np.innerHTML =
-					'<hr>fs: ' + getComputedStyle(d.documentElement).fontSize +
-					'<br>zoom b: ' + b.style.zoom +
-					'<br>zoom d: ' + d.documentElement.style.zoom +
-					'<br>zoom t: ' + b.style.transform +
-					'<br>dpr: ' + devicePixelRatio +
-					'<br>w: ' + getComputedStyle(d.querySelector('body')).width +
-					'<br>now: ' + nowFmt() +
-					'<br>ver: ' + ver +
-					'<br>host: ' + location.hostname +
-					'<hr>' + np.innerHTML;
-			} catch (e) { np.textContent = e; }
+			np.innerHTML =
+				'<hr>fs: ' + getComputedStyle(d.documentElement).fontSize + ' ' + getComputedStyle(d.body).fontSize +
+				'<br>zoom b: ' + b.style.zoom +
+				'<br>zoom d: ' + d.documentElement.style.zoom +
+				'<br>zoom t: ' + b.style.transform +
+				'<br>dpr: ' + devicePixelRatio +
+				'<br>w: ' + getComputedStyle(d.querySelector('body')).width +
+				'<br>now: ' + nowFmt() +
+				'<br>ver: ' + ver +
+				'<br>host: ' + location.hostname +
+				'<hr>' + np.innerHTML;
 		}
 
-		d.querySelectorAll('.sq.ico').forEach((butt) => butt.addEventListener('pointerevent', (e) => {
-			e.preventDefault();
-			const isDd = butt.nextElementSibling.id === 'dd';
-			b.setAttribute('data-mousentered', true);
-			dd.classList.toggle('show', isDd);
-			df.classList.toggle('show', !isDd);
-		}));
-		function openDropdown(e, d, o) {
-			e.stopPropagation();
-			const isDd = e.target.nextElementSibling.id === 'dd';
-			dd.classList.toggle('show', isDd);
-			df.classList.toggle('show', !isDd);
+		async function addListeners() {
+			d.querySelectorAll('.dropdown').forEach((e) => e.addEventListener('pointerleave', (e) => {
+				if (!b.getAttribute('data-mousentered')) return;
+				b.setAttribute('data-mousentered', false);
+				dd.classList.toggle('show', false);
+				df.classList.toggle('show', false);
+			}));
+			d.querySelectorAll('.sq.ico').forEach((butt) => {
+				butt.addEventListener('mouseenter', (e) => {
+					console.log('pointerevent', e);
+					e.preventDefault();
+					const isDd = butt.nextElementSibling.id === 'dd';
+					b.setAttribute('data-mousentered', true);
+					dd.classList.toggle('show', isDd);
+					df.classList.toggle('show', !isDd);
+				});
+				butt.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const isDd = e.target.nextElementSibling.id === 'dd';
+					dd.classList.toggle('show', isDd);
+					df.classList.toggle('show', !isDd);
+				});
+				lg.textContent = '?';
+			});
 		}
-		d.querySelectorAll('.dropdown').forEach((e) => e.addEventListener('mouseleave', (e) => {
-			if (!b.getAttribute('data-mousentered')) return;
-			b.setAttribute('data-mousentered', false);
-			dd.classList.toggle('show', false);
-			df.classList.toggle('show', false);
-		}));
 
 		function nowFmt(t = new Date()) { return t.toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15); }
 		function downOrShare(e) {
@@ -379,7 +383,10 @@
 				params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
 			}
 		}
-		function init() {
+		async function sleep(t) {
+			return new Promise(resolve => setTimeout(resolve, t));
+		}
+		async function init() {
 			[np, sh, cl, lg, sw, df, dd, cx] = ['np', 'sh', 'cl', 'lg', 'sw', 'df', 'dd', 'cx'].map(i => document.querySelector(`#${i}`));
 			np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver} ${location.hostname}"`);
 			np.innerHTML = localStorage.getItem('sht0') || '';
@@ -395,6 +402,7 @@
 			sb0();
 			sb1();
 			np.focus();
+			addListeners();
 			lg.textContent = ver;
 		}
 	</script>
