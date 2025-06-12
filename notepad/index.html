@@ -71,6 +71,8 @@
 			will-change: transform;
 			cursor: text;
 			background: #fffffff7;
+			font-family: sans-serif;
+			white-space: normal;
 		}
 
 		#np:empty:before {
@@ -153,11 +155,6 @@
 			min-width: calc(2 * var(--s));
 		}
 
-		.ico {
-			font-size: 2rem;
-			font-weight: bold;
-		}
-
 		.dropdown2 button::after {
 			content: attr(data-a);
 			margin-left: .5rem;
@@ -185,8 +182,26 @@
 			display: flex;
 		}
 
-		#cx:after {
-			content: 'share';
+		#cy {
+			display: flex;
+			align-items: center;
+		}
+
+		label {
+			display: inline-block;
+			margin-bottom: 5px;
+			vertical-align: top;
+		}
+
+		hr {
+			margin: 0;
+			background-color: #000;
+			height: .02315rem;
+			border: 0;
+		}
+
+		hr+hr {
+			display: none;
 		}
 
 		@media screen and (max-width: 21rem) {
@@ -229,69 +244,64 @@
 
 <body>
 	<div id="sh">
-		<button class="sq ico">⇩</button>
+		<button class="sq ddlabel">⇩</button>
 		<div class="dropdown dropdown2" id="dd">
-			<input type="checkbox" id="cx">
-			<button onclick="downOrShare('html')" title="innerHTML">.html</button>
-			<button onclick="downOrShare('txt')" title="innerText">.txt</button>
-			<button onclick="downOrShare('text')" title="textContent">.t𝕖𝕩t</button>
+			<div id="cy"><label for="cx">share</label><input class="sq" type="checkbox" id="cx"></div>
+			<button class="ex" onclick="downOrShare('html')" title="innerHTML">.html</button>
+			<button class="ex" onclick="downOrShare('txt')" title="innerText">.txt</button>
+			<button class="ex" onclick="downOrShare('text')" title="textContent">.t𝕖𝕩t</button>
 		</div>
-		<button class="sq" id="ud" onclick="prependDate()" title="date">📆</button>
+		<button class="sq" onclick="prependDate()" title="date">📆</button>
 		<button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
-		<button class="sq" id="ud" onclick="d.execCommand('undo')" title="undo">↶</button>
 		<button class="sq" id="sw" onclick="swap()">sw</button>
 		<button class="rt" id="lg" onclick="dbg()">:)</button>
-		<button class="sq ico">𝔉</button>
+		<button class="sq ddlabel">𝔉</button>
 		<div class="dropdown" id="df">
 			<button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
 			<button class="sq" onclick="adjustFontSize(1)" title="f+">A+</button>
-			<button class="sq" onclick="toggleProp(np, 'font-family', 'sans', 'monospace')" title="monospace">𝚖</button>
-			<button class="sq" onclick="toggleProp(np, 'white-space', 'pre', 'normal');toggleProp(this, 'white-space', 'pre', '')" title="wrap">wr pre</button>
+			<button class="sq" onclick="toggleProp(np, 'font-family', 'sans-serif', 'monospace')" title="monospace">𝚖</button>
+			<button class="sq" title="wrap">wr pre</button>
 			<button class="sq" onclick="toggleProp(b, 'zoom', '1.5', '2', '.5', '1')" title="z+">+</button>
 			<button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')" title="zap style">Z</button>
-			<button class="sq" onclick="d.execCommand('redo')" title="redo">↷</button>
 			<button class="sq" onclick="np.contentEditable='true'!=np.contentEditable" title="edit">✏</button>
+			<button class="sq" onclick="d.execCommand('undo')" title="undo">↶</button>
+			<button class="sq" onclick="d.execCommand('redo')" title="redo">↷</button>
+			<button class="sq" onclick="otherZoom()" title="z+">+</button>
 		</div>
 	</div>
 	<div id="np" contenteditable></div>
 	<script>
-		let ver = '0609', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
+		let ver = '0611', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
 		navigator?.serviceWorker.register('./sw.js');
-		window.addEventListener('beforeunload', store);
-		d.addEventListener('visibilitychange', () => d.visibilityState === 'hidden' && store());
-		d.addEventListener('click', e => [df, dd].forEach(d => d.contains(e.target) || d.classList.remove('show')));
 		d.addEventListener('DOMContentLoaded', init);
 
 		function dbg() {
 			np.innerHTML =
-				'<hr>fs: ' + getComputedStyle(d.documentElement).fontSize + ' ' + getComputedStyle(d.body).fontSize +
+				'<hr>title: ' + lg.textContent +
+				'<br>fs: ' + getComputedStyle(d.documentElement).fontSize + ' ' + getComputedStyle(d.body).fontSize +
 				'<br>zoom b: ' + b.style.zoom +
 				'<br>zoom d: ' + d.documentElement.style.zoom +
 				'<br>zoom t: ' + b.style.transform +
 				'<br>dpr: ' + devicePixelRatio +
 				'<br>w: ' + getComputedStyle(d.querySelector('body')).width +
-				'<br>now: ' + nowFmt() +
+				'<br>now: ' + now() +
 				'<br>ver: ' + ver +
 				'<br>host: ' + location.hostname +
+				'<hr><hr><hr><hr><hr><hr>' +
 				'<hr>' + np.innerHTML;
 		}
 
 		async function addListeners() {
-			d.querySelectorAll('.dropdown').forEach((e) => e.addEventListener('pointerleave', (e) => {
-				if (!b.getAttribute('data-mousentered')) return;
-				b.setAttribute('data-mousentered', false);
-				dd.classList.toggle('show', false);
-				df.classList.toggle('show', false);
-			}));
-			d.querySelectorAll('.sq.ico').forEach((butt) => {
-				butt.addEventListener('mouseenter', (e) => {
-					console.log('pointerevent', e);
-					e.preventDefault();
-					const isDd = butt.nextElementSibling.id === 'dd';
-					b.setAttribute('data-mousentered', true);
-					dd.classList.toggle('show', isDd);
-					df.classList.toggle('show', !isDd);
-				});
+			const detectScroll = () => {
+				const scrolled = np.scrollTop > 0 || document.documentElement.scrollTop > 0 || b.scrollTop > 0;
+				np.classList.toggle('scrolled', scrolled);
+				sh.classList.toggle('scrolled', scrolled);
+			};
+			np.addEventListener('scroll', detectScroll);
+			window.addEventListener('scroll', detectScroll);
+			window.addEventListener('beforeunload', store);
+			d.addEventListener('visibilitychange', () => d.visibilityState === 'hidden' && store());
+			d.querySelectorAll('.ddlabel').forEach((butt) => {
 				butt.addEventListener('click', (e) => {
 					e.stopPropagation();
 					const isDd = e.target.nextElementSibling.id === 'dd';
@@ -300,15 +310,23 @@
 				});
 				lg.textContent = '?';
 			});
+			d.addEventListener('click', e =>
+				'd.click' + [df, dd].forEach(d => d.contains(e.target) || d.classList.remove('show'))
+			);
+			np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
+			d.querySelector('[title=wrap]').addEventListener('click', e => {
+				e.target.style.setProperty('font-family', toggleProp(np, 'font-family', 'monospace', 'sans-serif'));
+				e.target.style.setProperty('white-space', toggleProp(np, 'white-space', 'pre', 'normal'));
+			});
 		}
 
-		function nowFmt(t = new Date()) { return t.toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15); }
+		function now() { return new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15); }
 		function downOrShare(e) {
 			const [text, ext, type] = e === 'html' ?
 				[np.innerHTML, 'html', 'html'] : e === 'text' ?
 					[np.textContent, 'full.txt', 'plain'] :
 					[np.innerText, 'txt', 'plain'],
-				title = `np.${nowFmt()}.${ext}`;
+				title = `np.${now()}.${ext}`;
 			if (cx.checked) return share({ title: title, text: text });
 			const a = document.createElement('a'),
 				url = URL.createObjectURL(new Blob([text], { type: `text/${type};charset=utf8` }));
@@ -317,7 +335,7 @@
 			a.click();
 			URL.revokeObjectURL(url);
 			dd.classList.remove('show');
-			msg(title);
+			lg.textContent = title;
 		}
 		function share(data) {
 			function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
@@ -326,8 +344,16 @@
 		}
 		function tsl(s) { return new Intl.NumberFormat().format(s.length); }
 		function sb1() { sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')); }
-		function sb0(n = np.innerText.split(/\r\n|\r|\n/).length - 1, o = np.innerText.length - np.textContent.length - n) {
-			[...dd.querySelectorAll('button')].map((e, i) => e.setAttribute('data-a', [tsl(np.innerHTML), tsl(np.textContent), n + (o < 0 ? ' ' : ' +') + o][i]));
+		function sb0(
+			n = np.innerText.split(/\r\n|\r|\n/).length - 1,
+			o = np.innerText.length - np.textContent.length - n
+		) {
+			[...dd.querySelectorAll('.ex')].map((e, i) =>
+				e.setAttribute('data-a', [
+					tsl(np.innerHTML),
+					tsl(np.textContent),
+					n + (o < 0 ? ' ' : ' +') + o
+				][i]));
 		}
 		function store() {
 			if (np.innerHTML === '<br>') np.innerHTML = '';
@@ -353,11 +379,11 @@
 			}
 			store();
 		}
-		function toggleProp(e, k, ...v) { e.style.setProperty(k, v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]); }
+		function toggleProp(e, k, ...v) { let a = v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]; e.style.setProperty(k, a); return a; }
 		function adjustFontSize(f) { np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px'; }
 		function prependDate() {
 			let a = '', r = document.createRange(), s = window.getSelection();
-			a += new Date().toISOString().replace('T', ' ').slice(0, 19) + ' - ';
+			a += now() + ' - ';
 			np.innerHTML = a + '<br>' + np.innerHTML;
 			r.setStart(np.firstChild, a.length);
 			r.collapse(true);
@@ -376,7 +402,7 @@
 					if (resp) {
 						const data = await resp.json();
 						np.textContent = data.text;
-						lg.textContent = data.etc + ':' + (data.title ? data.title : nowFmt()) + (data.url ? ' ' + data.url : '');
+						lg.textContent = data.etc + ':' + (data.title ? data.title : now()) + (data.url ? ' ' + data.url : '');
 						await cache.delete(`/shared-data/${sharedId}`);
 					} else { throw ('No shared data found for sharedId:' + sharedId); }
 				} catch (e) { msg('Error loading shared data:' + e); }
@@ -388,22 +414,17 @@
 		}
 		async function init() {
 			[np, sh, cl, lg, sw, df, dd, cx] = ['np', 'sh', 'cl', 'lg', 'sw', 'df', 'dd', 'cx'].map(i => document.querySelector(`#${i}`));
-			np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download formats: html, visible(innerText), hiddenToo(textContent)\\A\\A ${ver} ${location.hostname}"`);
+			np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download: html, innerText, t𝕖𝕩tContent\\A\\A ${ver} ${location.hostname}"`);
 			np.innerHTML = localStorage.getItem('sht0') || '';
-			const detectScroll = () => {
-				const scrolled = np.scrollTop > 0 || document.documentElement.scrollTop > 0 || b.scrollTop > 0;
-				np.classList.toggle('scrolled', scrolled);
-				sh.classList.toggle('scrolled', scrolled);
-			};
-			np.addEventListener('scroll', detectScroll);
-			window.addEventListener('scroll', detectScroll);
-			np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
 			loadShared();
 			sb0();
 			sb1();
 			np.focus();
 			addListeners();
 			lg.textContent = ver;
+		}
+		function otherZoom(e) {
+
 		}
 	</script>
 </body>
