@@ -185,6 +185,7 @@
 		#cy {
 			display: flex;
 			align-items: center;
+			justify-content: space-around;
 		}
 
 		label {
@@ -198,10 +199,6 @@
 			background-color: #000;
 			height: .02315rem;
 			border: 0;
-		}
-
-		hr+hr {
-			display: none;
 		}
 
 		@media screen and (max-width: 21rem) {
@@ -255,23 +252,20 @@
 		<button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
 		<button class="sq" id="sw" onclick="swap()">sw</button>
 		<button class="rt" id="lg" onclick="dbg()">:)</button>
+		<button class="sq" onclick="test()">:)</button>
 		<button class="sq ddlabel">𝔉</button>
 		<div class="dropdown" id="df">
-			<button class="sq" onclick="adjustFontSize(-1)" title="f-">a-</button>
-			<button class="sq" onclick="adjustFontSize(1)" title="f+">A+</button>
-			<button class="sq" onclick="toggleProp(np, 'font-family', 'sans-serif', 'monospace')" title="monospace">𝚖</button>
+			<button class="sq" onclick="adjustFontSize(5/7)" title="f-">a-</button>
+			<button class="sq" onclick="adjustFontSize(7/5)" title="f+">A+</button>
+			<button class="sq" onclick="toggleProp(b, 'zoom', '1.5', '2', '0.5', '1')" title="z+">+</button>
 			<button class="sq" title="wrap">wr pre</button>
-			<button class="sq" onclick="toggleProp(b, 'zoom', '1.5', '2', '.5', '1')" title="z+">+</button>
-			<button class="sq" onclick="for(let e of np.querySelectorAll('*'))e.removeAttribute('style')" title="zap style">Z</button>
+			<button class="sq" onclick="zap()" title="zap style">Z</button>
 			<button class="sq" onclick="np.contentEditable='true'!=np.contentEditable" title="edit">✏</button>
-			<button class="sq" onclick="d.execCommand('undo')" title="undo">↶</button>
-			<button class="sq" onclick="d.execCommand('redo')" title="redo">↷</button>
-			<button class="sq" onclick="otherZoom()" title="z+">+</button>
 		</div>
 	</div>
 	<div id="np" contenteditable></div>
 	<script>
-		let ver = '0611', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
+		let ver = '0613', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
 		navigator?.serviceWorker.register('./sw.js');
 		d.addEventListener('DOMContentLoaded', init);
 
@@ -287,7 +281,8 @@
 				'<br>now: ' + now() +
 				'<br>ver: ' + ver +
 				'<br>host: ' + location.hostname +
-				'<hr><hr><hr><hr><hr><hr>' +
+				'<hr>' +
+				JSON.stringify(len(np.textContent), null, "  ") + 
 				'<hr>' + np.innerHTML;
 		}
 
@@ -342,17 +337,22 @@
 			async function shareData() { try { await navigator.share(data); } catch (e) { } }
 			if (canBrowserShareData(data)) { shareData(data); }
 		}
-		function tsl(s) { return new Intl.NumberFormat().format(s.length); }
+		function tsl(i) { return new Intl.NumberFormat().format(i); }
 		function sb1() { sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')); }
 		function sb0(
 			n = np.innerText.split(/\r\n|\r|\n/).length - 1,
-			o = np.innerText.length - np.textContent.length - n
+			i = np.innerText.length,
+			t = np.textContent.length,
+			o = np.innerText.length - np.textContent.length - n,
+			I = new TextEncoder().encode(np.innerText).length,
+			T = new TextEncoder().encode(np.textContent).length,
 		) {
 			[...dd.querySelectorAll('.ex')].map((e, i) =>
 				e.setAttribute('data-a', [
-					tsl(np.innerHTML),
-					tsl(np.textContent),
-					n + (o < 0 ? ' ' : ' +') + o
+					tsl(np.innerHTML.length),
+					tsl(i) + ' +uni: ' + tsl(I - i),
+					tsl(t) + ' +uni: ' + tsl(T - t),
+					// n + (o < 0 ? ' ' : ' +') + o
 				][i]));
 		}
 		function store() {
@@ -380,7 +380,7 @@
 			store();
 		}
 		function toggleProp(e, k, ...v) { let a = v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]; e.style.setProperty(k, a); return a; }
-		function adjustFontSize(f) { np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * (f > 0 ? 1.4 : 5 / 7) + 'px'; }
+		function adjustFontSize(f) { np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * f + 'px'; }
 		function prependDate() {
 			let a = '', r = document.createRange(), s = window.getSelection();
 			a += now() + ' - ';
@@ -409,9 +409,6 @@
 				params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
 			}
 		}
-		async function sleep(t) {
-			return new Promise(resolve => setTimeout(resolve, t));
-		}
 		async function init() {
 			[np, sh, cl, lg, sw, df, dd, cx] = ['np', 'sh', 'cl', 'lg', 'sw', 'df', 'dd', 'cx'].map(i => document.querySelector(`#${i}`));
 			np.style.setProperty('--ph', `"- type or paste image\\a- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download: html, innerText, t𝕖𝕩tContent\\A\\A ${ver} ${location.hostname}"`);
@@ -423,9 +420,55 @@
 			addListeners();
 			lg.textContent = ver;
 		}
-		function otherZoom(e) {
+		function zap(e) { np.querySelectorAll('*').forEach(e => e.removeAttribute('style')); }
+		function len(str) {
+			const res = {};
+			res.utf16CodeUnits = str.length;
+			res.utf16Bytes = str.length * 2;
+			res.codePoints = [...str].length;
+			res.utf8Bytes = new TextEncoder().encode(str).length;
+			res.graphemeClusters = [...new Intl.Segmenter('und', { granularity: 'grapheme' }).segment(str)].length;
+			res.zeroWidthChars = (str.match(/[\u200B-\u200D\uFEFF]/gu) || []).length;
+			res.variantSelectors = (str.match(/[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu) || []).length;
+			res.regionalIndicatorPairs = (str.match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu) || []).length;
 
+			res.u_lines             = (str.split('\n').length);
+			res.u_asciis            = [...str].filter(c => c.codePointAt(0) <= 0x7F).length;
+			res.u_words             = (str.match(/\b\w+\b/g) || []).length;
+			res.u_letters           = (str.match(/\p{L}/gv) || []).length;
+			res.u_uppercaseLetters  = (str.match(/\p{Lu}/gv) || []).length;
+			res.u_lowercaseLetters  = (str.match(/\p{Ll}/gv) || []).length;
+			res.u_numbers           = (str.match(/\p{N}/gv) || []).length;
+			res.u_decimalDigits     = (str.match(/\p{Nd}/gv) || []).length;
+			res.u_marks             = (str.match(/\p{M}/gv) || []).length;
+			res.u_nonspacingMarks   = (str.match(/\p{Mn}/gv) || []).length;
+			res.u_punctuation       = (str.match(/\p{P}/gv) || []).length;
+			res.u_symbols           = (str.match(/\p{S}/gv) || []).length;
+			res.u_separators        = (str.match(/\p{Z}/gv) || []).length;
+			res.u_controlCharacters = (str.match(/\p{C}/gv) || []).length;
+
+			res.p_defaultIgnorableCodePoints = (str.match(/\p{Default_Ignorable_Code_Point}/gv) || []).length;
+			res.p_unicodeWhiteSpace = (str.match(/\p{White_Space}/gv) || []).length;
+			res.p_idStart = (str.match(/\p{ID_Start}/gv) || []).length;
+			res.p_idContinue = (str.match(/\p{ID_Continue}/gv) || []).length;
+
+			res.s_latin     = (str.match(/\p{Script=Latin}/gv) || []).length;
+			res.s_greek     = (str.match(/\p{Script=Greek}/gv) || []).length;
+			res.s_cyrillic  = (str.match(/\p{Script=Cyrillic}/gv) || []).length;
+			res.s_han       = (str.match(/\p{Script=Han}/gv) || []).length;
+			res.s_arabic    = (str.match(/\p{Script=Arabic}/gv) || []).length;
+			res.s_common    = (str.match(/\p{Script=Common}/gv) || []).length;
+			res.s_inherited = (str.match(/\p{Script=Inherited}/gv) || []).length;
+			res.s_emoji     = (str.match(/\p{Emoji_Presentation}/gv) || []).length;
+
+			res.graphemesStartingWithBaseChar = [...new Intl.Segmenter('und', { granularity: 'grapheme' }).segment(str)]
+				.filter(segment => !/[\p{Mn}\p{Mc}\p{Me}]/v.test(segment.segment[0]))
+				.length;
+			res._ignoreOrNot = res.codePoints - res.graphemeClusters - res.p_defaultIgnorableCodePoints;
+			return res;
 		}
+		function escUniSur(str) { return str.replace(/[^\\!-~]/g, (c) => "\\u" + ("000" + c.charCodeAt().toString(16)).slice(-4)); }
+		function escUni(str, b = 16) { return Array.from(str).map(c => c.codePointAt(0).toString(b)).join(' '); }
 	</script>
 </body>
 
