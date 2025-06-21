@@ -266,7 +266,7 @@
 	</div>
 	<div id="np" contenteditable></div>
 	<script>
-		let ver = '0620', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
+		let ver = '0621', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
 		navigator?.serviceWorker.register('./sw.js');
 		d.addEventListener('DOMContentLoaded', init);
 
@@ -285,7 +285,7 @@
 				...len(np.innerText)
 			};
 			lg.textContent = '';
-			a = Object.fromEntries(Object.entries(a).map(([x, y]) => [x, [y]]));
+			a = Object.fromEntries(Object.entries(a).map(([x, y]) => [x, { '?': y, '!': typeof y , 'Ö': y.constructor.name}]));
 			lg.appendChild(consoletable(a));
 			swp();
 		}
@@ -442,8 +442,8 @@
 		function zap(e) { np.querySelectorAll('*').forEach(e => e.removeAttribute('style')); }
 		function len(str) {
 			const res = {};
-			res.zeroWidthChars /*          */ = /[\u200B-\u200D\uFEFF]/gu;
-			res.variantSelectors /*        */ = /[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
+			res.zeroWidthChars /*         */ = /[\u200B-\u200D\uFEFF]/gu;
+			res.variantSelectors /*       */ = /[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
 			res.regionalIndicatorPairs /* */ = /[\u{1F1E6}-\u{1F1FF}]{2}/gu;
 			res.words /*                  */ = /\b\w+\b/g;
 			res.letters /*                */ = /\p{L}/gv;
@@ -489,26 +489,28 @@
 		function consoletable(obj) {
 			const keys = Object.keys(obj);
 			if (!keys.length) return;
-			const cols = Object.keys(obj[keys[0]]);
+			const f = obj[keys[0]];
+			const h = f !== null && typeof f === 'object';
+			const cols = h ? Object.keys(f) : [f];
 			const con = document.createElement('div');
-			con.style.display = 'grid';
+			con.style.display = 'inline-grid';
 			con.style.gridAutoFlow = 'row';
-			con.style.gridTemplateColumns = `repeat(${cols.length + 1}, auto)`;
-			con.style.gap = '2px';
+			con.style.gap = '.1rem';
 			con.style.justifyContent = 'start';
 			con.style.backgroundColor = '#8ff4';
-			['', ...cols].forEach((text, i) => {
+			con.style.gridTemplateColumns = `repeat(${cols.length + 1}, auto)`;
+			h && ['', ...cols].forEach((text, i) => {
 				const div = document.createElement('div');
 				div.textContent = text;
 				div.style.fontWeight = 'bold';
 				div.style.background = '#eef';
-				div.style.padding = '2px 6px';
+				div.style.padding = '.1rem .3rem';
 				if (i > 0) {
 					div.style.writingMode = 'vertical-rl';
 					div.style.transform = 'rotate(180deg)';
 					div.style.textAlign = 'left';
 					div.style.verticalAlign = 'bottom';
-					// div.style.height = '6em';
+					// div.style.height = '6rem';
 					div.style['overflow-wrap'] = 'anywhere';
 				}
 				con.appendChild(div);
@@ -518,13 +520,13 @@
 				keyDiv.textContent = k;
 				keyDiv.style.fontWeight = 'bold';
 				keyDiv.style.background = '#f8f8ff';
-				keyDiv.style.padding = '2px 6px';
+				keyDiv.style.padding = '.1rem .3rem';
 				con.appendChild(keyDiv);
 				cols.forEach(c => {
 					const valDiv = document.createElement('div');
-					valDiv.textContent = obj[k][c];
+					valDiv.textContent = h ? obj[k][c] : obj[k];
 					valDiv.style.background = '#fff';
-					valDiv.style.padding = '2px 6px';
+					valDiv.style.padding = '.1rem .3rem';
 					valDiv.style['overflow-wrap'] = 'anywhere';
 					con.appendChild(valDiv);
 				});
