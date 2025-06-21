@@ -244,6 +244,7 @@
 		<button class="sq ddlabel">⇩</button>
 		<div class="dropdown dropdown2" id="dd">
 			<div id="cy"><label for="cx">share</label><input class="sq" type="checkbox" id="cx"></div>
+			<div id="cy"><label for="sx">stat</label><input class="sq" type="checkbox" id="sx"></div>
 			<button class="ex" onclick="downOrShare('html')" title="innerHTML">.html</button>
 			<button class="ex" onclick="downOrShare('txt')" title="innerText">.txt</button>
 			<button class="ex" onclick="downOrShare('text')" title="textContent">.t𝕖𝕩t</button>
@@ -251,39 +252,45 @@
 		<button class="sq" onclick="prependDate()" title="date">📆</button>
 		<button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
 		<button class="sq" id="sw" onclick="swap()">sw</button>
-		<button class="rt" id="lg" onclick="dbg()">:)</button>
+		<button class="rt" id="lg" onclick="swp()">:)</button>
 		<button class="sq" onclick="test()">:)</button>
+		<button class="sq" title="wrap">----</button>
 		<button class="sq ddlabel">𝔉</button>
 		<div class="dropdown" id="df">
 			<button class="sq" onclick="adjustFontSize(5/7)" title="f-">a-</button>
 			<button class="sq" onclick="adjustFontSize(7/5)" title="f+">A+</button>
 			<button class="sq" onclick="toggleProp(b, 'zoom', '1.5', '2', '0.5', '1')" title="z+">+</button>
-			<button class="sq" title="wrap">wr pre</button>
 			<button class="sq" onclick="zap()" title="zap style">Z</button>
 			<button class="sq" onclick="np.contentEditable='true'!=np.contentEditable" title="edit">✏</button>
 		</div>
 	</div>
 	<div id="np" contenteditable></div>
 	<script>
-		let ver = '0613', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
+		let ver = '0620', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
 		navigator?.serviceWorker.register('./sw.js');
 		d.addEventListener('DOMContentLoaded', init);
 
-		function dbg() {
-			np.innerHTML =
-				'<hr>title: ' + lg.textContent +
-				'<br>fs: ' + getComputedStyle(d.documentElement).fontSize + ' ' + getComputedStyle(d.body).fontSize +
-				'<br>zoom b: ' + b.style.zoom +
-				'<br>zoom d: ' + d.documentElement.style.zoom +
-				'<br>zoom t: ' + b.style.transform +
-				'<br>dpr: ' + devicePixelRatio +
-				'<br>w: ' + getComputedStyle(d.querySelector('body')).width +
-				'<br>now: ' + now() +
-				'<br>ver: ' + ver +
-				'<br>host: ' + location.hostname +
-				'<hr>' +
-				JSON.stringify(len(np.textContent), null, "  ") + 
-				'<hr>' + np.innerHTML;
+		function test() {
+			let a = {
+				title: lg.textContent,
+				ver: ver,
+				fs: getComputedStyle(d.documentElement).fontSize + ' ' + getComputedStyle(d.body).fontSize,
+				zoomd: d.documentElement.style.zoom,
+				zoomb: b.style.zoom,
+				zoomt: b.style.transform,
+				dpr: devicePixelRatio,
+				w: getComputedStyle(d.querySelector('body')).width,
+				now: now(),
+				host: location.hostname,
+				...len(np.innerText)
+			};
+			lg.textContent = '';
+			a = Object.fromEntries(Object.entries(a).map(([x, y]) => [x, [y]]));
+			lg.appendChild(consoletable(a));
+			swp();
+		}
+		function swp() {
+			[np.innerHTML, lg.innerHTML] = [lg.innerHTML, np.innerHTML];
 		}
 
 		async function addListeners() {
@@ -399,14 +406,26 @@
 				try {
 					const cache = await caches.open('shared-data-cache');
 					const resp = await cache.match(`/shared-data/${sharedId}`);
+					let images, data;
 					if (resp) {
-						const data = await resp.json();
+						data = await resp.json();
+						if (data.images) {
+							images = data.images;
+						}
 						np.textContent = data.text;
-						lg.textContent = data.etc + ':' + (data.title ? data.title : now()) + (data.url ? ' ' + data.url : '');
+						lg.innerText = `${data.etc}\ntitle: ${data.title ? data.title : now()}\nurl: ${data.url ? ' ' + data.url : ''}\nimgs: ${images?.length}`;
+						for (const image of images) {
+							const blob = await cache.match(`/shared-data/file/${image.cid}`);
+							const img0 = document.createElement('img');
+							img0.title = img0.alt = image.cid + ' ' + image.name + ' ' + image.type;
+							try { img0.src = URL.createObjectURL(blob); } catch (e) { }
+							np.appendChild(img0);
+						}
 						await cache.delete(`/shared-data/${sharedId}`);
 					} else { throw ('No shared data found for sharedId:' + sharedId); }
 				} catch (e) { msg('Error loading shared data:' + e); }
-				params.delete('sharedId'); window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+				params.delete('sharedId');
+				window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
 			}
 		}
 		async function init() {
@@ -423,52 +442,95 @@
 		function zap(e) { np.querySelectorAll('*').forEach(e => e.removeAttribute('style')); }
 		function len(str) {
 			const res = {};
+			res.zeroWidthChars /*          */ = /[\u200B-\u200D\uFEFF]/gu;
+			res.variantSelectors /*        */ = /[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
+			res.regionalIndicatorPairs /* */ = /[\u{1F1E6}-\u{1F1FF}]{2}/gu;
+			res.words /*                  */ = /\b\w+\b/g;
+			res.letters /*                */ = /\p{L}/gv;
+			res.uppercaseLetters /*       */ = /\p{Lu}/gv;
+			res.lowercaseLetters /*       */ = /\p{Ll}/gv;
+			res.numbers /*                */ = /\p{N}/gv;
+			res.decimalDigits /*          */ = /\p{Nd}/gv;
+			res.marks /*                  */ = /\p{M}/gv;
+			res.nonspacingMarks /*        */ = /\p{Mn}/gv;
+			res.punctuation /*            */ = /\p{P}/gv;
+			res.symbols /*                */ = /\p{S}/gv;
+			res.separators /*             */ = /\p{Z}/gv;
+			res.controlCharacters /*      */ = /\p{C}/gv;
+			res.defaultIgnorable /*       */ = /\p{Default_Ignorable_Code_Point}/gv;
+			res.unicodeWhiteSpace /*      */ = /\p{White_Space}/gv;
+			res.idStart /*                */ = /\p{ID_Start}/gv;
+			res.idContinue /*             */ = /\p{ID_Continue}/gv;
+			res.latin /*                  */ = /\p{Script=Latin}/gv;
+			res.greek /*                  */ = /\p{Script=Greek}/gv;
+			res.cyrillic /*               */ = /\p{Script=Cyrillic}/gv;
+			res.han /*                    */ = /\p{Script=Han}/gv;
+			res.arabic /*                 */ = /\p{Script=Arabic}/gv;
+			res.common /*                 */ = /\p{Script=Common}/gv;
+			res.inherited /*              */ = /\p{Script=Inherited}/gv;
+			res.emoji /*                  */ = /\p{Emoji_Presentation}/gv;
+			for (const k in res) { res[k] = (str.match(res[k]) || []).length; }
+			const graphemes = [...new Intl.Segmenter('und', { granularity: 'grapheme' }).segment(str)];
 			res.utf16CodeUnits = str.length;
 			res.utf16Bytes = str.length * 2;
 			res.codePoints = [...str].length;
 			res.utf8Bytes = new TextEncoder().encode(str).length;
-			res.graphemeClusters = [...new Intl.Segmenter('und', { granularity: 'grapheme' }).segment(str)].length;
-			res.zeroWidthChars = (str.match(/[\u200B-\u200D\uFEFF]/gu) || []).length;
-			res.variantSelectors = (str.match(/[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu) || []).length;
-			res.regionalIndicatorPairs = (str.match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu) || []).length;
-
-			res.u_lines             = (str.split('\n').length);
-			res.u_asciis            = [...str].filter(c => c.codePointAt(0) <= 0x7F).length;
-			res.u_words             = (str.match(/\b\w+\b/g) || []).length;
-			res.u_letters           = (str.match(/\p{L}/gv) || []).length;
-			res.u_uppercaseLetters  = (str.match(/\p{Lu}/gv) || []).length;
-			res.u_lowercaseLetters  = (str.match(/\p{Ll}/gv) || []).length;
-			res.u_numbers           = (str.match(/\p{N}/gv) || []).length;
-			res.u_decimalDigits     = (str.match(/\p{Nd}/gv) || []).length;
-			res.u_marks             = (str.match(/\p{M}/gv) || []).length;
-			res.u_nonspacingMarks   = (str.match(/\p{Mn}/gv) || []).length;
-			res.u_punctuation       = (str.match(/\p{P}/gv) || []).length;
-			res.u_symbols           = (str.match(/\p{S}/gv) || []).length;
-			res.u_separators        = (str.match(/\p{Z}/gv) || []).length;
-			res.u_controlCharacters = (str.match(/\p{C}/gv) || []).length;
-
-			res.p_defaultIgnorableCodePoints = (str.match(/\p{Default_Ignorable_Code_Point}/gv) || []).length;
-			res.p_unicodeWhiteSpace = (str.match(/\p{White_Space}/gv) || []).length;
-			res.p_idStart = (str.match(/\p{ID_Start}/gv) || []).length;
-			res.p_idContinue = (str.match(/\p{ID_Continue}/gv) || []).length;
-
-			res.s_latin     = (str.match(/\p{Script=Latin}/gv) || []).length;
-			res.s_greek     = (str.match(/\p{Script=Greek}/gv) || []).length;
-			res.s_cyrillic  = (str.match(/\p{Script=Cyrillic}/gv) || []).length;
-			res.s_han       = (str.match(/\p{Script=Han}/gv) || []).length;
-			res.s_arabic    = (str.match(/\p{Script=Arabic}/gv) || []).length;
-			res.s_common    = (str.match(/\p{Script=Common}/gv) || []).length;
-			res.s_inherited = (str.match(/\p{Script=Inherited}/gv) || []).length;
-			res.s_emoji     = (str.match(/\p{Emoji_Presentation}/gv) || []).length;
-
-			res.graphemesStartingWithBaseChar = [...new Intl.Segmenter('und', { granularity: 'grapheme' }).segment(str)]
-				.filter(segment => !/[\p{Mn}\p{Mc}\p{Me}]/v.test(segment.segment[0]))
+			res.graphemeClusters = graphemes.length;
+			res.lines = str.split('\n').length;
+			res.asciis = [...str].filter(c => c.codePointAt(0) <= 0x7F).length;
+			res.graphemesBaseStart = graphemes
+				.filter(seg => !/[\p{Mn}\p{Mc}\p{Me}]/v.test(seg.segment[0]))
 				.length;
-			res._ignoreOrNot = res.codePoints - res.graphemeClusters - res.p_defaultIgnorableCodePoints;
+			res._ignoreOrNot = res.codePoints - res.graphemeClusters - res.defaultIgnorable;
 			return res;
 		}
 		function escUniSur(str) { return str.replace(/[^\\!-~]/g, (c) => "\\u" + ("000" + c.charCodeAt().toString(16)).slice(-4)); }
 		function escUni(str, b = 16) { return Array.from(str).map(c => c.codePointAt(0).toString(b)).join(' '); }
+		function consoletable(obj) {
+			const keys = Object.keys(obj);
+			if (!keys.length) return;
+			const cols = Object.keys(obj[keys[0]]);
+			const con = document.createElement('div');
+			con.style.display = 'grid';
+			con.style.gridAutoFlow = 'row';
+			con.style.gridTemplateColumns = `repeat(${cols.length + 1}, auto)`;
+			con.style.gap = '2px';
+			con.style.justifyContent = 'start';
+			con.style.backgroundColor = '#8ff4';
+			['', ...cols].forEach((text, i) => {
+				const div = document.createElement('div');
+				div.textContent = text;
+				div.style.fontWeight = 'bold';
+				div.style.background = '#eef';
+				div.style.padding = '2px 6px';
+				if (i > 0) {
+					div.style.writingMode = 'vertical-rl';
+					div.style.transform = 'rotate(180deg)';
+					div.style.textAlign = 'left';
+					div.style.verticalAlign = 'bottom';
+					// div.style.height = '6em';
+					div.style['overflow-wrap'] = 'anywhere';
+				}
+				con.appendChild(div);
+			});
+			keys.forEach(k => {
+				const keyDiv = document.createElement('div');
+				keyDiv.textContent = k;
+				keyDiv.style.fontWeight = 'bold';
+				keyDiv.style.background = '#f8f8ff';
+				keyDiv.style.padding = '2px 6px';
+				con.appendChild(keyDiv);
+				cols.forEach(c => {
+					const valDiv = document.createElement('div');
+					valDiv.textContent = obj[k][c];
+					valDiv.style.background = '#fff';
+					valDiv.style.padding = '2px 6px';
+					valDiv.style['overflow-wrap'] = 'anywhere';
+					con.appendChild(valDiv);
+				});
+			});
+			return con;
+		}
 	</script>
 </body>
 

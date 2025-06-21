@@ -1,4 +1,4 @@
-const ver = '0613sw';
+const ver = '0620sw';
 const cacheName = `npCache-${ver}`;
 const sharedDataCacheName = 'shared-data-cache';
 
@@ -35,18 +35,38 @@ async function handlePostRequest(event, url) {
         const formData = await event.request.formData();
         const textFiles = formData.getAll("textFiles");
         const htmlFiles = formData.getAll("htmlFiles");
-        const imageFiles = formData.getAll("images");
+        const images = formData.getAll("images");
+        const cache = await caches.open(sharedDataCacheName);
+
+        // Save each file as a separate cache entry
+        for (const [i, file] of [...textFiles, ...htmlFiles, ...images].entries()) {
+          if (file && file.name) {
+            file.cid = i;
+            const fileRequest = new Request(`/shared-data/file/${i}`);
+            const fileResponse = new Response(file, { headers: { 'Content-Type': file.type || 'application/octet-stream' } });
+            await cache.put(fileRequest, fileResponse);
+          }
+        }
+
+        const mapFiles = (files) => Array.from(files).map(file => ({
+          cid: file.cid,
+          name: file.name,
+          type: file.type,
+        }));
+
         const sharedData = {
           text: formData.get('text') || '',
           title: formData.get('title') || '',
           url: formData.get('url') || '',
-          etc: textFiles.length + ' '+ htmlFiles.length + ' ' + imageFiles.length
+          textFiles: mapFiles(textFiles),
+          htmlFiles: mapFiles(htmlFiles),
+          images: mapFiles(images),
+          etc: `texts: ${textFiles.length}\nhtmls: ${htmlFiles.length}\nimages: ${images.length}`
         };
         const sharedId = crypto.randomUUID();
         const sharedDataResponse = new Response(JSON.stringify(sharedData), {
           headers: { 'Content-Type': 'application/json' }
         });
-        const cache = await caches.open(sharedDataCacheName);
         await cache.put(new Request(`/shared-data/${sharedId}`), sharedDataResponse);
         const redirectUrl = new URL(url.pathname, url.origin);
         redirectUrl.searchParams.set('sharedId', sharedId);
@@ -65,6 +85,7 @@ function handleNavigateRequest(event) {
   );
 }
 
+
 function handleSameOriginRequest(event) {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -76,7 +97,18 @@ function handleSameOriginRequest(event) {
           }
           return networkResponse;
         })
-        .catch(e503);
+        .catch(() => {
+          if (event.request.url.endsWith('/sw.js')) {
+            return new Response(
+              `/* Fallback: Service worker unavailable */`,
+              { status: 503, headers: { 'Content-Type': 'application/javascript' } }
+            );
+          }
+          return new Response(
+            `<h1>Offline</h1><p>The requested resource <code>${event.request.url}</code> is unavailable.</p></body></html>`,
+            { status: 503, headers: { 'Content-Type': 'text/html' } }
+          );
+        });
     })
   );
 }
