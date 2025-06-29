@@ -1,4 +1,4 @@
-const ver = '0621sw';
+const ver = '0623sw';
 const cacheName = `npCache-${ver}`;
 const sharedDataCacheName = 'shared-data-cache';
 
@@ -80,8 +80,15 @@ async function handlePostRequest(event, url) {
 
 function handleNavigateRequest(event) {
   event.respondWith(
-    caches.match('./index.html')
-      .then((cachedResponse) => cachedResponse || fetch(event.request).catch(e503))
+    caches.open(cacheName).then(cache =>
+      cache.match(new Request(self.registration.scope + 'index.html'))
+        .then((cachedResponse) => cachedResponse ||
+          fetch(event.request).catch(e => e503(
+            'url: ' + event.request.url + ' \n' +
+             'scope: ' + self.registration.scope + ' \n ' +
+             e))
+        )
+    )
   );
 }
 
