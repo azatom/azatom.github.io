@@ -1,0 +1,100 @@
+<!doctype html><html><head><title>rgb-patterns</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: block;
+        }
+        canvas {
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style></head><body><script>
+    const c = document.createElement('canvas')
+    document.body.appendChild(c);
+    function f() {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+        const d = c.getContext('2d');
+        const g = 0.753;
+        const channels = 3;
+        const R=[1,0,0], G=[0,1,0], B=[0,0,1];
+        const C=[0,1,1], M=[1,0,1], Y=[1,1,0];
+        const K=[0,0,0], W=[1,1,1];
+        const RGB = [
+            [W, K],               // KW, W checker, gray
+            [R, C],               // KW shifted, RC, gray
+            [M, G],               // KW shifted, GM, gray
+            [Y, B],               // KW shifted, BY, gray
+            [Y, C, B, R],         // subpixel checker, gray
+
+            [g,g,g, g,g,g],       // gray-ish
+            [.5,.5,.5, .5,.5,.5], // gray-ish
+            [.49,.49,.49, .51,.51,.51], // gray-ish
+            [G, K, K, G, K, K],   // G vertical 
+            [B, K, K, B, K, K],   // B vertical
+            
+            [R, K],               // R checker
+            [B, K],               // B checker
+            [C, K],               // C checker
+            [M, K],               // M checker
+            [G, K],               // G checker
+
+            [Y, K],               // Y checker
+            [R, R, R],            // R horizontal
+            [G, G, G],            // G horizontal
+            [B, B, B],            // B horizontal
+            [R, K, K, R, K, K],   // R vertical
+
+            [R, K, K, K],
+            [R, K, K, K, K, K],
+            [R, K, K, K, K, K, K, K],
+            [R, K, K, K, K],      // ?
+            [C, K, K, K, K],      // ?
+            [R, B],               // ?
+            [R, K, K],
+            [B, K, K, K],
+            [B, K, K, K, K, K],
+            [B, K, K, K, K, K, K, K],
+            [B, K, K, K, K],
+            [B, K, K],
+            [G, K, K, K],
+            [G, K, K, K, K, K],
+            [G, K, K, K, K, K, K, K],
+            [G, K, K, K, K],
+            [G, K, K],
+        ].map(e=>e.flatMap(e=>e).map(e=>e*255));
+        const width = 5;
+        const H = Math.ceil(RGB.length / width);
+        const t = performance.now();
+        const imageData = d.getImageData(0, 0, c.width, c.height);
+        const data = imageData.data;
+    
+        for (let i = 0, y = 0; y < c.height; y++) {
+            const h = Math.floor(H * y / c.height);
+            for (let x = 0; x < c.width; x++) {
+                const w = Math.floor(width * x / c.width);
+                const rgb = RGB[width * h + w] || [];
+                const n = Math.floor(rgb.length / channels);
+                const o = ((x + y*n/2) % n) * channels;
+                data[i++] = rgb[o + 0];
+                data[i++] = rgb[o + 1];
+                data[i++] = rgb[o + 2];
+                data[i++] = 255;
+            }
+        }
+    
+        d.putImageData(imageData, 0, 0);
+        console.log(performance.now() - t + "ms");
+    }
+    f();
+    window.addEventListener("resize", f);
+    </script></body></html>
+    

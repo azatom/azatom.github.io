@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+    <title>Stopwatch</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            user-select: none;
+            overflow: hidden;
+            font-family: monospace;
+            font-size: 1.2rem;
+            background-color: #e7f0e7;
+        }
+
+        span {
+            display: inline-block;
+            border-radius: .3rem;
+            margin: .5rem;
+            background-color: #fff;
+        }
+
+        body>div {
+            height: 100%;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+
+        body>div>div:first-child {
+            font-size: 1.6rem;
+        }
+    </style>
+    <script>
+        'serviceWorker' in navigator && window.addEventListener('load', () =>
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('ServiceWorker reg. scope:', reg.scope))
+                .catch(err => console.log('ServiceWorker reg. error:', err))
+        );
+    </script>
+</head>
+
+<body>
+    <script>
+        const clipb = document.createElement("span")
+            , reset = document.createElement("span")
+            , sp = document.createElement("span")
+            , cont = document.createElement("div")
+            , cp = () => navigator.clipboard.writeText(cont.innerText).then(e => {
+                sp.innerText = 'copied';
+                setInterval(() => sp.innerText = '', 2000);
+            }).catch()
+            , pad = (p, t) => String(t).padStart(p, "0")
+            , update = () => {
+                let t = Date.now();
+                curdiv.textContent =
+                    fmt(t - start) + " "
+                    + fmt(t - now),
+                    window.requestAnimationFrame(update);
+            }
+            , fmt = (t
+                , e = Math.floor(t % 1e3)
+                , n = Math.floor(t / 1e3 % 60)
+                , o = Math.floor(t / 6e4 % 60)
+            ) => " " + (pad(2, Math.floor(t / 36e5))
+                + ":" + pad(2, o)
+                + ":" + pad(2, n)
+                + "." + pad(3, e)).replace(/^[0:]+([0-9])/, "$1")
+            , L = e => {
+                last = now;
+                now = Date.now();
+                if (laps) {
+                    let dt = now - last
+                        , m = (now - start) / laps;
+                    s2 += dt * dt;
+                    curdiv.textContent = String(laps)
+                        + fmt(now - start)
+                        + fmt(dt)
+                        + fmt(m)
+                        + fmt(laps ? Math.sqrt(s2 / laps - m * m) : 0)
+                        + " " + (e.code || "mouse" + e.button);
+                    cont.prepend(curdiv = document.createElement("div"));
+                } else {
+                    last = start = now;
+                    s2 = laps = 0;
+                    cont.replaceChildren(curdiv = document.createElement("div"));
+                    curdiv.textContent = new Date().toJSON();
+                    cont.prepend(curdiv = document.createElement("div"));
+                    curdiv.textContent = "# clock laptime avg stddev key";
+                    cont.prepend(curdiv = document.createElement("div"));
+                    window.requestAnimationFrame(update);
+                }
+                laps++;
+            };
+        let start, now, last, s2, laps, curdiv;
+
+        reset.innerText = "reset";
+        clipb.innerText = "copy";
+        reset.onclick = () => { laps = 0; L(); };//location = location;
+        clipb.onclick = cp;
+        document.body.prepend(cont);
+        document.body.prepend(sp);
+        document.body.prepend(clipb);
+        document.body.prepend(reset);
+
+        document.body.addEventListener("keydown", L);
+        cont.addEventListener("pointerdown", L);
+        L();
+    </script>
+</body>
+
+</html>
