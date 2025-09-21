@@ -6,8 +6,23 @@
     <title>Stopwatch</title>
     <style>
         html,
-        body {
+        body,
+        body>div {
             height: 100%;
+        }
+
+        body>div,
+        span {
+            background-color: #fff;
+        }
+
+        body>div>div:first-child {
+            font-size: 1.6rem;
+        }
+
+        body>div:empty:after {
+            content: 'tap on white or press any key';
+            color: #aaa;
         }
 
         body {
@@ -23,45 +38,28 @@
             display: inline-block;
             border-radius: .3rem;
             margin: .5rem;
-            background-color: #fff;
-        }
-
-        body>div {
-            height: 100%;
-            font-size: 1rem;
-            background-color: #fff;
-        }
-
-        body>div>div:first-child {
-            font-size: 1.6rem;
         }
     </style>
     <script>
-        'serviceWorker' in navigator && window.addEventListener('load', () =>
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('ServiceWorker reg. scope:', reg.scope))
-                .catch(err => console.log('ServiceWorker reg. error:', err))
-        );
+        window.addEventListener('load', () => navigator?.serviceWorker?.register('./sw.js').catch(e => e));
     </script>
 </head>
 
 <body>
     <script>
-        const clipb = document.createElement("span")
+        const copy = document.createElement("span")
             , reset = document.createElement("span")
-            , sp = document.createElement("span")
+            , txt = document.createElement("span")
             , cont = document.createElement("div")
             , cp = () => navigator.clipboard.writeText(cont.innerText).then(e => {
-                sp.innerText = 'copied';
-                setInterval(() => sp.innerText = '', 2000);
+                txt.innerText = 'copied';
+                setInterval(() => txt.innerText = '', 1400);
             }).catch()
             , pad = (p, t) => String(t).padStart(p, "0")
             , update = () => {
                 let t = Date.now();
-                curdiv.textContent =
-                    fmt(t - start) + " "
-                    + fmt(t - now),
-                    window.requestAnimationFrame(update);
+                curdiv.textContent = fmt(t - start) + " " + fmt(t - now);
+                window.requestAnimationFrame(update);
             }
             , fmt = (t
                 , e = Math.floor(t % 1e3)
@@ -71,7 +69,11 @@
                 + ":" + pad(2, o)
                 + ":" + pad(2, n)
                 + "." + pad(3, e)).replace(/^[0:]+([0-9])/, "$1")
-            , L = e => {
+            , init = () => {
+                last = start = now;
+                s2 = laps = 0;
+                cont.replaceChildren();
+            }, L = e => {
                 last = now;
                 now = Date.now();
                 if (laps) {
@@ -86,9 +88,8 @@
                         + " " + (e.code || "mouse" + e.button);
                     cont.prepend(curdiv = document.createElement("div"));
                 } else {
-                    last = start = now;
-                    s2 = laps = 0;
-                    cont.replaceChildren(curdiv = document.createElement("div"));
+                    init();
+                    cont.prepend(curdiv = document.createElement("div"));
                     curdiv.textContent = new Date().toJSON();
                     cont.prepend(curdiv = document.createElement("div"));
                     curdiv.textContent = "# clock laptime avg stddev key";
@@ -100,17 +101,16 @@
         let start, now, last, s2, laps, curdiv;
 
         reset.innerText = "reset";
-        clipb.innerText = "copy";
-        reset.onclick = () => { laps = 0; L(); };//location = location;
-        clipb.onclick = cp;
+        copy.innerText = "copy";
+        reset.onclick = init;
+        copy.onclick = cp;
         document.body.prepend(cont);
-        document.body.prepend(sp);
-        document.body.prepend(clipb);
+        document.body.prepend(txt);
+        document.body.prepend(copy);
         document.body.prepend(reset);
 
         document.body.addEventListener("keydown", L);
         cont.addEventListener("pointerdown", L);
-        L();
     </script>
 </body>
 
