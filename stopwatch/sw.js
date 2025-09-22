@@ -1,5 +1,4 @@
-const ver = 'v3';
-const cacheName = `cache-${ver}`;
+const cacheName = `cache-v2`;
 
 const urlsToCache = [
   './index.html',
@@ -13,39 +12,25 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-self.addEventListener('message', (event) => {
-  if (event.data.action === 'skipWaiting') {
-    self.skipWaiting();
-  }
-});
-
-new BroadcastChannel("main").onmessage = ({ data }) => {
-  if (data.ver === "ver") {
-    const chan = new BroadcastChannel(data.respondAt);
-    chan.postMessage(ver);
-    chan.close();
-  }
-};
+self.addEventListener('message', (event) => event.data.action === 'skipWaiting' && self.skipWaiting());
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request)
+      caches.match(event.request).then((cachedResponse) => cachedResponse
+        ? cachedResponse
+        : fetch(event.request)
           .then(async (networkResponse) => {
             const cache = await caches.open(cacheName);
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
           })
           .catch(async () => event.request.mode === 'navigate'
-            ? new Response("you should not see this", { headers: { 'Content-Type': 'text/plain' } })
+            ? new Response("Que?", { headers: { 'Content-Type': 'text/plain' } })
             : caches.match(event.request)
-          );
-      })
+          )
+      )
     );
   } else {
     event.respondWith(
@@ -61,11 +46,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
+        cacheNames.map((cacheName) => cacheWhitelist.includes(cacheName) || caches.delete(cacheName))
       );
     })
   );

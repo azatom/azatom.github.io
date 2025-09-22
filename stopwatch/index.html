@@ -39,6 +39,11 @@
             border-radius: .3rem;
             margin: .5rem;
         }
+
+        body.flash {
+            background-color: #000;
+            transition: background-color .07s ease;
+        }
     </style>
     <script>
         function padLeft(width, value) {
@@ -97,6 +102,8 @@
                 window.requestAnimationFrame(updateTimerDisplay);
             }
             laps++;
+            document.body.classList.add('flash');
+            setTimeout(() => document.body.classList.remove('flash'), 70);
         }
         function buildUI() {
             domCopyBtn = document.createElement("span");
@@ -123,7 +130,7 @@
             if (!state) return;
             try {
                 let content;
-                ({start, now, last, sum2, laps, content} = JSON.parse(state));
+                ({ start, now, last, sum2, laps, content } = JSON.parse(state));
                 if (content) domLaps.innerHTML = content;
                 domLapRow = domLaps.firstChild;
                 if (laps > 0 && domLapRow) window.requestAnimationFrame(updateTimerDisplay);
