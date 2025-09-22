@@ -3,7 +3,6 @@ const cacheName = `cache-${ver}`;
 
 const urlsToCache = [
   './index.html',
-  './offline.html',
   './sw.js',
   './manifest.json',
   './192x192.png',
@@ -42,12 +41,10 @@ self.addEventListener('fetch', (event) => {
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
           })
-          .catch(async () => {
-            if (event.request.mode === 'navigate') {
-              return caches.match('offline.html');
-            }
-            return caches.match(event.request);
-          });
+          .catch(async () => event.request.mode === 'navigate'
+            ? new Response("you should not see this", { headers: { 'Content-Type': 'text/plain' } })
+            : caches.match(event.request)
+          );
       })
     );
   } else {

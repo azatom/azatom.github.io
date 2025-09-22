@@ -41,77 +41,111 @@
         }
     </style>
     <script>
-        window.addEventListener('load', () => navigator?.serviceWorker?.register('./sw.js').catch(e => e));
+        function padLeft(width, value) {
+            return String(value).padStart(width, "0");
+        }
+        function handleCopyClick(event) {
+            navigator.clipboard.writeText(domLaps.innerText).then(function () {
+                event.target.innerText = 'COPIED';
+                setTimeout(function () { event.target.innerText = 'copy'; }, 1400);
+            }).catch(function () { });
+        }
+        function addLapRow(text) {
+            if (text) domLapRow.textContent = text;
+            domLaps.prepend(domLapRow = document.createElement("div"));
+        }
+        function updateTimerDisplay() {
+            let nowTime = Date.now();
+            domLapRow.textContent = formatTime(nowTime - start) + " " + formatTime(nowTime - now);
+            window.requestAnimationFrame(updateTimerDisplay);
+        }
+        function formatTime(ms) {
+            let msPart = Math.floor(ms % 1e3),
+                sec = Math.floor(ms / 1e3 % 60),
+                min = Math.floor(ms / 6e4 % 60);
+            return " " + (padLeft(2, Math.floor(ms / 36e5))
+                + ":" + padLeft(2, min)
+                + ":" + padLeft(2, sec)
+                + "." + padLeft(3, msPart)).replace(/^[0:]+([0-9])/, "$1");
+        }
+        function resetStopwatch() {
+            last = start = now = Date.now();
+            sum2 = laps = 0;
+            domLaps.replaceChildren();
+        }
+        function handleLap(event) {
+            last = now;
+            now = Date.now();
+            if (laps) {
+                let elapsed = now - start;
+                let avg = elapsed / laps;
+                let lapTime = now - last;
+                sum2 += lapTime * lapTime;
+                addLapRow(
+                    String(laps)
+                    + formatTime(elapsed)
+                    + formatTime(lapTime)
+                    + formatTime(avg)
+                    + formatTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)
+                    + " " + (event.code || "mouse" + event.button)
+                );
+            } else {
+                resetStopwatch();
+                addLapRow();
+                addLapRow(new Date().toJSON());
+                addLapRow("# clock laptime avg stddev key");
+                window.requestAnimationFrame(updateTimerDisplay);
+            }
+            laps++;
+        }
+        function buildUI() {
+            domCopyBtn = document.createElement("span");
+            domResetBtn = document.createElement("span");
+            domLaps = document.createElement("div");
+            domResetBtn.innerText = "reset";
+            domCopyBtn.innerText = "copy";
+            domResetBtn.onclick = resetStopwatch;
+            domCopyBtn.onclick = handleCopyClick;
+            document.body.prepend(domLaps);
+            document.body.prepend(domCopyBtn);
+            document.body.prepend(domResetBtn);
+            document.body.addEventListener("keydown", handleLap);
+            domLaps.addEventListener("pointerdown", handleLap);
+        }
+        function saveState() {
+            localStorage.setItem("sw_state", JSON.stringify({
+                start, now, last, sum2, laps, content: domLaps ? domLaps.innerHTML : ""
+            }));
+        }
+        function loadState() {
+            var state = localStorage.getItem("sw_state");
+            buildUI();
+            if (!state) return;
+            try {
+                let content;
+                ({start, now, last, sum2, laps, content} = JSON.parse(state));
+                if (content) domLaps.innerHTML = content;
+                domLapRow = domLaps.firstChild;
+                if (laps > 0 && domLapRow) window.requestAnimationFrame(updateTimerDisplay);
+            } catch (e) { }
+        }
+        function setupApp() {
+            window.addEventListener('load', function () {
+                if (navigator && navigator.serviceWorker) {
+                    navigator.serviceWorker.register('./sw.js').catch(function (e) { });
+                }
+            });
+            document.addEventListener('DOMContentLoaded', loadState);
+            window.addEventListener('beforeunload', saveState);
+        }
+
+        let domCopyBtn, domResetBtn, domLaps, domLapRow;
+        let start, now, last, sum2, laps;
+        setupApp();
     </script>
 </head>
 
 <body>
-    <script>
-        const copy = document.createElement("span")
-            , reset = document.createElement("span")
-            , txt = document.createElement("span")
-            , cont = document.createElement("div")
-            , cp = () => navigator.clipboard.writeText(cont.innerText).then(e => {
-                txt.innerText = 'copied';
-                setInterval(() => txt.innerText = '', 1400);
-            }).catch()
-            , pad = (p, t) => String(t).padStart(p, "0")
-            , update = () => {
-                let t = Date.now();
-                curdiv.textContent = fmt(t - start) + " " + fmt(t - now);
-                window.requestAnimationFrame(update);
-            }
-            , fmt = (t
-                , e = Math.floor(t % 1e3)
-                , n = Math.floor(t / 1e3 % 60)
-                , o = Math.floor(t / 6e4 % 60)
-            ) => " " + (pad(2, Math.floor(t / 36e5))
-                + ":" + pad(2, o)
-                + ":" + pad(2, n)
-                + "." + pad(3, e)).replace(/^[0:]+([0-9])/, "$1")
-            , init = () => {
-                last = start = now;
-                s2 = laps = 0;
-                cont.replaceChildren();
-            }, L = e => {
-                last = now;
-                now = Date.now();
-                if (laps) {
-                    let dt = now - last
-                        , m = (now - start) / laps;
-                    s2 += dt * dt;
-                    curdiv.textContent = String(laps)
-                        + fmt(now - start)
-                        + fmt(dt)
-                        + fmt(m)
-                        + fmt(laps ? Math.sqrt(s2 / laps - m * m) : 0)
-                        + " " + (e.code || "mouse" + e.button);
-                    cont.prepend(curdiv = document.createElement("div"));
-                } else {
-                    init();
-                    cont.prepend(curdiv = document.createElement("div"));
-                    curdiv.textContent = new Date().toJSON();
-                    cont.prepend(curdiv = document.createElement("div"));
-                    curdiv.textContent = "# clock laptime avg stddev key";
-                    cont.prepend(curdiv = document.createElement("div"));
-                    window.requestAnimationFrame(update);
-                }
-                laps++;
-            };
-        let start, now, last, s2, laps, curdiv;
-
-        reset.innerText = "reset";
-        copy.innerText = "copy";
-        reset.onclick = init;
-        copy.onclick = cp;
-        document.body.prepend(cont);
-        document.body.prepend(txt);
-        document.body.prepend(copy);
-        document.body.prepend(reset);
-
-        document.body.addEventListener("keydown", L);
-        cont.addEventListener("pointerdown", L);
-    </script>
 </body>
 
 </html>
