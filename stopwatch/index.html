@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
@@ -38,8 +38,8 @@
         span {
             display: inline-block;
             border-radius: .4rem;
-            margin: 0.1rem;
-            padding: 0.2rem;
+            margin: .3rem 0 .3rem .3rem;
+            padding: 1.2rem 0.6rem;
         }
 
         body.flash {
@@ -54,7 +54,7 @@
             navigator.clipboard.writeText(domLaps.innerText).then(function () {
                 event.target.innerText = 'COPIED';
                 clearTimeout(timerC);
-                timerC = setTimeout(function () { event.target.innerText = 'copy'; }, 1400);
+                timerC = setTimeout(function () { event.target.innerText = 'Copy'; }, 1400);
             }).catch(function () { });
         }
         function addLapRow(s) {
@@ -80,7 +80,7 @@
         function resetStopwatch() {
             last = sum2 = sum1 = laps = 0;
             domLaps.replaceChildren();
-            domPause.innerText = 'start';
+            domPause.innerText = 'Start';
         }
         function printLap(lapTime, src) {
             let avg = sum1 / laps;
@@ -98,15 +98,15 @@
             let paused = !(last > 0);
             let oldpaused = paused; let req = false;
             if (!paused && event.target === domPause) {
-                domPause.innerText = 'start';
+                domPause.innerText = 'Start';
                 cancelAnimationFrame(timerA);
                 paused = true;
             } else if (paused) {
-                domPause.innerText = 'pause';
+                domPause.innerText = 'Pause';
                 timerA = requestAnimationFrame(update); req = true;
                 paused = false;
             }
-            let src = event.target === domPause ? 'pause' : (event.code || (event.button ? "mouse" + event.button : ""));
+            let src = event.target === domPause ? 'Pause' : (event.code || (event.button ? "mouse" + event.button : ""));
             if (laps) {
                 if (!oldpaused) {
                     let lapTime = now - last;
@@ -135,9 +135,9 @@
         function init() {
             domLaps = document.createElement("div");
             document.body.prepend(domLaps);
-            domPause = ce("start", doLap);
-            domCopy = ce("copy", handleCopy);
-            domReset = ce("reset", resetStopwatch);
+            domPause = ce("Start", doLap);
+            domCopy = ce("Copy", handleCopy);
+            domReset = ce("Reset", resetStopwatch);
             domLaps.addEventListener("pointerdown", doLap);
             document.body.addEventListener("keydown", doLap);
             resetStopwatch();
@@ -146,7 +146,7 @@
                 domLapRow = domLaps.firstChild;
                 if (last > 0) {
                     timerA = requestAnimationFrame(update);
-                    domPause.innerText = 'pause';
+                    domPause.innerText = 'Pause';
                 }
             } catch (e) { }
         }

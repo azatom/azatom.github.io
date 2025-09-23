@@ -1,7 +1,6 @@
-const cacheName = `cache-v1`;
+const cacheName = `cache-v1.1`;
 const urlsToCache = [
     '.',
-    './sw.js',
     './manifest.json',
     './192x192.png',
     './favicon.ico',
