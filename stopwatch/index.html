@@ -4,6 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
     <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <title>Stopwatch</title>
     <style>
         html,
@@ -36,10 +37,14 @@
         }
 
         span {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
             border-radius: .4rem;
             margin: .3rem 0 .3rem .3rem;
-            padding: 1.2rem 0.6rem;
+            width: 4rem;
+            height: 4rem;
         }
 
         body.flash {
@@ -49,7 +54,7 @@
     </style>
     <script>
         document.write(`<base href="${window.location.pathname.replace(/\/*(index.html)?$/, "/")}">`);
-        function padLeft(n, s) { return String(s).padStart(n, "0"); }
+        function pad(s, n = 2) { return String(s).padStart(n, "0"); }
         function handleCopy(event) {
             navigator.clipboard.writeText(domLaps.innerText).then(function () {
                 event.target.innerText = 'COPIED';
@@ -72,10 +77,10 @@
             let msPart = Math.floor(ms % 1e3),
                 sec = Math.floor(ms / 1e3 % 60),
                 min = Math.floor(ms / 6e4 % 60);
-            return " " + (padLeft(2, Math.floor(ms / 36e5))
-                + ":" + padLeft(2, min)
-                + ":" + padLeft(2, sec)
-                + "." + padLeft(3, msPart)).replace(/^[0:]+([0-9])/, "$1");
+            return " " + (pad(Math.floor(ms / 36e5))
+                + ":" + pad(min)
+                + ":" + pad(sec)
+                + "." + pad(msPart, 3)).replace(/^[0:]+([0-9])/, "$1");
         }
         function resetStopwatch() {
             last = sum2 = sum1 = laps = 0;
@@ -116,7 +121,7 @@
                 }
             } else {
                 addLapRow();
-                addLapRow(new Date(now).toJSON());
+                addLapRow(fmtDate(new Date(now)));
                 addLapRow("# clock laptime avg stddev key");
                 req || (timerA = requestAnimationFrame(update));
             }
@@ -124,6 +129,15 @@
             last = paused ? -now : now;
             flash();
         }
+        function fmtDate(d) {
+            return d.getFullYear() +
+                '-' + pad(d.getMonth() + 1) +
+                '-' + pad(d.getDate()) +
+                ' ' + pad(d.getHours()) +
+                ':' + pad(d.getMinutes()) +
+                ':' + pad(d.getSeconds()) +
+                '.' + pad(d.getMilliseconds());
+        };
         function flash() {
             document.body.classList.add('flash');
             clearTimeout(timerF);

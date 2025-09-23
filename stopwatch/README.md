@@ -27,4 +27,3 @@
 - optional absolute time
 - grayed out paused laps? with abs time it is unnecessary
 - on mobile other key beside one OR paused  grayed out
-- tmeformat local
