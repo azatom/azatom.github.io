@@ -1,28 +1,20 @@
-const cacheName = `cache-v0.1`;
+const cacheName = `cache-v1`;
 const urlsToCache = [
     '.',
-    // './',
-    // './index.html',
     './sw.js',
     './manifest.json',
     './192x192.png',
     './favicon.ico',
 ];
 const urlAlias = { "./": ".", "./index.html": "." };
-self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(cacheName).then(cache => cache.addAll(urlsToCache)));
-    // self.skipWaiting();
-});
-//self.addEventListener('message', (event) => event.data.action === 'skipWaiting' && self.skipWaiting());
+self.addEventListener('install', (event) => event.waitUntil(caches.open(cacheName).then(cache => cache.addAll(urlsToCache))));
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     if (url.origin === self.location.origin) {
-        // Use urlAlias to map requests to cached equivalents
-        let cacheRequest = event.request;
-        let pathname = url.pathname.replace(/^\//, './');
-        if (urlAlias[pathname]) {
-            cacheRequest = new Request(urlAlias[pathname], { method: event.request.method, headers: event.request.headers });
-        }
+        const ali = urlAlias[url.pathname.replace(/^\//, './')];
+        const cacheRequest = ali
+            ? new Request(ali, { method: event.request.method, headers: event.request.headers })
+            : event.request;
         event.respondWith(
             caches.match(cacheRequest).then(async (cachedResponse) =>
                 cachedResponse ||

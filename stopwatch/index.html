@@ -37,8 +37,9 @@
 
         span {
             display: inline-block;
-            border-radius: .3rem;
-            margin: .5rem;
+            border-radius: .4rem;
+            margin: 0.1rem;
+            padding: 0.2rem;
         }
 
         body.flash {
@@ -100,7 +101,7 @@
                 cancelAnimationFrame(timerA);
                 paused = true;
             } else if (paused) {
-                domPause.innerText = 'lap+pause';
+                domPause.innerText = 'pause';
                 timerA = requestAnimationFrame(update); req = true;
                 paused = false;
             }
@@ -141,7 +142,10 @@
             try {
                 ({ now, last, laps, sum1, sum2, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state")));
                 domLapRow = domLaps.firstChild;
-                if (last > 0 && domLapRow) window.requestAnimationFrame(update);
+                if (last > 0 && domLapRow) {
+                    window.requestAnimationFrame(update);
+                    domPause.innerText = 'pause';
+                }
             } catch (e) { }
         }
         function setupApp() {
