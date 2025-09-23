@@ -46,23 +46,25 @@
         }
     </style>
     <script>
-        function padLeft(width, value) {
-            return String(value).padStart(width, "0");
-        }
-        function handleCopyClick(event) {
+        document.write(`<base href="${window.location.pathname.replace(/\/*(index.html)?$/, "/")}">`);
+        function padLeft(n, s) { return String(s).padStart(n, "0"); }
+        function handleCopy(event) {
             navigator.clipboard.writeText(domLaps.innerText).then(function () {
                 event.target.innerText = 'COPIED';
-                setTimeout(function () { event.target.innerText = 'copy'; }, 1400);
+                clearTimeout(timerC);
+                timerC = setTimeout(function () { event.target.innerText = 'copy'; }, 1400);
             }).catch(function () { });
         }
-        function addLapRow(text) {
-            if (text) domLapRow.textContent = text;
+        function addLapRow(s) {
+            if (s) domLapRow.textContent = s;
             domLaps.prepend(domLapRow = document.createElement("div"));
         }
-        function updateTimerDisplay() {
-            let nowTime = Date.now();
-            domLapRow.textContent = formatTime(nowTime - start) + " " + formatTime(nowTime - now);
-            window.requestAnimationFrame(updateTimerDisplay);
+        function update() {
+            const t = last;
+            if (!(t > 0)) return;
+            let lapTime = Date.now() - t;
+            domLapRow.textContent = formatTime(sum1 + lapTime) + " " + formatTime(lapTime);
+            timerA = requestAnimationFrame(update);
         }
         function formatTime(ms) {
             let msPart = Math.floor(ms % 1e3),
@@ -74,80 +76,83 @@
                 + "." + padLeft(3, msPart)).replace(/^[0:]+([0-9])/, "$1");
         }
         function resetStopwatch() {
-            last = start = now = Date.now();
-            sum2 = laps = 0;
+            last = sum2 = sum1 = laps = 0;
             domLaps.replaceChildren();
         }
-        function handleLap(event) {
-            last = now;
-            now = Date.now();
-            if (laps) {
-                let elapsed = now - start;
-                let avg = elapsed / laps;
-                let lapTime = now - last;
-                sum2 += lapTime * lapTime;
-                addLapRow(
-                    String(laps)
-                    + formatTime(elapsed)
-                    + formatTime(lapTime)
-                    + formatTime(avg)
-                    + formatTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)
-                    + " " + (event.code || "mouse" + event.button)
-                );
-            } else {
-                resetStopwatch();
-                addLapRow();
-                addLapRow(new Date().toJSON());
-                addLapRow("# clock laptime avg stddev key");
-                window.requestAnimationFrame(updateTimerDisplay);
+        function printLap(lapTime, src) {
+            let avg = sum1 / laps;
+            addLapRow(
+                String(laps)
+                + formatTime(sum1)
+                + formatTime(lapTime)
+                + formatTime(avg)
+                + formatTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)
+                + " " + src
+            );
+        }
+        function doLap(event) {
+            const now = Date.now();
+            let paused = !(last > 0);
+            let oldpaused = paused; let req = false;
+            if (!paused && event.target === domPause) {
+                domPause.innerText = 'start';
+                cancelAnimationFrame(timerA);
+                paused = true;
+            } else if (paused) {
+                domPause.innerText = 'lap+pause';
+                timerA = requestAnimationFrame(update); req = true;
+                paused = false;
             }
-            laps++;
+            let src = event.target === domPause ? 'pause' : (event.code || (event.button ? "mouse" + event.button : ""));
+            if (laps) {
+                if (!oldpaused) {
+                    let lapTime = now - last;
+                    sum1 += lapTime;
+                    sum2 += lapTime * lapTime;
+                    printLap(lapTime, src);
+                }
+            } else {
+                addLapRow();
+                addLapRow(new Date(now).toJSON());
+                addLapRow("# clock laptime avg stddev key");
+                req || (timerA = requestAnimationFrame(update));
+            }
+            if (!oldpaused||!laps) laps++;
+            last = paused ? -now : now;
+            flash();
+        }
+        function flash() {
             document.body.classList.add('flash');
-            setTimeout(() => document.body.classList.remove('flash'), 70);
+            clearTimeout(timerF);
+            timerF = setTimeout(() => document.body.classList.remove('flash'), 70);
         }
-        function buildUI() {
-            domCopyBtn = document.createElement("span");
-            domResetBtn = document.createElement("span");
+        function ce(s, fn) { const e = document.createElement("span"); e.innerText = s; e.onclick = fn; document.body.prepend(e); return e; }
+        function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, content: domLaps.innerHTML })); }
+        function init() {
             domLaps = document.createElement("div");
-            domResetBtn.innerText = "reset";
-            domCopyBtn.innerText = "copy";
-            domResetBtn.onclick = resetStopwatch;
-            domCopyBtn.onclick = handleCopyClick;
             document.body.prepend(domLaps);
-            document.body.prepend(domCopyBtn);
-            document.body.prepend(domResetBtn);
-            document.body.addEventListener("keydown", handleLap);
-            domLaps.addEventListener("pointerdown", handleLap);
-        }
-        function saveState() {
-            localStorage.setItem("sw_state", JSON.stringify({
-                start, now, last, sum2, laps, content: domLaps ? domLaps.innerHTML : ""
-            }));
-        }
-        function loadState() {
-            var state = localStorage.getItem("sw_state");
-            buildUI();
-            if (!state) return;
+            domPause = ce("start", doLap);
+            domCopy = ce("copy", handleCopy);
+            domReset = ce("reset", resetStopwatch);
+            domLaps.addEventListener("pointerdown", doLap);
+            document.body.addEventListener("keydown", doLap);
+            resetStopwatch();
             try {
-                let content;
-                ({ start, now, last, sum2, laps, content } = JSON.parse(state));
-                if (content) domLaps.innerHTML = content;
+                ({ now, last, laps, sum1, sum2, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state")));
                 domLapRow = domLaps.firstChild;
-                if (laps > 0 && domLapRow) window.requestAnimationFrame(updateTimerDisplay);
+                if (last > 0 && domLapRow) window.requestAnimationFrame(update);
             } catch (e) { }
         }
         function setupApp() {
-            window.addEventListener('load', function () {
-                if (navigator && navigator.serviceWorker) {
-                    navigator.serviceWorker.register('./sw.js').catch(function (e) { });
-                }
-            });
-            document.addEventListener('DOMContentLoaded', loadState);
-            window.addEventListener('beforeunload', saveState);
+            window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+            document.addEventListener('DOMContentLoaded', init);
+            window.addEventListener('beforeunload', save);
         }
-
-        let domCopyBtn, domResetBtn, domLaps, domLapRow;
-        let start, now, last, sum2, laps;
+        // transient
+        let timerF, timerC, timerA;
+        let domPause, domCopy, dom, domLaps, domLapRow;
+        // persisted
+        let now, last, laps, sum1, sum2; // domLaps.innerHTML
         setupApp();
     </script>
 </head>
