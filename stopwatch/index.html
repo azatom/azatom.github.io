@@ -80,6 +80,7 @@
         function resetStopwatch() {
             last = sum2 = sum1 = laps = 0;
             domLaps.replaceChildren();
+            domPause.innerText = 'start';
         }
         function printLap(lapTime, src) {
             let avg = sum1 / laps;
@@ -142,8 +143,8 @@
             try {
                 ({ now, last, laps, sum1, sum2, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state")));
                 domLapRow = domLaps.firstChild;
-                if (last > 0 && domLapRow) {
-                    window.requestAnimationFrame(update);
+                if (last > 0) {
+                    /*if (domLapRow)*/ window.requestAnimationFrame(update);
                     domPause.innerText = 'pause';
                 }
             } catch (e) { }
