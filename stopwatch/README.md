@@ -20,10 +20,13 @@
 1. Copy all files to a folder (e.g., `/stopwatch`).
 2. (Optional) Configure your server to serve (without redirect) `index.html` for all `/stopwatch` routes, note the missing slash at the and.
 
-
 ## TODO
 
-- optional stat
-- optional absolute time
-- grayed out paused laps? with abs time it is unnecessary
-- on mobile other key beside one OR paused  grayed out
+- Optional stat
+- Optional absolute time
+- Grayed out paused laps? with abs time it is unnecessary
+- On mobile other key beside one tap OR grayed paused could b ea hack for that
+- Scroll? It is deliberatelly disabled mimicing physical button (tap anywher anyhow, concentrate oon what you are actually measuring). Copy is there instead of scroll.
+- Zoom? same as scroll
+- PWA: update check
+- Is favicon needed anyway?

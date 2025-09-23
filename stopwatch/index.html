@@ -2,9 +2,17 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+    <meta name="description" content="Stopwatch">
+    <meta name="theme-color" content="#fff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Stopwatch">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#111">
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <!-- link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" -->
+    <!-- link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF" -->
     <title>Stopwatch</title>
     <style>
         html,
@@ -20,9 +28,10 @@
 
         body>div>div:first-child {
             font-size: 1.6rem;
+            height: 1.6rem;
         }
 
-        body>div:empty:after {
+        body>div>div:first-child body>div:empty:after {
             content: 'tap on white or press any key';
             color: #aaa;
         }
@@ -42,25 +51,24 @@
             justify-content: center;
             text-align: center;
             border-radius: .4rem;
-            margin: .3rem 0 .3rem .3rem;
+            margin: .4rem;
             width: 4rem;
             height: 4rem;
         }
 
-        body.flash {
-            background-color: #000;
-            transition: background-color .07s ease;
+        .invert{filter: invert();}
+        .flash {
+            background-color: #285;
+            transition: background-color .2s ease;
         }
     </style>
     <script>
         document.write(`<base href="${window.location.pathname.replace(/\/*(index.html)?$/, "/")}">`);
         function pad(s, n = 2) { return String(s).padStart(n, "0"); }
         function handleCopy(event) {
-            navigator.clipboard.writeText(domLaps.innerText).then(function () {
-                event.target.innerText = 'COPIED';
-                clearTimeout(timerC);
-                timerC = setTimeout(function () { event.target.innerText = 'Copy'; }, 1400);
-            }).catch(function () { });
+            navigator.clipboard.writeText(domLaps.innerText)
+                .then(function () { flash(event.target, 1400); })
+                .catch(function () { });
         }
         function addLapRow(s) {
             if (s) domLapRow.textContent = s;
@@ -70,10 +78,10 @@
             const t = last;
             if (!(t > 0)) return;
             let lapTime = Date.now() - t;
-            domLapRow.textContent = formatTime(sum1 + lapTime) + " " + formatTime(lapTime);
+            domLapRow.textContent = fmtTime(sum1 + lapTime) + " " + fmtTime(lapTime);
             timerA = requestAnimationFrame(update);
         }
-        function formatTime(ms) {
+        function fmtTime(ms) {
             let msPart = Math.floor(ms % 1e3),
                 sec = Math.floor(ms / 1e3 % 60),
                 min = Math.floor(ms / 6e4 % 60);
@@ -82,33 +90,46 @@
                 + ":" + pad(sec)
                 + "." + pad(msPart, 3)).replace(/^[0:]+([0-9])/, "$1");
         }
-        function resetStopwatch() {
-            last = sum2 = sum1 = laps = 0;
-            domLaps.replaceChildren();
-            domPause.innerText = 'Start';
+        function fmtDate(d) {
+            return d.getFullYear() +
+                '-' + pad(d.getMonth() + 1) +
+                '-' + pad(d.getDate()) +
+                ' ' + pad(d.getHours()) +
+                ':' + pad(d.getMinutes()) +
+                ':' + pad(d.getSeconds()) +
+                '.' + pad(d.getMilliseconds());
         }
         function printLap(lapTime, src) {
             let avg = sum1 / laps;
             addLapRow(
                 String(laps)
-                + formatTime(sum1)
-                + formatTime(lapTime)
-                + formatTime(avg)
-                + formatTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)
+                + fmtTime(sum1)
+                + fmtTime(lapTime)
+                + fmtTime(avg)
+                + fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)
                 + " " + src
             );
+        }
+        function resetStopwatch() {
+            last = sum2 = sum1 = laps = 0;
+            domLaps.replaceChildren();
+            domPause.innerText = 'Start';
+            domPause.classList.add('invert');
         }
         function doLap(event) {
             const now = Date.now();
             let paused = !(last > 0);
-            let oldpaused = paused; let req = false;
+            let oldpaused = paused;
+            let req;
             if (!paused && event.target === domPause) {
                 domPause.innerText = 'Start';
+                domPause.classList.add('invert');
                 cancelAnimationFrame(timerA);
                 paused = true;
             } else if (paused) {
                 domPause.innerText = 'Pause';
-                timerA = requestAnimationFrame(update); req = true;
+                domPause.classList.remove('invert');
+                req = timerA = requestAnimationFrame(update);
                 paused = false;
             }
             let src = event.target === domPause ? 'Pause' : (event.code || (event.button ? "mouse" + event.button : ""));
@@ -127,21 +148,12 @@
             }
             if (!oldpaused || !laps) laps++;
             last = paused ? -now : now;
-            flash();
+            flash(document.body, 80);
         }
-        function fmtDate(d) {
-            return d.getFullYear() +
-                '-' + pad(d.getMonth() + 1) +
-                '-' + pad(d.getDate()) +
-                ' ' + pad(d.getHours()) +
-                ':' + pad(d.getMinutes()) +
-                ':' + pad(d.getSeconds()) +
-                '.' + pad(d.getMilliseconds());
-        };
-        function flash() {
-            document.body.classList.add('flash');
-            clearTimeout(timerF);
-            timerF = setTimeout(() => document.body.classList.remove('flash'), 70);
+        function flash(el, t) {
+            el.classList.add('flash');
+            clearTimeout(el.getAttribute('data-flash-timer'));
+            el.setAttribute('data-flash-timer', setTimeout(() => el.classList.remove('flash'), t));
         }
         function ce(s, fn) { const e = document.createElement("span"); e.innerText = s; e.onclick = fn; document.body.prepend(e); return e; }
         function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, content: domLaps.innerHTML })); }
@@ -150,6 +162,7 @@
             domLaps = document.createElement("div");
             document.body.prepend(domLaps);
             domPause = ce("Start", doLap);
+            domPause.classList.add('invert');
             domCopy = ce("Copy", handleCopy);
             domReset = ce("Reset", resetStopwatch);
             domLaps.addEventListener("pointerdown", doLap);
@@ -161,6 +174,7 @@
                 if (last > 0) {
                     timerA = requestAnimationFrame(update);
                     domPause.innerText = 'Pause';
+                    domPause.classList.remove('invert');
                 }
             } catch (e) { }
         }
@@ -170,8 +184,7 @@
             window.addEventListener('beforeunload', save);
         }
         // transient
-        let timerF, timerC, timerA;
-        let domPause, domCopy, dom, domLaps, domLapRow;
+        let timerA, domPause, domCopy, dom, domLaps, domLapRow;
         // persisted
         let now, last, laps, sum1, sum2; // domLaps.innerHTML
         setupApp();
