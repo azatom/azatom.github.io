@@ -1,7 +1,5 @@
 # Stopwatch
 
-[![pages-build-deployment](https://github.com/azatom/azatom.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/azatom/azatom.github.io/actions/workflows/pages/pages-build-deployment)
-
 [https://azatom.github.io/stopwatch/](https://azatom.github.io/stopwatch/)
 
 ## Features
@@ -21,3 +19,12 @@
 ### On own server
 1. Copy all files to a folder (e.g., `/stopwatch`).
 2. (Optional) Configure your server to serve (without redirect) `index.html` for all `/stopwatch` routes, note the missing slash at the and.
+
+
+## TODO
+
+- optional stat
+- optional absolute time
+- grayed out paused laps? with abs time it is unnecessary
+- on mobile other key beside one OR paused  grayed out
+- tmeformat local
