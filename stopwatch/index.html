@@ -80,6 +80,7 @@
         function resetStopwatch() {
             last = sum2 = sum1 = laps = 0;
             domLaps.replaceChildren();
+            domPause.innerText = 'start';
         }
         function printLap(lapTime, src) {
             let avg = sum1 / laps;
@@ -130,6 +131,7 @@
         }
         function ce(s, fn) { const e = document.createElement("span"); e.innerText = s; e.onclick = fn; document.body.prepend(e); return e; }
         function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, content: domLaps.innerHTML })); }
+        function load() { ({ now, last, laps, sum1, sum2, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state"))); }
         function init() {
             domLaps = document.createElement("div");
             document.body.prepend(domLaps);
@@ -140,10 +142,10 @@
             document.body.addEventListener("keydown", doLap);
             resetStopwatch();
             try {
-                ({ now, last, laps, sum1, sum2, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state")));
+                load();
                 domLapRow = domLaps.firstChild;
-                if (last > 0 && domLapRow) {
-                    window.requestAnimationFrame(update);
+                if (last > 0) {
+                    timerA = requestAnimationFrame(update);
                     domPause.innerText = 'pause';
                 }
             } catch (e) { }
