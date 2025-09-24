@@ -22,11 +22,10 @@
 
 ## TODO
 
-- Optional stat
-- Optional absolute time
+- Optional lapstat+key
+- Absolute/fromstart/laptime
 - Grayed out paused laps? with abs time it is unnecessary
 - On mobile other key beside one tap OR grayed paused could b ea hack for that
 - Scroll? It is deliberatelly disabled mimicing physical button (tap anywher anyhow, concentrate oon what you are actually measuring). Copy is there instead of scroll.
 - Zoom? same as scroll
 - PWA: update check
-- Is favicon needed anyway?

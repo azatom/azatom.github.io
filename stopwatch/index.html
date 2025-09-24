@@ -66,16 +66,21 @@
         }
     </style>
     <script>
-        document.write(`<base href="${window.location.pathname.replace(/\/*(index.html)?$/, "/")}">`);
+        function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+        function setBase() {
+            const base = document.createElement('base');
+            base.href = getBase();
+            document.head.insertBefore(base, document.head.firstChild);
+        }
         function pad(s, n = 2) { return String(s).padStart(n, "0"); }
         function handleCopy(event) {
-            navigator.clipboard.writeText(domLaps.innerText)
+            window.navigator.clipboard.writeText(domLaps.innerText)
                 .then(function () { flash(event.target, 1400); })
                 .catch(function () { });
         }
         function addLapRow(s) {
             if (s) domLapRow.textContent = s;
-            domLaps.prepend(domLapRow = document.createElement("div"));
+            domLaps.prepend(domLapRow = window.document.createElement("div"));
         }
         function update() {
             const t = last;
@@ -154,86 +159,82 @@
             }
             if (!oldpaused || !laps) laps++;
             last = paused ? -now : now;
-            flash(document.body, 80);
+            flash(window.document.body, 80);
         }
         function flash(el, t) {
             el.classList.add('flash');
             clearTimeout(el.getAttribute('data-flash-timer'));
             el.setAttribute('data-flash-timer', setTimeout(() => el.classList.remove('flash'), t));
         }
-        function ce(s, fn) { const e = document.createElement("span"); e.innerText = s; e.onclick = fn; document.body.prepend(e); return e; }
-        function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, as, at, content: domLaps.innerHTML })); }
-        function load() { ({ now, last, laps, sum1, sum2, as, at, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state"))); }
+        function ce(s, fn) { const e = window.document.createElement("span"); e.innerText = s; e.onclick = fn; window.document.body.prepend(e); return e; }
+        function save() { console.log("save"); localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, as, at, content: domLaps.innerHTML })); }
+        function load() { ({ now=0, last=0, laps=0, sum1=0, sum2=0, as=[], at=[], content: domLaps.innerHTML = "" } = JSON.parse(localStorage.getItem("state") || "{}")); }
         function init() {
-            domLaps = document.createElement("div");
-            document.body.prepend(domLaps);
+            domLaps = window.document.createElement("div");
+            window.document.body.prepend(domLaps);
             domPause = ce("Start", doLap);
             domPause.classList.add('invert');
             domCopy = ce("Copy", handleCopy);
             domReset = ce("Reset", resetStopwatch);
             domLaps.addEventListener("pointerdown", doLap);
-            document.body.addEventListener("keydown", doLap);
-            resetStopwatch();
-            try {
-                load();
-                domLapRow = domLaps.firstChild;
-                if (last > 0) {
-                    timerA = requestAnimationFrame(update);
-                    domPause.innerText = 'Pause';
-                    domPause.classList.remove('invert');
-                }
-            } catch (e) { }
+            window.document.body.addEventListener("keydown", doLap);
+            load();
+            domLapRow = domLaps.firstChild;
+            if (last > 0) {
+                timerA = requestAnimationFrame(update);
+                domPause.innerText = 'Pause';
+                domPause.classList.remove('invert');
+            }
+            swMess(updateWillbe, updateDone);
         }
 
-        // function updateWillbe(newWorker) {
-        //     `Updating ${ver} to ..`;
-        //     newWorker.postMessage({ action: 'skipWaiting' });
-        // };
-        // function updateDone(newVer) {}
-        // function updates(beforestart, finish) {
-        //     if (!('serviceWorker' in navigator)) return;
-        //     navigator.serviceWorker.register('./sw.js').then((reg) => {
-        //         reg.addEventListener('updatefound', () => {
-        //             const newWorker = reg.installing;
-        //             newWorker.addEventListener('statechange', () =>
-        //                 newWorker.state === 'installed' &&
-        //                 navigator.serviceWorker.controller &&
-        //                 beforestart(newWorker)
-        //             );
-        //         });
-        //     }).catch(e => download(e, 'error.txt'));
-        //     let refreshing;
-        //     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        //         if (!refreshing) {
-        //             refreshing = true;
-        //             window.location.reload();
-        //         }
-        //     });
-        //     const uuid = crypto.randomUUID();
-        //     const mainChan = new BroadcastChannel("main");
-        //     mainChan.postMessage({
-        //         q: "ver",
-        //         respondAt: uuid
-        //     });
-        //     const respChan = new BroadcastChannel(uuid);
-        //     respChan.onmessage = ({ data }) => {
-        //         finish(data);
-        //         respChan.close();
-        //         mainChan.close();
-        //     };
-        // }
-        // after init: updates(updateWillbe, updateDone);
+        function updateWillbe(newWorker) {
+            domReset.innerText = ver || '?';
+            // newWorker.postMessage({ action: 'skipWaiting' });
+        };
+        function updateDone(newVer) { domReset.innerText = newVer; }
+        function swMess(beforestart, finish) {
+            if (!('serviceWorker' in window.navigator)) return;
+            window.navigator.serviceWorker.register(getBase() + 'sw.js').then((reg) => {
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () =>
+                        newWorker.state === 'installed' &&
+                        window.navigator.serviceWorker.controller &&
+                        beforestart(newWorker)
+                    );
+                });
+            }).catch(e => domLaps.textContent = e);
+            let refreshing;
+            window.navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
+            });
+            const uuid = crypto.randomUUID();
+            const mainChan = new BroadcastChannel("main");
+            mainChan.postMessage({ q: "ver", respondAt: uuid });
+            const respChan = new BroadcastChannel(uuid);
+            respChan.onmessage = ({ data }) => {
+                finish(data);
+                respChan.close();
+                mainChan.close();
+            };
+        }
 
-        function setupApp() {
+        function setApp() {
             window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
-            document.addEventListener('DOMContentLoaded', init);
+            window.document.addEventListener('DOMContentLoaded', init);
             window.addEventListener('beforeunload', save);
+            window.document.addEventListener('visibilitychange', () => window.document.visibilityState === 'hidden' && save());
         }
         // transient
         let timerA, domPause, domCopy, dom, domLaps, domLapRow, ver;
         // persisted
         let now, last, laps, sum1, sum2, at, as; // domLaps.innerHTML
-        setupApp();
+        setBase();
+        setApp();
     </script>
 </head>
 
