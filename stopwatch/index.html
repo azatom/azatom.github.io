@@ -56,7 +56,10 @@
             height: 4rem;
         }
 
-        .invert{filter: invert();}
+        .invert {
+            filter: invert();
+        }
+
         .flash {
             background-color: #285;
             transition: background-color .2s ease;
@@ -112,6 +115,7 @@
         }
         function resetStopwatch() {
             last = sum2 = sum1 = laps = 0;
+            at = []; as = [];
             domLaps.replaceChildren();
             domPause.innerText = 'Start';
             domPause.classList.add('invert');
@@ -132,7 +136,9 @@
                 req = timerA = requestAnimationFrame(update);
                 paused = false;
             }
-            let src = event.target === domPause ? 'Pause' : (event.code || (event.button ? "mouse" + event.button : ""));
+            let src = event.target === domPause ? 'Pause' : (event.code || "m" + event.button);
+            as.push(src);
+            at.push(now);
             if (laps) {
                 if (!oldpaused) {
                     let lapTime = now - last;
@@ -156,8 +162,8 @@
             el.setAttribute('data-flash-timer', setTimeout(() => el.classList.remove('flash'), t));
         }
         function ce(s, fn) { const e = document.createElement("span"); e.innerText = s; e.onclick = fn; document.body.prepend(e); return e; }
-        function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, content: domLaps.innerHTML })); }
-        function load() { ({ now, last, laps, sum1, sum2, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state"))); }
+        function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, as, at, content: domLaps.innerHTML })); }
+        function load() { ({ now, last, laps, sum1, sum2, as, at, content: domLaps.innerHTML } = JSON.parse(localStorage.getItem("state"))); }
         function init() {
             domLaps = document.createElement("div");
             document.body.prepend(domLaps);
@@ -178,15 +184,55 @@
                 }
             } catch (e) { }
         }
+
+        // function updateWillbe(newWorker) {
+        //     `Updating ${ver} to ..`;
+        //     newWorker.postMessage({ action: 'skipWaiting' });
+        // };
+        // function updateDone(newVer) {}
+        // function updates(beforestart, finish) {
+        //     if (!('serviceWorker' in navigator)) return;
+        //     navigator.serviceWorker.register('./sw.js').then((reg) => {
+        //         reg.addEventListener('updatefound', () => {
+        //             const newWorker = reg.installing;
+        //             newWorker.addEventListener('statechange', () =>
+        //                 newWorker.state === 'installed' &&
+        //                 navigator.serviceWorker.controller &&
+        //                 beforestart(newWorker)
+        //             );
+        //         });
+        //     }).catch(e => download(e, 'error.txt'));
+        //     let refreshing;
+        //     navigator.serviceWorker.addEventListener('controllerchange', () => {
+        //         if (!refreshing) {
+        //             refreshing = true;
+        //             window.location.reload();
+        //         }
+        //     });
+        //     const uuid = crypto.randomUUID();
+        //     const mainChan = new BroadcastChannel("main");
+        //     mainChan.postMessage({
+        //         q: "ver",
+        //         respondAt: uuid
+        //     });
+        //     const respChan = new BroadcastChannel(uuid);
+        //     respChan.onmessage = ({ data }) => {
+        //         finish(data);
+        //         respChan.close();
+        //         mainChan.close();
+        //     };
+        // }
+        // after init: updates(updateWillbe, updateDone);
+
         function setupApp() {
             window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
             document.addEventListener('DOMContentLoaded', init);
             window.addEventListener('beforeunload', save);
         }
         // transient
-        let timerA, domPause, domCopy, dom, domLaps, domLapRow;
+        let timerA, domPause, domCopy, dom, domLaps, domLapRow, ver;
         // persisted
-        let now, last, laps, sum1, sum2; // domLaps.innerHTML
+        let now, last, laps, sum1, sum2, at, as; // domLaps.innerHTML
         setupApp();
     </script>
 </head>
