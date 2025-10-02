@@ -1,47 +1,50 @@
-const ver = "1.01";
-const cacheName = `cache-v${ver}`;
+const ver = '1;
+const cacheName = `cache-${ver}`;
 const urlsToCache = [
     '.',
-    './manifest.json',
     './192x192.png',
     './favicon.ico',
+    './manifest.json',
 ];
 const urlAlias = { "./": ".", "./index.html": "." };
+
+const chSw = new BroadcastChannel("chSw");
+const console = {};
+console.log = (...a) => chSw.postMessage(a);
+
 self.addEventListener('install', (event) => event.waitUntil(
     caches.open(cacheName)
         .then(cache => cache.addAll(urlsToCache))
-        .then(() => self.skipWaiting())
+    //.then(() => self.skipWaiting())
 ));
 self.addEventListener('activate', (event) => {
     const cacheWhitelist = [cacheName];
-    event.waitUntil(Promise.all([
-        caches.keys()
-            .then((cacheNames) => Promise.all(
-                cacheNames
-                    .filter((name) => !cacheWhitelist.includes(name))
-                    .map((name) => caches.delete(name))
-            )),
-        self.clients.claim()
-    ]));
+    event.waitUntil(caches.keys()
+        .then((cacheNames) => Promise.all(
+            cacheNames
+                .filter((name) => !cacheWhitelist.includes(name))
+                .map((name) => caches.delete(name))
+        ))
+        // .then(self.clients.claim())
+    );
+    self.clients.claim();
 });
 self.addEventListener('fetch', (event) => {
-    const request = getCacheRequest(event.request);
+    const request = getCacheRequest(event);
+    console.log("fetch", event.request.url, request.url);
     event.respondWith(
         caches.match(request)
-            .then((cachedResponse) => {
-                if (cachedResponse) {
-                    console.log("cached", request.url);
-                    return cachedResponse;
-                } else {
-                    console.log("fetchin", request.url);
-                    return fetchAndCache(request, event.request);
-                }
-            })
+            .then((cachedResponse) => cachedResponse || fetchAndCache(request, event.request))
             .catch(() => handleOffline(request, event.request))
     );
 });
-self.addEventListener('message', (event) => event.data.action === 'skipWaiting' && self.skipWaiting());
-new BroadcastChannel("main").onmessage = ({ data }) => {
+
+self.addEventListener('message', (event) => {
+    event.data.action === 'skipWaiting' && self.skipWaiting();
+    console.log('messsage', event.data);
+});
+
+new BroadcastChannel("chClient").onmessage = ({ data }) => {
     if (data.q === "ver") {
         const chan = new BroadcastChannel(data.respondAt);
         chan.postMessage(ver);
@@ -49,13 +52,13 @@ new BroadcastChannel("main").onmessage = ({ data }) => {
     }
 };
 
-function getCacheRequest(request) {
-    const url = new URL(request.url);
-    if (url.origin !== self.location.origin) return request;
-    const aliasedUrl = urlAlias[url.pathname.replace(/^\//, './')];
-    return aliasedUrl
-        ? new Request(aliasedUrl, { method: request.method, headers: request.headers })
-        : request;
+function getCacheRequest(event) {
+    const url = new URL(event.request.url);
+    if (url.origin !== self.location.origin) return event.request;
+    const aliasPathname = urlAlias[url.pathname.replace(/^\//, './')];
+    return aliasPathname
+        ? new Request(aliasPathname, { method: event.request.method, headers: event.request.headers })
+        : event.request;
 }
 async function fetchAndCache(cacheRequest, originalRequest) {
     const networkResponse = await fetch(originalRequest);
@@ -71,16 +74,11 @@ function handleOffline(cacheRequest, originalRequest) {
         : caches.match(originalRequest.url, cacheRequest.url);
 }
 
-
-console.log('sw', ver);
-self.addEventListener('message', (event) => {
-    console.log('messsage', event.data);
-});
 self.addEventListener('push', event => {
     console.log('Push event:', event);
     const data = event.data ? event.data.text() : 'No payload';
     event.waitUntil(
-        self.registration.showNotification('Stopwatch', {
+        self.registration.showNotification('PushStopwatch', {
             body: data,
             icon: './192x192.png'
         })

@@ -4,7 +4,7 @@
   "navigation_color": "#777",
   "lang": "en",
   "name": "Stopwatch",
-  "orientation": "portrait",
+  "orientation": "any",
   "prefer_related_applications": false,
   "scope": ".",
   "short_name": "Stopwatch",

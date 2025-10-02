@@ -1,13 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Notepad">
     <meta name="theme-color" content="#ffffff">
-    <title>npTitle</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Stopwatch">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#111">
     <link rel="manifest" href="./manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <!-- link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" -->
+    <!-- link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF" -->
+    <title>npTitle</title>
+    <script>
+        function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+        function setBase() {
+            /*/
+            document.write(`<base href="${getBase()}">`);
+            /*/
+            const base = document.createElement('base');
+            base.href = getBase();
+            document.head.insertBefore(base, document.head.firstChild);
+            /**/
+        }
+        setBase();
+        /*/
+        navigator?.serviceWorker.register(getBase() + 'sw.js');
+        /*/
+        window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+        /**/
+    </script>
+
     <style>
         html {
             background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
@@ -219,6 +244,7 @@
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     <script type="text/javascript">
         window.addEventListener("resize", handleResizeEvent);
         setupMediaQueryListeners();
@@ -237,7 +263,7 @@
                     mediaQueryList.addListener(handleMediaQueryChangeEvent);
                     console.log("setupMediaQueryListeners", conditionText, mediaQueryList.matches);
                 }
-            } catch (e) { console.log('etfd'); }
+            } catch (e) { console.log('no stylesheet'); }
         }
     </script>
 </head>
@@ -255,8 +281,8 @@
         <button class="sq" onclick="prependDate()" title="date">📆</button>
         <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
         <button class="sq" id="sw" onclick="swap()">sw</button>
-        <button class="rt" id="lg" onclick="swp()">:)</button>
-        <button class="sq" onclick="test()">:)</button>
+        <button class="rt" id="lg" onclick="swp()">swp</button>
+        <button class="sq" onclick="test()">📋</button>
         <button class="sq" title="wrap">----</button>
         <button class="sq ddlabel">𝔉</button>
         <div class="dropdown" id="df">
@@ -266,16 +292,32 @@
             <button class="sq" onclick="zap()" title="zap style">Z</button>
             <button class="sq" onclick="np.contentEditable='true'!=np.contentEditable" title="edit">✏</button>
             <button class="sq" onclick="foo()">a</button>
+            <button class="sq" onclick="foo2()">🛢️</button>
         </div>
     </div>
     <div id="np" contenteditable></div>
     <script>
-        let ver = '0623', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
-        navigator?.serviceWorker.register('./sw.js');
+        let ver = 'index', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
         d.addEventListener('DOMContentLoaded', init);
 
         function foo() {
             np.style.fontFamily = '"Noto Color Emoji", sans-serif';
+        }
+        async function foo2() {
+            const before = await navigator?.storage?.estimate();
+            const persisted = await navigator?.storage?.persist();
+            const after = await navigator?.storage?.estimate();
+            alert(
+                `persist: ${persisted ? "yes" : "no"}\n` +
+                `usage before: ${before?.usage ? (before.usage / 1e3).toFixed(2) + " kB" : "n/a"}\n` +
+                `usage after: ${after?.usage ? (after.usage / 1e3).toFixed(2) + " kB" : "n/a"}`
+            );
+        }
+        function test() {
+            window.navigator.clipboard
+                .readText()
+                .then(a => np.innerText = a);
+            swp();
         }
         function test0() {
             try {
@@ -284,7 +326,7 @@
                     .then(c => np.innerText = JSON.stringify(c, null, "  "));
             } catch (e) { np.innerText = e; }
         }
-        function test() {
+        function test1() {
             lg.replaceChildren(consoletable({
                 title: lg.textContent,
                 ver: ver,

@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
     <meta name="description" content="Stopwatch">
-    <meta name="theme-color" content="#fff">
+    <meta name="theme-color" content="#ffffff">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Stopwatch">
     <meta name="apple-mobile-web-app-status-bar-style" content="#111">
@@ -14,6 +14,7 @@
     <!-- link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" -->
     <!-- link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF" -->
     <title>Stopwatch</title>
+
     <style>
         html,
         body,
@@ -71,15 +72,21 @@
             const base = document.createElement('base');
             base.href = getBase();
             document.head.insertBefore(base, document.head.firstChild);
+            chSw = new BroadcastChannel("chSw");
+            chSw.onmessage = (a) => {
+                addRow('chSw', typeof a?.data, JSON.stringify(a?.data));
+            };
         }
         function pad(s, n = 2) { return String(s).padStart(n, "0"); }
         function handleCopy(event) {
             window.navigator.clipboard.writeText(domLaps.innerText)
-                .then(function () { flash(event.target, 1400); })
-                .catch(function () { });
+                .then(() => flash(event.target, 1400))
+                .catch(() => { });
         }
-        function addLapRow(s) {
-            if (s) domLapRow.textContent = s;
+        function addRow(...s) {
+            domLaps || alert('no domLaps');
+            domLapRow = domLapRow || window.document.createElement("div");
+            if (s) domLapRow.textContent = s.join(' ');
             domLaps.prepend(domLapRow = window.document.createElement("div"));
         }
         function update() {
@@ -93,7 +100,7 @@
             let msPart = Math.floor(ms % 1e3),
                 sec = Math.floor(ms / 1e3 % 60),
                 min = Math.floor(ms / 6e4 % 60);
-            return " " + (pad(Math.floor(ms / 36e5))
+            return (pad(Math.floor(ms / 36e5))
                 + ":" + pad(min)
                 + ":" + pad(sec)
                 + "." + pad(msPart, 3)).replace(/^[0:]+([0-9])/, "$1");
@@ -107,15 +114,14 @@
                 ':' + pad(d.getSeconds()) +
                 '.' + pad(d.getMilliseconds());
         }
-        function printLap(lapTime, src) {
-            let avg = sum1 / laps;
-            addLapRow(
-                String(laps)
-                + fmtTime(sum1)
-                + fmtTime(lapTime)
-                + fmtTime(avg)
-                + fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)
-                + " " + src
+        function printLap(lapTime, src, avg = sum1 / laps) {
+            addRow(
+                String(laps),
+                fmtTime(sum1),
+                fmtTime(lapTime),
+                fmtTime(avg),
+                fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0),
+                src
             );
         }
         function resetStopwatch() {
@@ -141,7 +147,14 @@
                 req = timerA = requestAnimationFrame(update);
                 paused = false;
             }
-            let src = event.target === domPause ? 'Pause' : (event.code || "m" + event.button);
+            let src;
+            if (event.type === "touchstart") {
+                src = "tap" + event.touches.length;
+            } else if (event.target === domPause) {
+                src = 'Pause';
+            } else {
+                src = event.code || event.type + event.button;
+            }
             as.push(src);
             at.push(now);
             if (laps) {
@@ -152,9 +165,9 @@
                     printLap(lapTime, src);
                 }
             } else {
-                addLapRow();
-                addLapRow(fmtDate(new Date(now)));
-                addLapRow("# clock laptime avg stddev key");
+                addRow();
+                addRow(fmtDate(new Date(now)), src);
+                addRow("# clock laptime avg stddev key");
                 req || (timerA = requestAnimationFrame(update));
             }
             if (!oldpaused || !laps) laps++;
@@ -167,8 +180,8 @@
             el.setAttribute('data-flash-timer', setTimeout(() => el.classList.remove('flash'), t));
         }
         function ce(s, fn) { const e = window.document.createElement("span"); e.innerText = s; e.onclick = fn; window.document.body.prepend(e); return e; }
-        function save() { console.log("save"); localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, as, at, content: domLaps.innerHTML })); }
-        function load() { ({ now=0, last=0, laps=0, sum1=0, sum2=0, as=[], at=[], content: domLaps.innerHTML = "" } = JSON.parse(localStorage.getItem("state") || "{}")); }
+        function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, as, at, ver, content: domLaps.innerHTML })); }
+        function load() { ({ now=0, last=0, laps=0, sum1=0, sum2=0, as=[], at=[], ver, content: domLaps.innerHTML = "" } = JSON.parse(localStorage.getItem("state") || "{}")); }
         function init() {
             domLaps = window.document.createElement("div");
             window.document.body.prepend(domLaps);
@@ -176,6 +189,7 @@
             domPause.classList.add('invert');
             domCopy = ce("Copy", handleCopy);
             domReset = ce("Reset", resetStopwatch);
+            domLaps.addEventListener("touchstart", doLap, { passive: true });
             domLaps.addEventListener("pointerdown", doLap);
             window.document.body.addEventListener("keydown", doLap);
             load();
@@ -185,14 +199,15 @@
                 domPause.innerText = 'Pause';
                 domPause.classList.remove('invert');
             }
+            addRow('ver', ver);
             swMess(updateWillbe, updateDone);
         }
 
         function updateWillbe(newWorker) {
-            domReset.innerText = ver || '?';
+            addRow('ver', (ver || '?'));
             // newWorker.postMessage({ action: 'skipWaiting' });
         };
-        function updateDone(newVer) { domReset.innerText = newVer; }
+        function updateDone(newVer) { ver !== newVer && addRow('ver new', ver = newVer); }
         function swMess(beforestart, finish) {
             if (!('serviceWorker' in window.navigator)) return;
             window.navigator.serviceWorker.register(getBase() + 'sw.js').then((reg) => {
@@ -213,26 +228,26 @@
                 }
             });
             const uuid = crypto.randomUUID();
-            const mainChan = new BroadcastChannel("main");
-            mainChan.postMessage({ q: "ver", respondAt: uuid });
-            const respChan = new BroadcastChannel(uuid);
-            respChan.onmessage = ({ data }) => {
-                finish(data);
-                respChan.close();
-                mainChan.close();
+            const chClient = new BroadcastChannel("chClient");
+            chClient.postMessage({ q: "ver", respondAt: uuid });
+            const chClientResp = new BroadcastChannel(uuid);
+            chClientResp.onmessage = ({ data }) => {
+                finish(data.ver);
+                chClientResp.close();
+                chClient.close();
             };
         }
 
         function setApp() {
             window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
-            window.document.addEventListener('DOMContentLoaded', init);
             window.addEventListener('beforeunload', save);
-            window.document.addEventListener('visibilitychange', () => window.document.visibilityState === 'hidden' && save());
+            window.document.addEventListener('DOMContentLoaded', init);
+            window.document.addEventListener('visibilitychange', (e) => window.document.visibilityState === 'hidden' && save());
         }
         // transient
-        let timerA, domPause, domCopy, dom, domLaps, domLapRow, ver;
+        let timerA, domPause, domCopy, dom, domLaps, domLapRow, chSw;
         // persisted
-        let now, last, laps, sum1, sum2, at, as; // domLaps.innerHTML
+        let now, last, laps, sum1, sum2, at, as, ver; // domLaps.innerHTML
         setBase();
         setApp();
     </script>
