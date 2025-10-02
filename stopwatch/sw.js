@@ -1,4 +1,4 @@
-const ver = '1;
+const ver = '1.0.9';
 const cacheName = `cache-${ver}`;
 const urlsToCache = [
     '.',
@@ -15,7 +15,7 @@ console.log = (...a) => chSw.postMessage(a);
 self.addEventListener('install', (event) => event.waitUntil(
     caches.open(cacheName)
         .then(cache => cache.addAll(urlsToCache))
-    //.then(() => self.skipWaiting())
+        .then(() => self.skipWaiting())
 ));
 self.addEventListener('activate', (event) => {
     const cacheWhitelist = [cacheName];
@@ -25,13 +25,11 @@ self.addEventListener('activate', (event) => {
                 .filter((name) => !cacheWhitelist.includes(name))
                 .map((name) => caches.delete(name))
         ))
-        // .then(self.clients.claim())
+        .then(self.clients.claim())
     );
-    self.clients.claim();
 });
 self.addEventListener('fetch', (event) => {
     const request = getCacheRequest(event);
-    console.log("fetch", event.request.url, request.url);
     event.respondWith(
         caches.match(request)
             .then((cachedResponse) => cachedResponse || fetchAndCache(request, event.request))
@@ -41,7 +39,7 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('message', (event) => {
     event.data.action === 'skipWaiting' && self.skipWaiting();
-    console.log('messsage', event.data);
+    console.log('sw', event.data);
 });
 
 new BroadcastChannel("chClient").onmessage = ({ data }) => {

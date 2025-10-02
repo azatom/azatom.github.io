@@ -29,9 +29,8 @@ self.addEventListener('activate', (event) => {
                 .filter((name) => !cacheWhitelist.includes(name))
                 .map((name) => caches.delete(name))
         ))
-        //.then(self.clients.claim())
+        .then(self.clients.claim())
     );
-    self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {

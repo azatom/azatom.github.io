@@ -73,9 +73,7 @@
             base.href = getBase();
             document.head.insertBefore(base, document.head.firstChild);
             chSw = new BroadcastChannel("chSw");
-            chSw.onmessage = (a) => {
-                addRow('chSw', typeof a?.data, JSON.stringify(a?.data));
-            };
+            chSw.onmessage = (a) => { addRow('[chSw', ...a.data, ']'); };
         }
         function pad(s, n = 2) { return String(s).padStart(n, "0"); }
         function handleCopy(event) {
@@ -199,12 +197,12 @@
                 domPause.innerText = 'Pause';
                 domPause.classList.remove('invert');
             }
-            addRow('ver', ver);
+            //addRow('ver', (ver || '?'));
             swMess(updateWillbe, updateDone);
         }
 
         function updateWillbe(newWorker) {
-            addRow('ver', (ver || '?'));
+            //addRow('ver', (ver || '?'));
             // newWorker.postMessage({ action: 'skipWaiting' });
         };
         function updateDone(newVer) { ver !== newVer && addRow('ver new', ver = newVer); }
