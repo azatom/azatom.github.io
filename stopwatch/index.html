@@ -55,11 +55,14 @@
             margin: .4rem;
             width: 4rem;
             height: 4rem;
+            font-size: 2.5rem;
         }
 
         .invert {
             filter: invert();
         }
+        body>span:nth-child(3):after{content: '👇';}
+        body>span:nth-child(3).invert:after{content: '🖐️';}
 
         .flash {
             background-color: #285;
@@ -117,16 +120,17 @@
                 String(laps),
                 fmtTime(sum1),
                 fmtTime(lapTime),
+                ...(domStat.classList.contains('invert') ? [
                 fmtTime(avg),
-                fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0),
-                src
+                fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)] : []),
+                src.replace(/^pointerdown/, 'm')
             );
         }
         function resetStopwatch() {
             last = sum2 = sum1 = laps = 0;
             at = []; as = [];
             domLaps.replaceChildren();
-            domPause.innerText = 'Start';
+            domPause.innerText = '▶';
             domPause.classList.add('invert');
         }
         function doLap(event) {
@@ -135,23 +139,23 @@
             let oldpaused = paused;
             let req;
             if (!paused && event.target === domPause) {
-                domPause.innerText = 'Start';
+                domPause.innerText = '▶';
                 domPause.classList.add('invert');
                 cancelAnimationFrame(timerA);
                 paused = true;
             } else if (paused) {
-                domPause.innerText = 'Pause';
+                domPause.innerText = '⏸';
                 domPause.classList.remove('invert');
                 req = timerA = requestAnimationFrame(update);
                 paused = false;
             }
             let src;
             if (event.type === "touchstart") {
-                src = "tap" + event.touches.length;
+                src = "t" + event.touches.length;
             } else if (event.target === domPause) {
-                src = 'Pause';
+                src = '⏸';
             } else {
-                src = event.code || event.type + event.button;
+                src = event.code || (event.type + event.button);
             }
             as.push(src);
             at.push(now);
@@ -164,7 +168,7 @@
                 }
             } else {
                 addRow();
-                addRow(fmtDate(new Date(now)), src);
+                addRow(fmtDate(new Date(now)), src.replace(/^pointerdown/, 'm'));
                 addRow("# clock laptime avg stddev key");
                 req || (timerA = requestAnimationFrame(update));
             }
@@ -183,18 +187,20 @@
         function init() {
             domLaps = window.document.createElement("div");
             window.document.body.prepend(domLaps);
-            domPause = ce("Start", doLap);
+            domPause = ce("▶", doLap);
             domPause.classList.add('invert');
-            domCopy = ce("Copy", handleCopy);
-            domReset = ce("Reset", resetStopwatch);
-            domLaps.addEventListener("touchstart", doLap, { passive: true });
+            domStat = ce("📊", (e)=>(e.target.classList.toggle('invert')));
+            domMulti = ce("", (e)=>{window.document[(e.target.classList.toggle('invert')?'add':'remove')+'EventListener']("touchstart", doLap, { passive: true });});
+            domCopy = ce("📋", handleCopy);
+            domReset = ce("↺", resetStopwatch);
+            //domLaps.addEventListener("touchstart", doLap, { passive: true });
             domLaps.addEventListener("pointerdown", doLap);
             window.document.body.addEventListener("keydown", doLap);
             load();
             domLapRow = domLaps.firstChild;
             if (last > 0) {
                 timerA = requestAnimationFrame(update);
-                domPause.innerText = 'Pause';
+                domPause.innerText = '⏸';
                 domPause.classList.remove('invert');
             }
             //addRow('ver', (ver || '?'));
@@ -243,7 +249,7 @@
             window.document.addEventListener('visibilitychange', (e) => window.document.visibilityState === 'hidden' && save());
         }
         // transient
-        let timerA, domPause, domCopy, dom, domLaps, domLapRow, chSw;
+        let timerA, domPause, domStat, domCopy, dom, domLaps, domLapRow, chSw;
         // persisted
         let now, last, laps, sum1, sum2, at, as, ver; // domLaps.innerHTML
         setBase();

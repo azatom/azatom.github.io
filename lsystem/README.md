@@ -1,9 +1,9 @@
 #  Logo Turtle with Context Free grammar - L-System fractals
 
 ##  Example:
-`lsystem.svg?S=AX&X=F+F+F+FFF-F-F-F&F=&A=[+AX-AX-AX]-AX+AX+AX-&_a=60&_n=3`
+`lsystem.js.svg?S=AX&X=F+F+F+FFF-F-F-F&F=&A=[+AX-AX-AX]-AX+AX+AX-&_a=60&_n=3`
 
-One svg file [lsystem.svg](lsystem.svg) and a [big collection](lsystem.examples.html)
+One svg file [lsystem.js.svg](lsystem.js.svg) and a [big collection](lsystem.examples.html)
 
 ##  How it works:
 Starting sentence (axiom) is 'S'. In an iteration every character of the sentence replaced by the key-value rule set. A key's default value is the key itself. The resulted sentence says to the logo turtle what to do.
