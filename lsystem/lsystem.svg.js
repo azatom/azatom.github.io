@@ -33,7 +33,7 @@ function createStep(d, E = 1, C = 2 * E) {
                 const l = lp < p ? `${lp} ${p}` : `${p} ${lp}`;
                 if (!ls.has(l)) {
                     ls.add(l);
-                    if (!ll || lp !== p) { d(`M${lp}`); ll = true; }
+                    if (!ll || lp !== p) { d(`\nM${lp}`); ll = true; }
                     d(` ${p}`);
                     mx = Math.min(x, lx, mx);
                     Mx = Math.max(x, lx, Mx);
@@ -47,7 +47,7 @@ function createStep(d, E = 1, C = 2 * E) {
     };
 }
 function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', stroke = '#000', fill, bg, Z) {
-    let r = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a
+    let r = a => 'string' === typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a
         , [x, y, a, A] = Array(8).fill(0), d = '', p = 1, q = 0, width, height, i, j, k, l;
     [R, Z] = Array.isArray(R) ? R : [r(R), r(Z)];
     const Q = Math.PI / 2, S = R.S ?? 'F', T = (R._a ?? 90) / 90, L = R._l ?? 9, M = R._m ?? Q, N = R._n ?? 1
@@ -56,19 +56,14 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
             for (i in a) e.setAttribute(i, a[i]);
             b && e.prepend(b);
             return e;
-        };
-    for (i of function* g(n) {
-        if (n > 0) for (j of g(n - 1)) yield* j in (Z && n === N ? Z : R) ? (Z && n === N ? Z : R)[j] : j; else yield* S;
-    }(N))
-        'F' == i || 'f' == i ? (
-            k = L * Math.pow(M, q), l = Q * (a * T + A),
-            [x, y] = step.put(x + k * Math.cos(l), y + k * Math.sin(l), 'F' == i)
-        ) :
-        '+' == i ? a += p : '*' == i ? q++ : '!' == i ? p = -p :
-        '-' == i ? a -= p : '/' == i ? q-- :
-        '|' == i ? A = (A + 2) % 4 : '^' == i ? A = (A + p + 4) % 4 :
-        '[' == i ? z.push([x, y, a, A, q]) :
-        ']' == i ? ([x, y, a, A, q] = z.pop(), step.put(x, y)) : 0;
+        }, u = n => Z && n === N ? Z : R, f = (e, f) => e + L * Math.pow(M, q) * f(Q * (a * T + A));
+    for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* S; }(N))
+        'F' === i || 'f' === i ? [x, y] = step.put(f(x, Math.cos), f(y, Math.sin), 'F' === i) :
+        '+' === i ? a += p : '*' === i ? q++ : '!' === i ? p = -p :
+        '-' === i ? a -= p : '/' === i ? q-- :
+        '|' === i ? A = (A + 2) % 4 : '^' === i ? A = (A + p + 4) % 4 :
+        '[' === i ? z.push([x, y, a, A, q]) :
+        ']' === i ? ([x, y, a, A, q] = z.pop(), step.put(x, y)) : 0;
     [x, y, width, height] = step.vb(2);
     k = c('svg', { viewBox: `${x} ${y} ${width} ${height}` });
     k.prepend(p = c('path', { stroke, d, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));

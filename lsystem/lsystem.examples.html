@@ -15,6 +15,7 @@
   <script>
     async function string2span(str, i, s = createSvg(str)) {
       s.addEventListener('click', e => s.classList.toggle('big'));
+      // s.addEventListener('click', e => location.href=`a.html#${str}`);
       return s;
     }
     (async () => {

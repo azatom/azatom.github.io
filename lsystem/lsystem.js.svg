@@ -7,7 +7,7 @@ const b=(e)=>{
   const S=[], Q=Math.PI/2, T=R._a/90||1;
   let [x,y,a,A,mx,Mx,my,My]=Array(8).fill(0), o='M0,0', d=1, l=R._l||9;
   for (const q of function*g(n) {
-    if (n) for (const p of g(n-1)) yield* p in R?R[p]:p; else yield* R.S;
+    if (n) for (const p of g(n-1)) yield* R?.[p]??p; else yield* R.S;
   }(R._n))
     'F'==q || 'f'==q ? (x+=l*Math.cos(Q*(a*T+A)), mx=x>mx?mx:x, Mx=x>Mx?x:Mx,
                         y+=l*Math.sin(Q*(a*T+A)), my=y>my?my:y, My=y>My?y:My,

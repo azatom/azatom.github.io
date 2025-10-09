@@ -10,8 +10,10 @@ function addSvgZoom(svg) {
                 : [x0, Math.min(y0, y1), x1 - x0, Math.abs(y1 - y0)];
             s.setAttribute('viewBox', [x, y, w, h].join(' '));
             [x0, y0] = [null, null];
+            s.style.cursor='initial';
         } else {
             [x0, y0] = [x1, y1];
+            s.style.cursor='crosshair';
         }
     })(null, null));
     return svg;
