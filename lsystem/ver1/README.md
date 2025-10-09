@@ -1,20 +1,17 @@
 #  Logo Turtle with Context Free grammar - L-System fractals
 
 ##  Example:
-`lsystem.js.svg?S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3`
+`lsystem.js.svg?S=AX&X=F+F+F+FFF-F-F-F&F=&A=[+AX-AX-AX]-AX+AX+AX-&_a=60&_n=3`
 
 One svg file [lsystem.js.svg](lsystem.js.svg) and a [big collection](lsystem.examples.html)
 
 ##  How it works:
-Starting sentence (axiom) is 'S'. In an iteration every character of the
-sentence replaced by the key-value rule set. A key's default value is the
-key itself. The resulted sentence says to the logo turtle what to do.
+Starting sentence (axiom) is 'S'. In an iteration every character of the sentence replaced by the key-value rule set. A key's default value is the key itself. The resulted sentence says to the logo turtle what to do.
 
-lsystem.js.svg embedable with `<object>` or '<embed>', not with `<img>`.
-lsystem.svg.js generates img capable svg.
+Note: embeding this svg with `<img>` does not work, only with `<object>` or '<embed>'.
 
 ##  Parameter key - value pairs:
-If key starts with `_`, than value is a number.
+when key starts with an `_`, than value is a number
 - `_n` - iterations
 - `_l` - initial length of line (width=1)
 - `_m` - multiply linelength
@@ -24,8 +21,7 @@ If key starts with `_`, than value is a number.
 - (chars) - invalid, Context Sensitive grammar is not implemented
 
 ##  Characters of rule value:
-- `S`: starting sentence
-- `F`, `f`: forward with or without drawing a line
+- `F`/`f`: forward with, without drawing a line
 - `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
 - `!`: change parity of rotation
 - `*`, `/`: multiply, divide length of line with m

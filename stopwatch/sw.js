@@ -1,4 +1,4 @@
-const ver = '1.0.14';
+const ver = '1.0.16';
 const cacheName = `cache-${ver}`;
 const urlsToCache = [
     '.',

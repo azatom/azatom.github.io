@@ -1,0 +1,80 @@
+<!doctype html>
+<html dir="ltr" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>title</title>
+    <script src="lsystem.svg.js"></script>
+    <script src="svgZoom.js"></script>
+    <script src="lsystem.examples.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #777;
+            overflow: hidden;
+        }
+
+        svg {
+            z-index: -1;
+            position: absolute;
+            top: 0;
+            display: inline-block;
+            max-width: 100vw;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        let egs = typeof examples !== 'undefined' ? examples : [];
+        addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : ()=>{};
+    </script>
+    <script>
+        let dot = 0;
+        let egsi = 0;
+        let next = () => {
+            document.body.textContent = '';
+            const t0 = performance.now();
+            let R = egsi in egs ? egs[egsi] : undefined;
+            let stroke = dot ? 'none' : '#000';  //def:#000
+            let fill = dot ? '#000' : 'none';    //def:none
+            let bg = '#fff';                     //def:none
+            let svg = createSvg(R, stroke, fill, bg);
+            addSvgZoom(svg);
+            document.body.appendChild(svg);
+            console.log({
+                '???': '+ - * / . click',
+                '#': `${egsi} / ${egs.length}`,
+                ms: (performance.now() - t0 | 0),
+            });
+        };
+        let keyListener = e => {
+            switch (e.key) {
+                case '.': dot = !dot; break;
+                case '+': egsi = (egsi + egs.length + 1) % egs.length; break;
+                case '-': egsi = (egsi + egs.length - 1) % egs.length; break;
+                case '*': egs[egsi] && egs[egsi][0]['_n']++; break;
+                case '/': egs[egsi] && (egs[egsi][0]['_n'] = Math.max(0, egs[egsi][0]['_n'] - 1)); break;
+                default: return;
+            }
+            next();
+        };
+        console.log = (...o) => {
+            const w = document.body.appendChild(document.createElement('div'));
+            w.textContent = o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
+                .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n');
+            w.style.display = 'table';
+            w.style.verticalAlign = 'top';
+            w.style.fontFamily = 'monospace';
+            w.style.whiteSpace = 'pre';
+            w.style.fontSize = '1rem';
+            w.style.backgroundColor = '#fff';
+            w.style.filter = 'opacity(.92)';
+        };
+        document.body.addEventListener('keypress', keyListener);
+        next();
+    </script>
+</body>
+
+</html>

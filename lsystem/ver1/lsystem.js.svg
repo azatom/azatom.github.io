@@ -2,8 +2,8 @@
 const b=(e)=>{
   const svg=e.target; (onhashchange=()=>{
   const R=JSON.parse('{"'+(location.href.split(/[?#]/)[1] ||
-    'S=AX&A=[+AX-AX-AX]-AX+AX+AX-&F=&X=F+F+F+FFF-F-F-F&_a=60&_n=3'
-  ).replace(/&/g,'","').replace(/=/g,'":"')+'"}');
+    'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3'
+  ).replace(/[&,]/g,'","').replace(/=/g,'":"')+'"}');
   const S=[], Q=Math.PI/2, T=R._a/90||1;
   let [x,y,a,A,mx,Mx,my,My]=Array(8).fill(0), o='M0,0', d=1, l=R._l||9;
   for (const q of function*g(n) {

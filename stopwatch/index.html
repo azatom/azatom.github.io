@@ -61,8 +61,34 @@
         .invert {
             filter: invert();
         }
-        body>span:nth-child(3):after{content: '👇';}
-        body>span:nth-child(3).invert:after{content: '🖐️';}
+
+        body>span:nth-child(1):after {
+            content: '↺';
+        }
+
+        body>span:nth-child(2):after {
+            content: '📋';
+        }
+
+        body>span:nth-child(3):after {
+            content: '👇';
+        }
+
+        body>span:nth-child(3).invert:after {
+            content: '🖐️';
+        }
+
+        body>span:nth-child(4):after {
+            content: '📊';
+        }
+
+        body>span:nth-child(5):after {
+            content: '⏸';
+        }
+
+        body>span:nth-child(5).invert:after {
+            content: '▶';
+        }
 
         .flash {
             background-color: #285;
@@ -70,15 +96,15 @@
         }
     </style>
     <script>
-        function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+        function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, '/'); }
         function setBase() {
             const base = document.createElement('base');
             base.href = getBase();
             document.head.insertBefore(base, document.head.firstChild);
-            chSw = new BroadcastChannel("chSw");
+            chSw = new BroadcastChannel('chSw');
             chSw.onmessage = (a) => { addRow('[chSw', ...a.data, ']'); };
         }
-        function pad(s, n = 2) { return String(s).padStart(n, "0"); }
+        function pad(s, n = 2) { return String(s).padStart(n, '0'); }
         function handleCopy(event) {
             window.navigator.clipboard.writeText(domLaps.innerText)
                 .then(() => flash(event.target, 1400))
@@ -86,15 +112,15 @@
         }
         function addRow(...s) {
             domLaps || alert('no domLaps');
-            domLapRow = domLapRow || window.document.createElement("div");
+            domLapRow = domLapRow || window.document.createElement('div');
             if (s) domLapRow.textContent = s.join(' ');
-            domLaps.prepend(domLapRow = window.document.createElement("div"));
+            domLaps.prepend(domLapRow = window.document.createElement('div'));
         }
         function update() {
             const t = last;
             if (!(t > 0)) return;
             let lapTime = Date.now() - t;
-            domLapRow.textContent = fmtTime(sum1 + lapTime) + " " + fmtTime(lapTime);
+            domLapRow.textContent = fmtTime(sum1 + lapTime) + ' ' + fmtTime(lapTime);
             timerA = requestAnimationFrame(update);
         }
         function fmtTime(ms) {
@@ -102,9 +128,9 @@
                 sec = Math.floor(ms / 1e3 % 60),
                 min = Math.floor(ms / 6e4 % 60);
             return (pad(Math.floor(ms / 36e5))
-                + ":" + pad(min)
-                + ":" + pad(sec)
-                + "." + pad(msPart, 3)).replace(/^[0:]+([0-9])/, "$1");
+                + ':' + pad(min)
+                + ':' + pad(sec)
+                + '.' + pad(msPart, 3)).replace(/^[0:]+([0-9])/, '$1');
         }
         function fmtDate(d) {
             return d.getFullYear() +
@@ -121,8 +147,8 @@
                 fmtTime(sum1),
                 fmtTime(lapTime),
                 ...(domStat.classList.contains('invert') ? [
-                fmtTime(avg),
-                fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)] : []),
+                    fmtTime(avg),
+                    fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)] : []),
                 src.replace(/^pointerdown/, 'm')
             );
         }
@@ -130,7 +156,6 @@
             last = sum2 = sum1 = laps = 0;
             at = []; as = [];
             domLaps.replaceChildren();
-            domPause.innerText = '▶';
             domPause.classList.add('invert');
         }
         function doLap(event) {
@@ -139,19 +164,17 @@
             let oldpaused = paused;
             let req;
             if (!paused && event.target === domPause) {
-                domPause.innerText = '▶';
                 domPause.classList.add('invert');
                 cancelAnimationFrame(timerA);
                 paused = true;
             } else if (paused) {
-                domPause.innerText = '⏸';
                 domPause.classList.remove('invert');
                 req = timerA = requestAnimationFrame(update);
                 paused = false;
             }
             let src;
-            if (event.type === "touchstart") {
-                src = "t" + event.touches.length;
+            if (event.type === 'touchstart') {
+                src = '👇' + event.touches.length;
             } else if (event.target === domPause) {
                 src = '⏸';
             } else {
@@ -168,8 +191,8 @@
                 }
             } else {
                 addRow();
-                addRow(fmtDate(new Date(now)), src.replace(/^pointerdown/, 'm'));
-                addRow("# clock laptime avg stddev key");
+                addRow('# clock laptime avg stddev key');
+                addRow(0, fmtDate(new Date(now)), src.replace(/^pointerdown/, 'm'));
                 req || (timerA = requestAnimationFrame(update));
             }
             if (!oldpaused || !laps) laps++;
@@ -181,38 +204,33 @@
             clearTimeout(el.getAttribute('data-flash-timer'));
             el.setAttribute('data-flash-timer', setTimeout(() => el.classList.remove('flash'), t));
         }
-        function ce(s, fn) { const e = window.document.createElement("span"); e.innerText = s; e.onclick = fn; window.document.body.prepend(e); return e; }
-        function save() { localStorage.setItem("state", JSON.stringify({ now, last, laps, sum1, sum2, as, at, ver, content: domLaps.innerHTML })); }
-        function load() { ({ now=0, last=0, laps=0, sum1=0, sum2=0, as=[], at=[], ver, content: domLaps.innerHTML = "" } = JSON.parse(localStorage.getItem("state") || "{}")); }
+        function ce(fn) { const e = window.document.createElement('span'); e.onclick = fn; window.document.body.prepend(e); return e; }
+        function save() { localStorage.setItem('state', JSON.stringify({ now, last, laps, sum1, sum2, as, at, ver, content: domLaps.innerHTML })); }
+        function load() { ({ now=0, last=0, laps=0, sum1=0, sum2=0, as=[], at=[], ver, content: domLaps.innerHTML = '' } = JSON.parse(localStorage.getItem('state') || '{}')); }
         function init() {
-            domLaps = window.document.createElement("div");
+            domLaps = window.document.createElement('div');
             window.document.body.prepend(domLaps);
-            domPause = ce("▶", doLap);
-            domPause.classList.add('invert');
-            domStat = ce("📊", (e)=>(e.target.classList.toggle('invert')));
-            domMulti = ce("", (e)=>{window.document[(e.target.classList.toggle('invert')?'add':'remove')+'EventListener']("touchstart", doLap, { passive: true });});
-            domCopy = ce("📋", handleCopy);
-            domReset = ce("↺", resetStopwatch);
-            //domLaps.addEventListener("touchstart", doLap, { passive: true });
-            domLaps.addEventListener("pointerdown", doLap);
-            window.document.body.addEventListener("keydown", doLap);
+            domPause = ce(doLap);
+            domStat = ce((e) => (e.target.classList.toggle('invert')));
+            domMulti = ce((e) => { window.document[(e.target.classList.toggle('invert') ? 'add' : 'remove') + 'EventListener']('touchstart', doLap, { passive: true }); });
+            domCopy = ce(handleCopy);
+            domReset = ce(resetStopwatch);
+            //domLaps.addEventListener('touchstart', doLap, { passive: true });
+            domLaps.addEventListener('pointerdown', doLap);
+            window.document.body.addEventListener('keydown', doLap);
             load();
             domLapRow = domLaps.firstChild;
             if (last > 0) {
                 timerA = requestAnimationFrame(update);
-                domPause.innerText = '⏸';
                 domPause.classList.remove('invert');
             }
             //addRow('ver', (ver || '?'));
-            swMess(updateWillbe, updateDone);
+            swMess(updateBefore, updateAfter);
         }
 
-        function updateWillbe(newWorker) {
-            //addRow('ver', (ver || '?'));
-            // newWorker.postMessage({ action: 'skipWaiting' });
-        };
-        function updateDone(newVer) { ver !== newVer && addRow('ver new', ver = newVer); }
-        function swMess(beforestart, finish) {
+        function updateBefore(newWorker) { };
+        function updateAfter(newVer) { ver !== newVer && addRow('ver new', ver = newVer); }
+        function swMess(updateBefore, updateAfter) {
             if (!('serviceWorker' in window.navigator)) return;
             window.navigator.serviceWorker.register(getBase() + 'sw.js').then((reg) => {
                 reg.addEventListener('updatefound', () => {
@@ -220,23 +238,17 @@
                     newWorker.addEventListener('statechange', () =>
                         newWorker.state === 'installed' &&
                         window.navigator.serviceWorker.controller &&
-                        beforestart(newWorker)
+                        updateBefore(newWorker)
                     );
                 });
             }).catch(e => domLaps.textContent = e);
-            let refreshing;
-            window.navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) {
-                    refreshing = true;
-                    window.location.reload();
-                }
-            });
+            window.navigator.serviceWorker.addEventListener('controllerchange', (refreshing => () => refreshing || (refreshing = !window.location.reload()))());
             const uuid = crypto.randomUUID();
-            const chClient = new BroadcastChannel("chClient");
-            chClient.postMessage({ q: "ver", respondAt: uuid });
+            const chClient = new BroadcastChannel('chClient');
+            chClient.postMessage({ q: 'ver', respondAt: uuid });
             const chClientResp = new BroadcastChannel(uuid);
             chClientResp.onmessage = ({ data }) => {
-                finish(data.ver);
+                updateAfter(data.ver);
                 chClientResp.close();
                 chClient.close();
             };

@@ -1,62 +1,27 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset='utf-8'>
-  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
+<!doctype html><html dir="ltr" lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lss</title>
   <style>
-    a {
-      display: block;
-      text-overflow: ellipsis;
-      max-width: 50vmin;
-    }
-
-    span {
-      float: left;
-    }
-    
-    object {
-      width: 16em;
-      height: 16em;
-    }
-
+    svg {width: 16em; height: 16em;}
+    svg.big {width: initial; height: initial;max-width: 100vw; max-height: 100vh;}
     @media screen and (max-width: 600px) {
-      body {
-        margin: 0;
-      }
-      object {
-        width: 50vmin;
-        height: 50vmin;
-      }
+      body {margin: 0;}
+      svg {width: 50vmin;height: 50vmin;}
     }
   </style>
+  <script src="lsystem.svg.js"></script>
   <script src="lsystem.examples.js"></script>
-</head>
-
-<body>
+</head><body>
   <script>
-    const svg = 'lsystem.js.svg';
-    examples.forEach(example => {
-      const url = svg + (example ? '#' + example : '');
-      const maybeTitle = example.split('&').find(a => a.startsWith('='));
-      const title = maybeTitle ? maybeTitle.substring(1) : '[default]';
-
-      const span = document.createElement('span');
-      const a = document.createElement('a');
-      const object = document.createElement('object');
-
-      a.href = url;
-      a.textContent = title;
-      object.data = url;
-      object.type = 'image/svg+xml';
-      object.textContent = 'error';
-
-      span.appendChild(a);
-      span.appendChild(object);
-      document.body.appendChild(span);
-    });
+    async function string2span(str, i, s = createSvg(str)) {
+      s.addEventListener('click', e => s.classList.toggle('big'));
+      return s;
+    }
+    (async () => {
+      for (let i = 0; i < examples.length; i++) {
+        document.body.appendChild(await string2span(examples[i], i));
+        await new Promise(r => setTimeout(r, 0));
+      }
+    })();
   </script>
-</body>
-
-</html>
+</body></html>
