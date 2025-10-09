@@ -1,6 +1,7 @@
 let examples=[
 undefined,
 '',
+'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3,=tilesgLizard',
 'S=-!S!F+SFS+F!S!-,=Hilbert,_a=90,_l=2,_n=2',
 'S=F--F--F,F=F+F--F+F,=Koch,_a=60,_l=2,_n=5',
 [{
@@ -34,7 +35,6 @@ undefined,
 'S=AX,A=FfF,F=,X=[+AX-AX-AX]-AX+AX+AX-,=tilesg6,_a=60,_l=6,f=,_n=3',
 'S=AX,A=++F--f++F--,B=++F--f++F--,C=++F--f++F--,D=++F--f++F--,E=++F--f++F--,F=,G=++F--f++F--,X=[+AX-BX-CX]-DX+EX+GX-,=tilesg7,_a=60,_l=6,f=,_n=3',
 'S=AX,A=F-F-F-F+F+F+F,F=,X=[+AX-AX-AX]-AX+AX+AX-,=tilesgHex,_a=60,_l=6,f=,_n=3',
-'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,=tilesgLizard,_a=60,_l=2,_n=3',
 'S=+[/A]F/---[-S]F-F---[-S]*F[/|A],A=[/S]+F/[|A]----F+F----[A]*F,F=f,=kd1,_a=36,_l=99,_m=1.618,_n=4',
 'S=[k]++[k]++[k]++[k]++[k],A=[/k]+F/[|A]----F+F----[A]*F,F=f,=kd2,_a=36,_l=99,_m=1.618,k=+[/A]F/---[-k]F-F---[-k]*F[/|A],_n=4',
 'S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],=kd3,_a=36,_l=99,_m=1.618,_n=4',
