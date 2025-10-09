@@ -1,7 +1,7 @@
 let examples=[
 undefined,
 '',
-'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3,=tilesgLizard',
+'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=3,=tilesgLizard',
 'S=-!S!F+SFS+F!S!-,=Hilbert,_a=90,_l=2,_n=2',
 'S=F--F--F,F=F+F--F+F,=Koch,_a=60,_l=2,_n=5',
 [{

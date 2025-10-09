@@ -48,33 +48,31 @@ function createStep(d, E = 1, C = 2 * E) {
     },
   };
 }
-function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', stroke = '#000', fill, bg, Z) {
+function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', dot, Z) {
   let r = a => 'string' === typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a
-    , [x, y, a, A] = Array(8).fill(0), d = '', p = 1, q = 0, width, height, i, j, k, Q = Math.PI / 2;
+    , [x, y, a, A] = Array(8).fill(0), d = '', p = 1, q = 0, w, h, i, j, Q = Math.PI / 2;
   [R, Z] = Array.isArray(R) ? R : [r(R), r(Z)]; R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
   const z = [], step = createStep(a => d += a), u = n => Z && n === R._n ? Z : R, B = R._a / 90
-    , c = (t, a, b, e = document.createElementNS('http://www.w3.org/2000/svg', t)) => {
-      for (i in a) e.setAttribute(i, a[i]); b && e.prepend(b); return e;
-    }, f = (e, f) => e + R._l * Math.pow(R._m, q) * f(Q * (a * B + A));
+    , c = (t, a, ...b) => {
+      let e = document.createElementNS('http://www.w3.org/2000/svg', t);
+      for (i in a) e.setAttribute(i, a[i]);
+      b?.map(b => e.prepend(b));
+      return e;
+    }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + A));
   for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
-    'F' === i || 'f' === i ? [x, y] = step.put(f(x, Math.cos), f(y, Math.sin), 'F' === i) :
-    '*' === i ? q++ :
-    '/' === i ? q-- :
-    '+' === i ? a += p :
-    '-' === i ? a -= p :
+    'F' === i || 'f' === i ? [x, y] = step.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
+    '+' === i ? a += p : '*' === i ? q++ : '|' === i ? A = (A + 2) % 4 :
+    '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? A = (A + p + 4) % 4 :
     '!' === i ? p = -p :
-    '|' === i ? A = (A + 2) % 4 :
-    '^' === i ? A = (A + p + 4) % 4 :
     '[' === i ? z.push([x, y, a, A, q]) :
     ']' === i ? ([x, y, a, A, q] = z.pop(), step.put(x, y)) : 0;
-  [x, y, width, height] = step.vb(2);
-  k = c('svg', { viewBox: `${x} ${y} ${width} ${height}` });
-  k.prepend(p = c('path', { stroke, d, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
-  fill && fill !== 'none' && (
-    k.prepend(c('defs', 0, c('marker', { id: 'm', viewBox: '-3 -3 6 6' }, c('circle', { r: 1, fill })))),
-    ['start', 'mid', 'end'].map(a => p.setAttribute('marker-' + a, 'url(#m)')));
-  bg && bg !== 'none' && k.prepend(c('rect', { fill: bg, x, y, width, height }));
-  R[''] && k.prepend((t => (t.textContent = R[''], t))(c('title')));
-  try { console.log({ ...step.stat(), ...R, Z: Z }); } catch (e) { }
-  return k;
+  [x, y, w, h] = step.vb(2);
+  try { console.log({ ...step.stat(), ...R, RZ: Z }); } catch (e) { }
+  return c('svg', { viewBox: `${x} ${y} ${w} ${h}` },
+    c('path', { stroke: dot?'none':'#000', d, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      ...(dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + a] = 'url(#m)', p), {}) || {}) }),
+    c('defs', 0, c('marker', { id: 'm', viewBox: '-3 -3 6 6' }, c('circle', { r: 1, fill: '#000' }))),
+    c('rect', { fill: '#fff', x, y, width: w, height: h }),
+    (t => (t.textContent = R[''], t))(c('title'))
+  );
 }
