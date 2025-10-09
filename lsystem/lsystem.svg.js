@@ -1,30 +1,82 @@
-function createSvg(R = 'S=AX&A=[+AX-AX-AX]-AX+AX+AX-&F=&X=F+F+F+FFF-F-F-F&_a=60&_n=3', bg = 0) {
-    R = 'string' == typeof R ? JSON.parse('{"' + R.replace(/&/g, '","').replace(/=/g, '":"') + '"}') : R;
-    let S = [], Q = Math.PI / 2, T = R._a / 90 || 1
-        , [x, y, a, A, mx, Mx, my, My] = Array(8).fill(0), d = 'M0,0', o = 1, l = R._l || 9
-        , c = (t, o, e = document.createElementNS('http://www.w3.org/2000/svg', t)) => {
-            for (let a in o) e.setAttribute(a, o[a]); return e;};
-    for (let q of function* g(n) {
-        if (n) for (const p of g(n - 1)) yield* p in R ? R[p] : p; else yield* R.S;
-    }(R._n))
-        'F' == q || 'f' == q ? (x += l * Math.cos(Q * (a * T + A)),
-        mx = x > mx ? mx : x, Mx = x > Mx ? x : Mx,
-        y += l * Math.sin(Q * (a * T + A)), my = y > my ? my : y, My = y > My ? y : My,
-        d += ('f' == q ? 'M' : 'L') + x + ',' + y) :
-        '+' == q ? a += o : '*' == q ? l *= R._m : '!' == q ? o = -o :
-        '-' == q ? a -= o : '/' == q ? l /= R._m :
-        '|' == q ? A = (A + 2) % 4 : '^' == q ? A = (A + o + 4) % 4 :
-        '[' == q ? S.push([x, y, a, A, l]) :
-        ']' == q ? ([x, y, a, A, l] = S.pop(), d += 'M' + x + ',' + y) : 0;
-    let width = Mx - mx + 2, height = My - my + 2,
-    s = c('svg', { viewBox: `${x = mx - 1} ${y = my - 1} ${width} ${height}` });
-    bg && s.appendChild(c('rect', {x, y, width, height, fill: '#ffff'}));
-    s.appendChild(c('path', {
-        d,
-        stroke: '#000',
-        fill: 'none',
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-    }));
-    return s;
+function createStep(d, E = 1, C = 2 * E) {
+    let lp = '0,0', ll, ls = new Set(), grid = {};
+    let min = 1 / 0, max = -1 / 0, all = 0, cmp = 0, mx = min, Mx = max, my = min, My = max, [lx, ly] = align(0, 0);
+    function align(X, Y) {
+        let ps, p, d, i, j, k,
+            D = Infinity, P = null,
+            x = Math.floor(X / C),
+            y = Math.floor(Y / C),
+            e = Math.ceil(E / C);
+        for (j = -e; j <= e; j++) for (i = -e; i <= e; i++) {
+            ps = grid[`${x + i},${y + j}`];
+            if (ps) for (k = 0; k < ps.length; k++) {
+                p = ps[k];
+                d = Math.hypot(p[0] - X, p[1] - Y);
+                if (d < D) { D = d; P = p; }
+                cmp++; max < d && d < E && (max = d); E < d && d < min && (min = d);
+            }
+        } all++;
+        if (D >= E) (grid[`${x},${y}`] ??= []).push(P = [X, Y]);
+        return P;
+    }
+    return {
+        stat: function () {
+            return {
+                min, max, all, cmp, key: Object.keys(grid).length,
+                val: Object.values(grid).reduce((p, c) => p + c.length, 0), lin: ls.size, Mpm: max / min
+            };
+        },
+        vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },
+        put: function (x, y, L) {
+            let XY = align(x, y);[x, y] = XY; let p = `${x},${y}`;
+            if (L) {
+                const l = lp < p ? `${lp} ${p}` : `${p} ${lp}`;
+                if (!ls.has(l)) {
+                    ls.add(l);
+                    if (!ll || lp !== p) { d(`M${lp}`); ll = true; }
+                    d(` ${p}`);
+                    mx = Math.min(x, lx, mx);
+                    Mx = Math.max(x, lx, Mx);
+                    my = Math.min(y, ly, my);
+                    My = Math.max(y, ly, My);
+                }
+            } else { ll = false; }
+            lp = p; lx = x; ly = y;
+            return XY;
+        },
+    };
+}
+function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', stroke = '#000', fill, bg, Z) {
+    let r = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a
+        , [x, y, a, A] = Array(8).fill(0), d = '', p = 1, q = 0, width, height, i, j, k, l;
+    [R, Z] = Array.isArray(R) ? R : [r(R), r(Z)];
+    const Q = Math.PI / 2, S = R.S ?? 'F', T = (R._a ?? 90) / 90, L = R._l ?? 9, M = R._m ?? Q, N = R._n ?? 1
+        , z = [], step = createStep(a => d += a)
+        , c = (t, a, b, e = document.createElementNS('http://www.w3.org/2000/svg', t)) => {
+            for (i in a) e.setAttribute(i, a[i]);
+            b && e.prepend(b);
+            return e;
+        };
+    for (i of function* g(n) {
+        if (n > 0) for (j of g(n - 1)) yield* j in (Z && n === N ? Z : R) ? (Z && n === N ? Z : R)[j] : j; else yield* S;
+    }(N))
+        'F' == i || 'f' == i ? (
+            k = L * Math.pow(M, q), l = Q * (a * T + A),
+            [x, y] = step.put(x + k * Math.cos(l), y + k * Math.sin(l), 'F' == i)
+        ) :
+        '+' == i ? a += p : '*' == i ? q++ : '!' == i ? p = -p :
+        '-' == i ? a -= p : '/' == i ? q-- :
+        '|' == i ? A = (A + 2) % 4 : '^' == i ? A = (A + p + 4) % 4 :
+        '[' == i ? z.push([x, y, a, A, q]) :
+        ']' == i ? ([x, y, a, A, q] = z.pop(), step.put(x, y)) : 0;
+    [x, y, width, height] = step.vb(2);
+    k = c('svg', { viewBox: `${x} ${y} ${width} ${height}` });
+    k.prepend(p = c('path', { stroke, d, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+    fill && fill !== 'none' && (
+        k.prepend(c('defs', 0, c('marker', { id: 'm', viewBox: '-3 -3 6 6' }, c('circle', { r: 1, fill })))),
+        ['start', 'mid', 'end'].map(a => p.setAttribute('marker-' + a, 'url(#m)')));
+    bg && bg !== 'none' && k.prepend(c('rect', { fill: bg, x, y, width, height }));
+    R[''] && k.prepend((t => (t.textContent = R[''], t))(c('title')));
+    try { console.log({ ...step.stat(), ...R }); } catch (e) { }
+    return k;
 }
