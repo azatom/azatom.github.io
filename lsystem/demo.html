@@ -28,26 +28,30 @@
 <body>
     <script>
         let egs = typeof examples !== 'undefined' ? examples : [];
-        addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : ()=>{};
+        addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
     </script>
     <script>
         let dot = 0;
         let egsi = 0;
         let next = () => {
             document.body.textContent = '';
+            console.log({
+                '???': '+ - * / . click',
+                '#': `${egsi} / ${egs.length}`,
+            });
             const t0 = performance.now();
             let R = egsi in egs ? egs[egsi] : undefined;
             let stroke = dot ? 'none' : '#000';  //def:#000
             let fill = dot ? '#000' : 'none';    //def:none
             let bg = '#fff';                     //def:none
-            let svg = createSvg(R, stroke, fill, bg);
-            addSvgZoom(svg);
-            document.body.appendChild(svg);
-            console.log({
-                '???': '+ - * / . click',
-                '#': `${egsi} / ${egs.length}`,
-                ms: (performance.now() - t0 | 0),
-            });
+            setTimeout(() => {
+                let svg = createSvg(R, stroke, fill, bg);
+                addSvgZoom(svg);
+                document.body.appendChild(svg);
+                console.log({
+                    ms: (performance.now() - t0 | 0),
+                });
+            }, 0);
         };
         let keyListener = e => {
             switch (e.key) {
