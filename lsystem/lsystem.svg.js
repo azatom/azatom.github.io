@@ -77,6 +77,6 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
         ['start', 'mid', 'end'].map(a => p.setAttribute('marker-' + a, 'url(#m)')));
     bg && bg !== 'none' && k.prepend(c('rect', { fill: bg, x, y, width, height }));
     R[''] && k.prepend((t => (t.textContent = R[''], t))(c('title')));
-    try { console.log({ ...step.stat(), ...R }); } catch (e) { }
+    try { console.log({ ...step.stat(), ...R, S, N, T, L, M, Z: Z }); } catch (e) { }
     return k;
 }
