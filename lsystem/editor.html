@@ -24,7 +24,7 @@
             display: flex;
             flex-direction: column;
             width: 20vw;
-            min-width: 200px;
+            min-width: 100px;
             max-width: 90vw;
             box-sizing: border-box;
             padding: 0.75rem;
@@ -109,8 +109,8 @@
         }
 
         .smallsvgs>svg {
-            width: 12.5%;
-            height: 12.5%;
+            width: calc(max(12.5vh,12.5vw));
+            height: calc(max(12.5vh,12.5vw));
             cursor: pointer;
         }
 
@@ -219,19 +219,19 @@
 
         let isResizing = false;
 
-        $divider.addEventListener('mousedown', (e) => {
+        $divider.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             isResizing = true;
             //document.body.style.cursor = 'col-resize';
         });
 
-        window.addEventListener('mousemove', (e) => {
+        window.addEventListener('pointermove', (e) => {
             if (!isResizing) return;
             const newWidth = Math.min(Math.max(e.clientX, 200), window.innerWidth - 200);
             $left.style.width = newWidth + 'px';
         });
 
-        window.addEventListener('mouseup', () => {
+        window.addEventListener('pointerup', () => {
             isResizing = false;
             //document.body.style.cursor = '';
         });
