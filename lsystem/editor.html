@@ -8,6 +8,8 @@
     <script src="lsystem.svg.js"></script>
     <script src="svgZoom.js"></script>
     <script src="lsystem.examples.js"></script>
+    <!--script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script-->
+
     <style>
         html,
         body {
@@ -22,7 +24,7 @@
             display: flex;
             flex-direction: column;
             width: 20vw;
-            min-width: 200px;
+            min-width: 300px;
             max-width: 90vw;
             box-sizing: border-box;
             padding: 0.75rem;
@@ -44,9 +46,8 @@
         #right {
             flex: 1;
             display: flex;
-            align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow: auto;
             background: #fff;
         }
 
@@ -106,6 +107,13 @@
             object-fit: contain;
         }
 
+        .smallsvgs>svg {
+            width: 12.5%;
+            height: 12.5%;
+            cursor: pointer;
+        }
+
+
         hr {
             border-top: 1px solid #ccc;
             max-width: 10rem;
@@ -116,18 +124,17 @@
             display: none;
         }
 
-        #helpText {
-            background-color: #fff;
+        .divaspre {
+            white-space: pre;
+            font-family: monospace;
             font-size: 1rem;
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin-inline: auto;
-            width: fit-content;
-            padding: 1rem;
-            border: 1px solid blue;
-            border-radius: 1rem;
         }
+
+        .preasdiv {
+            white-space: normal;
+            font-family: sans-serif;
+        }
+
 
         input[type=checkbox] {
             display: inline-block;
@@ -144,6 +151,30 @@
             margin-left: -2rem;
             padding-top: 1rem;
         }
+
+        #helpModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #helpWindow {
+            background: white;
+            padding: 1em;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+        }
+
+        #helpText {
+            max-height: 80vh;
+            max-width: 84ch;
+            font-size: 1rem;
+            overflow: auto;
+        }
     </style>
 </head>
 
@@ -151,11 +182,12 @@
     <div id="left">
         <textarea placeholder="type here..."></textarea>
         <div id="butt">
-            <span onclick="document.querySelector('#helpText').classList.remove('hidden')" style="font-size: 1.5rem;">?</span>
+            <button id="helpButton">?</button>
             <button onclick="update();">ctrl+enter</button>
-            <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();">&lt;</button>
-            <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();">&gt;</button>
+            <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();" title="examples">&lt;</button>
+            <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();" title="examples">&gt;</button>
             <input type="checkbox" id="dot" name="dot"><label for="dot">dot</label>
+            <button onclick="smallsvgs();">✱</button>
         </div>
         <div id="log">..dragons..everywhere..</div>
     </div>
@@ -213,24 +245,27 @@
             fromEgs = 0;
             let R = egsi in egs ? egs[(fromEgs = 1, egsi)] : undefined;
             R = R ?? '';
-            $textarea.value = typeof R == 'string' ? R.replace(/,/g, '\n')
-                : Object.entries(R).map(([k, v]) => k + '=' + v).join('\n');
-            update();
+            update(R);
         };
-        let update = () => {
+        let update = (s) => {
+            if (undefined != s) {
+                $textarea.value = typeof s == 'string' ? s.replace(/,/g, '\n')
+                    : Object.entries(s).map(([k, v]) => k + '=' + v).join('\n');
+            }
             $right.replaceChildren($loading);
             setTimeout(e => {
-                const R = $textarea.value.replace(/\n/g, ',');
+                const R = $textarea.value.replace(/[\n \t]+/g, ',').replace(/^,+|,+$/, '');
                 const t0 = performance.now();
-                $svg = createSvg(R, dot());
+                try { $svg = createSvg(R, dot()); } catch (e) { }
                 console.log(fromEgs ? 'Example ' + (egsi + 1) + ' of ' + egs.length : '(not saved)', (performance.now() - t0 | 0) + ' ms');
                 fromEgs = 0;
                 addSvgZoom($svg);
                 $right.replaceChildren($svg);
-            });
+            }, 0);
         };
         $dot.addEventListener('change', update);
         $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
+        $textarea.addEventListener('input', e => update());
         let keyListener = e => {
             switch (e.key) {
                 case '.': dot(!dot); break;
@@ -250,44 +285,75 @@
                 .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
         };
         //document.body.addEventListener('keydown', keyListener);
-        try { egs[egsi][0]._n = n; } catch (e) { }
-        getEgsi();
+        //getEgsi();
+        smallsvgs();
+
+        function smallsvgs() {
+            async function string2span(str, i, s = createSvg(str)) {
+                // s.addEventListener('click', e => s.classList.toggle('big'));
+                // s.addEventListener('click', e => location.href=`a.html#${str}`);
+                s.addEventListener('click', e => update(str));
+                return s;
+            }
+            (async () => {
+                const $a = document.createElement('div');
+                $a.classList.add('smallsvgs');
+                $right.replaceChildren($a);
+                for (let i = 0; i < egs.length; i++) {
+                    $a.appendChild(await string2span(egs[i], i));
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            })();
+        }
     </script>
 
-    <div id="helpText" class="hidden">
-        <span onclick="document.querySelector('#helpText').classList.add('hidden')" style="float:right">X</span>
-        <pre>
-##  How it works:
-Starting sentence (axiom) is 'S'. In an iteration every character of the
+    <div id="helpModal">
+        <script>
+            document.querySelector('#helpModal').onclick = e =>
+                e.target === helpModal && (helpModal.style.display = 'none');
+            document.querySelector('#helpButton').onclick = async e => {
+                let a = document.querySelector('.md');
+                document.querySelector('#helpModal').style.display = 'flex';
+                const f = (t) => {
+                    if (typeof marked != 'undefined' && a) {
+                        a.innerHTML = marked.parse(a.innerText);
+                        a.classList.remove('md');
+                        a.classList.add('preasdiv');
+                    } else if (t < 1e4) setTimeout(() => f(n - 1, t * 1.5 + 100), t);
+                };
+                f(0);
+            }
+        </script>
+        <div id="helpWindow">
+            <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right">X</span>
+            <div id="helpText">
+                <pre class="md">
+##  Logo Turtle with Context Free grammar - L-System fractals
+
+###  How it works:
+Starting sentence is 'S'. In an iteration every character of the
 sentence replaced by the key-value rule set. A key's default value is the
 key itself. The resulted sentence says to the logo turtle what to do.
 
-- lsystem.js.svg
-  - embedable with `<object>` or '<embed>', not with `<img>`.
-  - browser can open as standalone image
-- lsystem.svg.js
-  - generates img capable svg
-  - accuracy: within eps merges points
-  - faster: draw segments one time
-  - browser can not open as standalone image
-
-##  Parameter key - value pairs:
+###  Parameter key - value pairs:
 If key starts with `_`, than value is a number.
 - `_n` - iterations
 - `_l` - initial length of line (width=1)
 - `_m` - multiply linelength
 - `_a` - angle in degrees
-- 1char - a rule
-- 1char`2` - one more iteration after last
-- empty - title 
+- (1char) - a rule
+- (empty) - title 
+- (chars) - invalid, ContextSensitiveGrammar is not implemented
 
-##  Characters of rule value:
+###  Characters of rule value:
 - `S`: starting sentence
 - `F`, `f`: forward with, without drawing a line
 - `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
 - `!`: change parity of rotation
 - `*`, `/`: multiply, divide length of line with m
 - `[`, `]`: store, load (position, length, direction)</pre>
+            </div>
+        </div>
     </div>
 </body>
 

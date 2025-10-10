@@ -2,25 +2,16 @@
 
 ##  Example:
 
-[Editor](editor.html)
+[Editor](editor.html) 
 
 Standalone svg file example: [`lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3`](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
 A [big collection](lsystem.examples.html).
 
 ##  How it works:
-Starting sentence (axiom) is 'S'. In an iteration every character of the
+Starting sentence is 'S'. In an iteration every character of the
 sentence replaced by the key-value rule set. A key's default value is the
 key itself. The resulted sentence says to the logo turtle what to do.
-
-- lsystem.js.svg
-  - embedable with `<object>` or '<embed>', not with `<img>`.
-  - browser can open as standalone image
-- lsystem.svg.js
-  - generates img capable svg
-  - accuracy: within eps merges points
-  - faster: draw segments one time
-  - browser can not open as standalone image
 
 ##  Parameter key - value pairs:
 If key starts with `_`, than value is a number.
@@ -39,6 +30,16 @@ If key starts with `_`, than value is a number.
 - `!`: change parity of rotation
 - `*`, `/`: multiply, divide length of line with m
 - `[`, `]`: store, load (position, length, direction) 
+
+## Files 
+- lsystem.js.svg
+  - embedable with `<object>` or '<embed>', not with `<img>`.
+  - browser can open as standalone image
+- lsystem.svg.js
+  - generates img capable svg
+  - accuracy: within eps merges points
+  - faster: draw segments one time
+  - browser can not open as standalone image
 
 ##  Some fibonacci:
 ```
