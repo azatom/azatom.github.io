@@ -2,7 +2,7 @@
 
 ##  Example:
 
-[Editor](demo.html)
+[Editor](editor.html)
 
 Standalone svg file example: [`lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3`](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 

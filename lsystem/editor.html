@@ -26,6 +26,7 @@
             max-width: 90vw;
             box-sizing: border-box;
             padding: 0.75rem;
+            overflow: hidden;
         }
 
         #divider {
@@ -127,6 +128,22 @@
             border: 1px solid blue;
             border-radius: 1rem;
         }
+
+        input[type=checkbox] {
+            display: inline-block;
+            width: 2rem;
+            position: relative;
+            top: -.5rem;
+            left: .5rem;
+            margin-left: -0.6rem;
+        }
+
+        label {
+            display: inline-block;
+            width: 2em;
+            margin-left: -2rem;
+            padding-top: 1rem;
+        }
     </style>
 </head>
 
@@ -136,10 +153,9 @@
         <div id="butt">
             <span onclick="document.querySelector('#helpText').classList.remove('hidden')" style="font-size: 1.5rem;">?</span>
             <button onclick="update();">ctrl+enter</button>
-            examples:
             <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();">&lt;</button>
             <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();">&gt;</button>
-            <input type="checkbox" id="dot">dot
+            <input type="checkbox" id="dot" name="dot"><label for="dot">dot</label>
         </div>
         <div id="log">..dragons..everywhere..</div>
     </div>
@@ -160,7 +176,7 @@
         addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
     </script>
     <script>
-        const $ta = document.querySelector('textarea');
+        const $textarea = document.querySelector('textarea');
         const $log = document.querySelector('#log');
         const $dot = document.querySelector('#dot');
         const $right = document.querySelector('#right');
@@ -192,33 +208,33 @@
         let n = 2;
         let s2o = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a;
         egs = egs.map(s2o);
+        let fromEgs = 0;
         let getEgsi = () => {
-            let R = egsi in egs ? egs[egsi] : undefined;
+            fromEgs = 0;
+            let R = egsi in egs ? egs[(fromEgs = 1, egsi)] : undefined;
             R = R ?? '';
-            $ta.value = typeof R == 'string' ? R.replace(/,/g, '\n')
+            $textarea.value = typeof R == 'string' ? R.replace(/,/g, '\n')
                 : Object.entries(R).map(([k, v]) => k + '=' + v).join('\n');
-            console.log('load: ' + (egsi + 1) + ' of ' + egs.length);
             update();
         };
         let update = () => {
             $right.replaceChildren($loading);
             setTimeout(e => {
-                const R = $ta.value.replace(/\n/g, ',');
+                const R = $textarea.value.replace(/\n/g, ',');
                 const t0 = performance.now();
                 $svg = createSvg(R, dot());
-                console.log((performance.now() - t0 | 0) + ' ms');
+                console.log(fromEgs ? 'Example ' + (egsi + 1) + ' of ' + egs.length : '(not saved)', (performance.now() - t0 | 0) + ' ms');
+                fromEgs = 0;
                 addSvgZoom($svg);
                 $right.replaceChildren($svg);
             });
         };
         $dot.addEventListener('change', update);
-        $ta.addEventListener('keydown', e => {
-            e.ctrlKey && e.key == 'Enter' && update();
-        });
+        $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
         let keyListener = e => {
             switch (e.key) {
                 case '.': dot(!dot); break;
-                case '+': egsi = (egsi + egs.length + 1) % egs.length; break;
+                case '+': case 'ArrowRight': egsi = (egsi + egs.length + 1) % egs.length; break;
                 case '-': egsi = (egsi + egs.length - 1) % egs.length; break;
                 case '*': egs[egsi]['_n']++; break;
                 case '/': egs[egsi]['_n'] = Math.max(0, egs[egsi]['_n'] - 1); break;
@@ -233,7 +249,7 @@
             $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
                 .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
         };
-        document.body.addEventListener('keypress', keyListener);
+        //document.body.addEventListener('keydown', keyListener);
         try { egs[egsi][0]._n = n; } catch (e) { }
         getEgsi();
     </script>
@@ -261,9 +277,9 @@ If key starts with `_`, than value is a number.
 - `_l` - initial length of line (width=1)
 - `_m` - multiply linelength
 - `_a` - angle in degrees
-- (1char) - a rule
-- (empty) - title 
-- (chars) - invalid, ContextSensitiveGrammar is not implemented
+- 1char - a rule
+- 1char`2` - one more iteration after last
+- empty - title 
 
 ##  Characters of rule value:
 - `S`: starting sentence
