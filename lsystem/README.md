@@ -1,7 +1,7 @@
 #  Logo Turtle with Context Free grammar - L-System fractals
 
 ##  Example:
-`lsystem.js.svg?S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3`
+`lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3`
 
 One svg file [lsystem.js.svg](lsystem.js.svg), a [big collection](lsystem.examples.html), or [same 1by1](demo.html).
 

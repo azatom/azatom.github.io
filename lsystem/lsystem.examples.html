@@ -13,6 +13,7 @@
   <script src="lsystem.examples.js"></script>
 </head><body>
   <script>
+    const blow=(o,p,a=[],k,i)=>{for(p in o){[,k,i]=p.match(/(.*?)(\d*)$/);(a[i||0]??={})[k]=o[p];}return a;}
     async function string2span(str, i, s = createSvg(str)) {
       s.addEventListener('click', e => s.classList.toggle('big'));
       // s.addEventListener('click', e => location.href=`a.html#${str}`);

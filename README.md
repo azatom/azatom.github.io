@@ -1,9 +1,6 @@
 move along
 
-[stopwatch](stopwatch)
-
-[notepad](notepad)
+[lsystem](lsystem)
 
 [pattern](pattern.html)
 
-[lsystem](lsystem)

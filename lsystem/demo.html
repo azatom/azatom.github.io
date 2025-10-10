@@ -9,78 +9,269 @@
     <script src="svgZoom.js"></script>
     <script src="lsystem.examples.js"></script>
     <style>
+        html,
         body {
-            width: 0;
             margin: 0;
-            background-color: #777;
+            height: 100%;
+            display: flex;
             overflow: hidden;
+            font-family: system-ui, sans-serif;
+        }
+
+        #left {
+            display: flex;
+            flex-direction: column;
+            width: 20vw;
+            min-width: 200px;
+            max-width: 90vw;
+            box-sizing: border-box;
+            padding: 0.75rem;
+        }
+
+        #divider {
+            width: 1px;
+            padding: .4rem;
+            background-color: #ccc;
+            cursor: col-resize;
+            background-clip: content-box;
+        }
+
+        #divider:hover {
+            cursor: col-resize;
+        }
+
+        #right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        textarea {
+            width: 100%;
+            height: 50%;
+            resize: vertical;
+            min-height: 4rem;
+            max-height: 90vh;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 1rem;
+            box-sizing: border-box;
+            border: none;
+        }
+
+        #butt {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: none;
+            margin: 0.5rem 0;
+        }
+
+        #butt button {
+            padding: 0.35rem 0.75rem;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            background: linear-gradient(to bottom, #fff, #eee);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        [onclick] {
+            cursor: pointer;
+        }
+
+        #butt button:hover {
+            background: linear-gradient(to bottom, #f6f6f6, #ddd);
+        }
+
+        #log {
+            flex: 1;
+            overflow: auto;
+            background: #fff;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
         }
 
         svg {
-            z-index: -1;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        hr {
+            border-top: 1px solid #ccc;
+            max-width: 10rem;
+            margin: auto .25rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #helpText {
+            background-color: #fff;
+            font-size: 1rem;
             position: absolute;
-            top: 0;
-            display: inline-block;
-            max-width: 100vw;
+            left: 0;
+            right: 0;
+            margin-inline: auto;
+            width: fit-content;
+            padding: 1rem;
+            border: 1px solid blue;
+            border-radius: 1rem;
         }
     </style>
 </head>
 
 <body>
+    <div id="left">
+        <textarea placeholder="type here..."></textarea>
+        <div id="butt">
+            <span onclick="document.querySelector('#helpText').classList.remove('hidden')" style="font-size: 1.5rem;">?</span>
+            <button onclick="update();">ctrl+enter</button>
+            <input type="checkbox" id="dot">dot
+            <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();">&lt;</button>
+            <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();">&gt;</button>
+        </div>
+        <div id="log">..dragons..everywhere..</div>
+    </div>
+    <div id="divider"></div>
+    <div id="right"></div>
+
     <script>
-        let egs = typeof examples !== 'undefined' ? examples : [];
+        let egs = typeof examples !== 'undefined' ? examples : [{
+            S: 'AX',
+            A: '[+AX-AX-AX]-AX+AX+AX-',
+            F: '',
+            X: 'F+F+F+FFF-F-F-F',
+            _l: 2,
+            _a: 60,
+            _n: 3,
+            '': 'tilesgLizard',
+        }];
         addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
     </script>
     <script>
-        let dot = 0;
-        let egsi = 2;
+        const $ta = document.querySelector('textarea');
+        const $log = document.querySelector('#log');
+        const $dot = document.querySelector('#dot');
+        const $right = document.querySelector('#right');
+        const $loading = document.createElement('span'); $loading.textContent = 'loading...';
+        const $divider = document.getElementById('divider');
+        const $left = document.querySelector('#left');
+
+        let isResizing = false;
+
+        $divider.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isResizing = true;
+            //document.body.style.cursor = 'col-resize';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const newWidth = Math.min(Math.max(e.clientX, 200), window.innerWidth - 200);
+            $left.style.width = newWidth + 'px';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isResizing = false;
+            //document.body.style.cursor = '';
+        });
+        let $svg;
+        const dot = i => i === undefined ? $dot.checked : $dot.checked = !i;
+        let egsi = 0;
         let n = 2;
-        let s2o = a => 'string' == typeof a ? JSON.parse(`[{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}]`) : a;
+        let s2o = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a;
         egs = egs.map(s2o);
-        let next = () => {
-            document.body.textContent = '';
-            console.log({
-                '???': '+ - * / . click',
-                '#': `${egsi} / ${egs.length}`,
-            });
-            const t0 = performance.now();
+        let getEgsi = () => {
             let R = egsi in egs ? egs[egsi] : undefined;
-            setTimeout(() => {
-                let svg = createSvg(R, dot);
-                addSvgZoom(svg);
-                document.body.appendChild(svg);
-                console.log({
-                    ms: (performance.now() - t0 | 0),
-                });
-            }, 0);
+            R = R ?? '';
+            $ta.value = typeof R == 'string' ? R.replace(/,/g, '\n')
+                : Object.entries(R).map(([k, v]) => k + '=' + v).join('\n');
+            console.log('load: ' + (egsi + 1) + ' of ' + egs.length);
+            update();
         };
+        let update = () => {
+            $right.replaceChildren($loading);
+            setTimeout(e => {
+                const R = $ta.value.replace(/\n/g, ',');
+                const t0 = performance.now();
+                $svg = createSvg(R, dot());
+                console.log((performance.now() - t0 | 0) + ' ms');
+                addSvgZoom($svg);
+                $right.replaceChildren($svg);
+            });
+        };
+        $dot.addEventListener('change', update);
+        $ta.addEventListener('keydown', e => {
+            e.ctrlKey && e.key == 'Enter' && update();
+        });
         let keyListener = e => {
             switch (e.key) {
-                case '.': dot = !dot; break;
+                case '.': dot(!dot); break;
                 case '+': egsi = (egsi + egs.length + 1) % egs.length; break;
                 case '-': egsi = (egsi + egs.length - 1) % egs.length; break;
-                case '*': egs[egsi] && egs[egsi][0]['_n']++; break;
-                case '/': egs[egsi] && (egs[egsi][0]['_n'] = Math.max(0, egs[egsi][0]['_n'] - 1)); break;
+                case '*': egs[egsi]['_n']++; break;
+                case '/': egs[egsi]['_n'] = Math.max(0, egs[egsi]['_n'] - 1); break;
                 default: return;
             }
-            next();
+            getEgsi();
         };
+        console.oldlog = console.log;
         console.log = (...o) => {
-            const w = document.body.appendChild(document.createElement('div'));
-            w.textContent = o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
-                .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n');
-            w.style.display = 'table';
-            w.style.verticalAlign = 'top';
-            w.style.fontFamily = 'monospace';
-            w.style.whiteSpace = 'pre';
-            w.style.fontSize = '1rem';
-            w.style.backgroundColor = '#fff';
-            w.style.filter = 'opacity(.92)';
+            if (!$log) { console.oldlog(...o); return; }
+            $log.prepend(document.createElement('hr'));
+            $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
+                .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
         };
         document.body.addEventListener('keypress', keyListener);
-        try{egs[egsi][0]._n=n;}catch(e){}
-        next();
+        try { egs[egsi][0]._n = n; } catch (e) { }
+        getEgsi();
     </script>
+
+    <div id="helpText" class="hidden">
+        <span onclick="document.querySelector('#helpText').classList.add('hidden')" style="float:right">X</span>
+        <pre>
+##  How it works:
+Starting sentence (axiom) is 'S'. In an iteration every character of the
+sentence replaced by the key-value rule set. A key's default value is the
+key itself. The resulted sentence says to the logo turtle what to do.
+
+- lsystem.js.svg
+  - embedable with `<object>` or '<embed>', not with `<img>`.
+  - browser can open as standalone image
+- lsystem.svg.js
+  - generates img capable svg
+  - accuracy: within eps merges points
+  - faster: draw segments one time
+  - browser can not open as standalone image
+
+##  Parameter key - value pairs:
+If key starts with `_`, than value is a number.
+- `_n` - iterations
+- `_l` - initial length of line (width=1)
+- `_m` - multiply linelength
+- `_a` - angle in degrees
+- (1char) - a rule
+- (empty) - title 
+- (chars) - invalid, ContextSensitiveGrammar is not implemented
+
+##  Characters of rule value:
+- `S`: starting sentence
+- `F`, `f`: forward with, without drawing a line
+- `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
+- `!`: change parity of rotation
+- `*`, `/`: multiply, divide length of line with m
+- `[`, `]`: store, load (position, length, direction)</pre>
+    </div>
 </body>
 
 </html>
