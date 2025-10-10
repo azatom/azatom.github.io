@@ -1,6 +1,6 @@
 move along
 
-[lsystem](lsystem)
+[lsystem](lsystem) - [editor](lsystem/demo.html)
 
 [pattern](pattern.html)
 
