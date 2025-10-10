@@ -263,7 +263,7 @@
                 $right.replaceChildren($svg);
             }, 0);
         };
-        $dot.addEventListener('change', update);
+        $dot.addEventListener('change', e=>update());
         $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
         $textarea.addEventListener('input', e => update());
         let keyListener = e => {
