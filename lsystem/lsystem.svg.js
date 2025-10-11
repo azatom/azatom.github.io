@@ -53,7 +53,7 @@ function createStep(d, E = 1, F = 2 * E) {
 }
 function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', dot) {
   R = 'string' === typeof R ? JSON.parse(`{${R.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : R;
-  let [x, y, a, b, q] = Array(8).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
+  let [x, y, a, b, q] = Array(5).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
   const Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith('2')).map(([k, v]) => [k[0], v]))
     , z = [], u = n => Z && n === R._n ? Z : R, B = R._a / 90

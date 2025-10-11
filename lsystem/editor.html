@@ -8,7 +8,7 @@
     <script src="lsystem.svg.js"></script>
     <script src="svgZoom.js"></script>
     <script src="lsystem.examples.js"></script>
-    <!--script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script-->
+    <!--script defer src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script-->
 
     <style>
         html,
@@ -106,11 +106,12 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            cursor: zoom-in;
         }
 
         .smallsvgs>svg {
-            width: calc(max(12.5vh,12.5vw));
-            height: calc(max(12.5vh,12.5vw));
+            width: calc(max(12.5vh, 12.5vw));
+            height: calc(max(12.5vh, 12.5vw));
             cursor: pointer;
         }
 
@@ -133,6 +134,10 @@
 
         .preasdiv {
             white-space: normal;
+        }
+
+        pre,
+        .preasdiv {
             font-family: sans-serif;
         }
 
@@ -181,14 +186,14 @@
 
 <body>
     <div id="left">
-        <textarea placeholder="type here..."></textarea>
+        <textarea placeholder="type here, careful with _n,  images zoomable with two clicks (left-right=zoom in-out)"></textarea>
         <div id="butt">
             <button id="helpButton">?</button>
             <button onclick="update();">ctrl+enter</button>
             <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();" title="examples">&lt;</button>
             <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();" title="examples">&gt;</button>
-            <input type="checkbox" id="dot" name="dot"><label for="dot">dot</label>
-            <button onclick="smallsvgs();">✱</button>
+            <input type="checkbox" id="dot" name="dot" title="show endpoints of segments"><label for="dot">dot</label>
+            <button onclick="smallsvgs();" title="all examples">✱</button>
         </div>
         <div id="log">..dragons..everywhere..</div>
     </div>
@@ -290,10 +295,10 @@
         smallsvgs();
 
         function smallsvgs() {
-            async function string2span(str, i, s = createSvg(str)) {
+            async function string2span(str, i, R, s = createSvg(str)) {
                 // s.addEventListener('click', e => s.classList.toggle('big'));
                 // s.addEventListener('click', e => location.href=`a.html#${str}`);
-                s.addEventListener('click', e => update(str));
+                s.addEventListener('click', e => update(R));
                 return s;
             }
             (async () => {
@@ -301,7 +306,11 @@
                 $a.classList.add('smallsvgs');
                 $right.replaceChildren($a);
                 for (let i = 0; i < egs.length; i++) {
-                    $a.appendChild(await string2span(egs[i], i));
+                    const o = Object.fromEntries(
+                        Object.entries(egs[i])
+                            .map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
+                    );
+                    $a.appendChild(await string2span(o, i, egs[i]));
                     await new Promise(r => setTimeout(r, 0));
                 }
             })();
@@ -315,12 +324,15 @@
             document.querySelector('#helpButton').onclick = async e => {
                 let a = document.querySelector('.md');
                 document.querySelector('#helpModal').style.display = 'flex';
-                const f = (t) => {
-                    if (typeof marked != 'undefined' && a) {
-                        a.innerHTML = marked.parse(a.innerText);
-                        a.classList.remove('md');
-                        a.classList.add('preasdiv');
-                    } else if (t < 1e4) setTimeout(() => f(n - 1, t * 1.5 + 100), t);
+                const f = t => {
+                    try {
+                        if (typeof marked != 'undefined' && a) {
+                            a.innerHTML = marked.parse(a.innerText);
+                            a.classList.remove('md');
+                            a.classList.add('preasdiv');
+                        } else if (t < 1e4) setTimeout(() => f(n - 1, t * 1.5 + 100), t);
+                    } catch (e) { };
+                    t || (document.querySelector('#helpModal').style.display = 'flex');
                 };
                 f(0);
             }
