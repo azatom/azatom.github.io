@@ -22,12 +22,14 @@ function createStep(d, E = 1, F = 2 * E) {
   }
   return {
     stat: function () {
-      const vals = Object.values(grid).reduce((p, c) => p + c.length, 0);
+      const grids = Object.keys(grid).length;
+      const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
       return {
-        _min, _max, _Mpm: _max / _min, _all, _cmp,
-        keys: Object.keys(grid).length, vals, line: lines.size, lall,
-        'l%': lines.size / lall*100,
-        'p%': vals / _all*100,
+        _min, _max, ' M/m': `${(_max / _min).toFixed(6)}`,
+        comp: `${_cmp} ${_cmp/points*100|0}%`,
+        keys: `${grids} +${points-grids} ${((points-grids)/points*100).toFixed(0)}%`,
+        pnts: `${points} +${_all-points} ${((_all-points )/ points*100).toFixed(0)}%` ,
+        line: `${lines.size} +${lall-lines.size} ${((lall-lines.size) / lines.size*100).toFixed(0)}%` ,
       };
     },
     vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },

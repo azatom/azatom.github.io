@@ -186,7 +186,7 @@
 
 <body>
     <div id="left">
-        <textarea placeholder="type here, careful with _n,  images zoomable with two clicks (left-right=zoom in-out)"></textarea>
+        <textarea placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n,  images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
         <div id="butt">
             <button id="helpButton">?</button>
             <button onclick="update();">ctrl+enter</button>
@@ -293,12 +293,14 @@
         //document.body.addEventListener('keydown', keyListener);
         //getEgsi();
         smallsvgs();
+        function o2s(R) {return Object.keys(R).map(k=>`${k}=${R[k]}`).join(',');}
 
         function smallsvgs() {
-            async function string2span(str, i, R, s = createSvg(str)) {
-                // s.addEventListener('click', e => s.classList.toggle('big'));
-                // s.addEventListener('click', e => location.href=`a.html#${str}`);
-                s.addEventListener('click', e => update(R));
+            async function string2span(R, i, s = createSvg(R)) {
+                console.log({[`#${i}`]:egs[i]?.['']});
+                s.addEventListener('click', e => location.href=`lsystem.js.svg#${o2s(egs[i])}`);
+                //s.addEventListener('click', e => update(egs[i]));
+                //s.addEventListener('click', e => s.classList.toggle('big'));
                 return s;
             }
             (async () => {
@@ -306,11 +308,11 @@
                 $a.classList.add('smallsvgs');
                 $right.replaceChildren($a);
                 for (let i = 0; i < egs.length; i++) {
-                    const o = Object.fromEntries(
+                    const R = Object.fromEntries(
                         Object.entries(egs[i])
                             .map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
                     );
-                    $a.appendChild(await string2span(o, i, egs[i]));
+                    $a.appendChild(await string2span(R, i));
                     await new Promise(r => setTimeout(r, 0));
                 }
             })();
