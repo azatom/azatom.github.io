@@ -68,21 +68,22 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
     }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
   for (i of function* g(n) { if (n) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
-      '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
-        '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
-          '!' === i ? p = -p :
-            '[' === i ? z.push([x, y, a, b, q]) :
-              ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+    '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
+    '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
+    '!' === i ? p = -p :
+    '[' === i ? z.push([x, y, a, b, q]) :
+    ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   [x, y, a, b] = D.vb(2);
   try { console.log(D.stat()); } catch (e) { }
   //try { console.log({ ...D.stat(), ...R, RZ: Z }); } catch (e) { }
   return C('svg', { viewBox: `${x} ${y} ${a} ${b}` },
     C('path', {
-      stroke: dot ? 'none' : '#000', d, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-      ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {})
+      stroke: dot ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
     }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('rect', { fill: '#fff', x, y, width: a, height: b }),
+    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g,''), t))(C('desc')),
     (t => (t.textContent = R[''], t))(C('title'))
   );
 }

@@ -113,4 +113,5 @@ let examples=[
 'S=Z,X=X[-FFF][+FFF]FX,Z=ZFX[+Z][-Z],=plant10,_a=25,_l=6,_n=5',
 'S=F-F-F-F-F-F-F-F-F-F,F=FF+F+F+F+FF,=ize4,_a=89.8536,_l=6,_n=4',
 'S=A,A=FA+B,B=FA-B,F=FA,=ize5,_a=45,_l=6,_n=13',
+'=0+0+10×10,S=f+f-FFF+FFF,_l=2',
 ];

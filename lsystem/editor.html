@@ -8,7 +8,6 @@
     <script src="lsystem.svg.js"></script>
     <script src="svgZoom.js"></script>
     <script src="lsystem.examples.js"></script>
-    <!--script defer src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script-->
 
     <style>
         html,
@@ -18,6 +17,25 @@
             display: flex;
             overflow: hidden;
             font-family: system-ui, sans-serif;
+        }
+
+        #right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: top left;
+            display: block;
         }
 
         #left {
@@ -31,7 +49,7 @@
             overflow: hidden;
         }
 
-        #divider {
+        #divider1 {
             width: 1px;
             padding: .4rem;
             background-color: #ccc;
@@ -39,22 +57,30 @@
             background-clip: content-box;
         }
 
-        #divider:hover {
+        #divider2 {
+            height: 1px;
+            padding: .4rem;
+            background-color: #ccc;
+            cursor: col-resize;
+            background-clip: content-box;
+        }
+
+        #divider1:hover {
             cursor: col-resize;
         }
 
-        #right {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            overflow: auto;
-            background: #fff;
+        #divider2:hover {
+            cursor: row-resize;
         }
 
-        textarea {
+        .error {
+            background: #d22;
+        }
+
+        #textarea {
             width: 100%;
             height: 50%;
-            resize: vertical;
+            resize: both;
             min-height: 4rem;
             max-height: 90vh;
             padding: 0.5rem;
@@ -62,6 +88,10 @@
             font-size: 1rem;
             box-sizing: border-box;
             border: none;
+        }
+
+        div#textarea {
+            overflow: auto;
         }
 
         #butt {
@@ -73,7 +103,7 @@
             margin: 0.5rem 0;
         }
 
-        #butt button {
+        button {
             padding: 0.35rem 0.75rem;
             border: 1px solid #aaa;
             border-radius: 4px;
@@ -86,10 +116,6 @@
             cursor: pointer;
         }
 
-        #butt button:hover {
-            background: linear-gradient(to bottom, #f6f6f6, #ddd);
-        }
-
         #log {
             flex: 1;
             overflow: auto;
@@ -100,13 +126,11 @@
             white-space: pre-wrap;
         }
 
-        svg {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            cursor: zoom-in;
+        .smallsvgs {
+            display: flex;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            flex-direction: row;
         }
 
         .smallsvgs>svg {
@@ -181,23 +205,41 @@
             font-size: 1rem;
             overflow: auto;
         }
+
+        button[data-checked] {
+            filter: invert();
+        }
+
+        @media only screen and (max-width: 600px) {
+
+            #left,
+            #textarea {
+                padding: 0;
+            }
+
+            #log {
+                display: none;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div id="left">
-        <textarea placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n,  images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        <!--textarea id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n,  images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></textarea-->
+        <div id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n,  images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+        <div id="divider2"></div>
         <div id="butt">
             <button id="helpButton">?</button>
-            <button onclick="update();">ctrl+enter</button>
+            <button onclick="update();" id="buttonsubmit">ctrl+enter</button>
             <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();" title="examples">&lt;</button>
             <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();" title="examples">&gt;</button>
-            <input type="checkbox" id="dot" name="dot" title="show endpoints of segments"><label for="dot">dot</label>
+            <button id="buttondot" title="endpoints only of segments">●</button>
             <button onclick="smallsvgs();" title="all examples">✱</button>
         </div>
-        <div id="log">..dragons..everywhere..</div>
+        <div id="log"></div>
     </div>
-    <div id="divider"></div>
+    <div id="divider1"></div>
     <div id="right"></div>
 
     <script>
@@ -214,37 +256,78 @@
         addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
     </script>
     <script>
-        const $textarea = document.querySelector('textarea');
+        let egsi = 0;
+
+        function toggleCustomLog(a, f) {
+            if (f) { console.oldLog = console.log; console.customLog = f; }
+            if (!console.oldLog || !console.customLog) return;
+            if (a === undefined) a = console.oldLog === console.log;
+            if (a) { console.log = console.customLog; }
+            else { console.customLog = console.log; console.log = console.oldLog; }
+        }
+        toggleCustomLog(1, (...o) => {
+            if (!$log) { console.oldLog(...o); return; }
+            $log.prepend(document.createElement('hr'));
+            $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
+                .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
+        });
+
+        const $textarea = document.querySelector('#textarea');
         const $log = document.querySelector('#log');
-        const $dot = document.querySelector('#dot');
+        const $dot = document.querySelector('#buttondot');
         const $right = document.querySelector('#right');
         const $loading = document.createElement('span'); $loading.textContent = 'loading...';
-        const $divider = document.getElementById('divider');
         const $left = document.querySelector('#left');
-
-        let isResizing = false;
-
-        $divider.addEventListener('pointerdown', (e) => {
+        const $submit = document.querySelector('#buttonsubmit');
+        
+        /*divider*/
+        const $divider1 = document.getElementById('divider1');
+        const $divider2 = document.getElementById('divider2');
+        let isDividering = false;
+        let activeDivider = null; 
+        let startX = 0;
+        let startY = 0;
+        let startWidth = 0;
+        let startHeight = 0;
+        const setDividering = e => {
             e.preventDefault();
-            isResizing = true;
-            //document.body.style.cursor = 'col-resize';
+            isDividering = true;
+            activeDivider = e.target; 
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = $left.offsetWidth;
+            startHeight = $textarea.offsetHeight;
+        };
+        $divider1.addEventListener('pointerdown', setDividering);
+        $divider2.addEventListener('pointerdown', setDividering);
+        window.addEventListener('pointerup', e => {
+            isDividering = false;
+            activeDivider = null;
         });
+        window.addEventListener('pointermove', e => {
+            if (!isDividering || !activeDivider) return;
+            if (activeDivider === $divider1) {
+                const deltaX = e.clientX - startX;
+                const newWidth = startWidth + deltaX;
+                $left.style.width = Math.min(Math.max(newWidth, 100), window.innerWidth - 100) + 'px';
+            } else if (activeDivider === $divider2) {
+                const deltaY = e.clientY - startY;
+                const newHeight = startHeight + deltaY;
+                $textarea.style.height = Math.min(Math.max(newHeight, 100), window.innerHeight - 100) + 'px';
+            }
+        });
+        /**/
 
-        window.addEventListener('pointermove', (e) => {
-            if (!isResizing) return;
-            const newWidth = Math.min(Math.max(e.clientX, 200), window.innerWidth - 200);
-            $left.style.width = newWidth + 'px';
-        });
+        const setDot = i => i ? $dot.setAttribute('data-checked', true) : $dot.removeAttribute('data-checked');
+        const getDot = () => $dot.getAttribute('data-checked') === "true";
+        function getText() { return $textarea.tagName.toLowerCase() === 'textarea' ? $textarea.value : $textarea.innerText; }
+        function setText(text) { if ($textarea.tagName.toLowerCase() === 'textarea') $textarea.value = text; else $textarea.innerText = text; }
 
-        window.addEventListener('pointerup', () => {
-            isResizing = false;
-            //document.body.style.cursor = '';
-        });
-        let $svg;
-        const dot = i => i === undefined ? $dot.checked : $dot.checked = !i;
-        let egsi = 0;
-        let n = 2;
+        $dot.addEventListener('click', e => { setDot(!getDot()); getText() && update(); });
+
         let s2o = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a;
+        function o2s(R) { return Object.keys(R).map(k => `${k}=${R[k]}`).join(','); }
+
         egs = egs.map(s2o);
         let fromEgs = 0;
         let getEgsi = () => {
@@ -253,55 +336,46 @@
             R = R ?? '';
             update(R);
         };
+
         let update = (s) => {
             if (undefined != s) {
-                $textarea.value = typeof s == 'string' ? s.replace(/,/g, '\n')
-                    : Object.entries(s).map(([k, v]) => k + '=' + v).join('\n');
+                setText(typeof s == 'string' ? s.replace(/,/g, '\n')
+                    : Object.entries(s).map(([k, v]) => k + '=' + v).join('\n'));
             }
             $right.replaceChildren($loading);
             setTimeout(e => {
-                const R = $textarea.value.replace(/[\n \t]+/g, ',').replace(/^,+|,+$/, '');
-                const t0 = performance.now();
-                try { $svg = createSvg(R, dot()); } catch (e) { }
-                console.log(fromEgs ? 'Example ' + (egsi + 1) + ' of ' + egs.length : '(not saved)', (performance.now() - t0 | 0) + ' ms');
+                $submit.classList.remove('error');
+                try {
+                    const R = getText()
+                        .replace(/[\n&]+/gm, ',')
+                        .replace(/[ \t]+/g, '')
+                        .replace(/^,+|,+$/g, '')
+                        .replace(/:/g, '=');
+                    if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(R)) { throw new Error("wrongformat"); }
+                    const t0 = performance.now();
+                    let $svg = createSvg(R, getDot());
+                    addSvgZoom($svg, /**/$right/*/document.body/**/);
+                    console.log(
+                        fromEgs ? { [`#${egsi}`]: `${egs[egsi]?.[''] ?? `of ${egs.length}`}` } : '(not saved)',
+                        `${performance.now() - t0 | 0} ms`);
+                    $right.replaceChildren($svg);
+                } catch (e) {
+                    $submit.classList.add('error');
+                }
                 fromEgs = 0;
-                addSvgZoom($svg);
-                $right.replaceChildren($svg);
             }, 0);
         };
-        $dot.addEventListener('change', e => update());
         $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
         $textarea.addEventListener('input', e => update());
-        let keyListener = e => {
-            switch (e.key) {
-                case '.': dot(!dot); break;
-                case '+': case 'ArrowRight': egsi = (egsi + egs.length + 1) % egs.length; break;
-                case '-': egsi = (egsi + egs.length - 1) % egs.length; break;
-                case '*': egs[egsi]['_n']++; break;
-                case '/': egs[egsi]['_n'] = Math.max(0, egs[egsi]['_n'] - 1); break;
-                default: return;
-            }
-            getEgsi();
-        };
-        console.oldlog = console.log;
-        console.log = (...o) => {
-            if (!$log) { console.oldlog(...o); return; }
-            $log.prepend(document.createElement('hr'));
-            $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
-                .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
-        };
-        //document.body.addEventListener('keydown', keyListener);
-        //getEgsi();
-        smallsvgs();
-        function o2s(R) {return Object.keys(R).map(k=>`${k}=${R[k]}`).join(',');}
 
         function smallsvgs() {
-            async function string2span(R, i, s = createSvg(R)) {
-                console.log({[`#${i}`]:egs[i]?.['']});
-                s.addEventListener('click', e => location.href=`lsystem.js.svg#${o2s(egs[i])}`);
-                //s.addEventListener('click', e => update(egs[i]));
-                //s.addEventListener('click', e => s.classList.toggle('big'));
-                return s;
+            async function string2span(R, i) {
+                toggleCustomLog(0);
+                svg = createSvg(R, getDot());
+                console.log({ [`#${i}`]: egs[i]?.[''] });
+                toggleCustomLog(1);
+                svg.addEventListener('click', e => (e.shiftKey || e.ctrlKey) ? location.href = `lsystem.js.svg#${o2s(egs[i])}` : update(egs[i]));
+                return svg;
             }
             (async () => {
                 const $a = document.createElement('div');
@@ -317,27 +391,13 @@
                 }
             })();
         }
+        if (1) getEgsi(); else smallsvgs();
     </script>
 
     <div id="helpModal">
         <script>
-            document.querySelector('#helpModal').onclick = e =>
-                e.target === helpModal && (helpModal.style.display = 'none');
-            document.querySelector('#helpButton').onclick = async e => {
-                let a = document.querySelector('.md');
-                document.querySelector('#helpModal').style.display = 'flex';
-                const f = t => {
-                    try {
-                        if (typeof marked != 'undefined' && a) {
-                            a.innerHTML = marked.parse(a.innerText);
-                            a.classList.remove('md');
-                            a.classList.add('preasdiv');
-                        } else if (t < 1e4) setTimeout(() => f(n - 1, t * 1.5 + 100), t);
-                    } catch (e) { };
-                    t || (document.querySelector('#helpModal').style.display = 'flex');
-                };
-                f(0);
-            }
+            document.querySelector('#helpModal').onclick = e => e.target === helpModal && (helpModal.style.display = 'none');
+            document.querySelector('#helpButton').onclick = e => document.querySelector('#helpModal').style.display = 'flex';
         </script>
         <div id="helpWindow">
             <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right">X</span>
