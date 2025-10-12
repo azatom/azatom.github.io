@@ -66,14 +66,16 @@ const b=(e)=>{
       ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
     [x, y, a, b] = D.vb(2);
     svg.setAttribute('viewBox', `${x} ${y} ${a} ${b}`);
-    svg.prepend(C('path', {
-      stroke: dot ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-      ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
-    }));
-    svg.prepend(C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))));
-    svg.prepend(C('rect', { fill: '#fff', x, y, width: a, height: b }));
-    svg.prepend((t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g, ''), t))(C('desc')));
-    svg.prepend((t => (t.textContent = R[''], t))(C('title')));
+    svg.replaceChildren(
+      (t => (t.textContent = R[''], t))(C('title')),
+      (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g, ''), t))(C('desc')),
+      C('rect', { fill: '#fff', x, y, width: a, height: b }),
+      C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
+      C('path', {
+        stroke: dot ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+        ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
+      })
+    );
   })()
 }//]]></script>
 </svg>
