@@ -1,14 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html dir="ltr" lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>title</title>
+  <title>L-System Fractals</title>
   <script src="lsystem.svg.js"></script>
   <script src="lsystem.examples.js"></script>
 
   <style>
+    /* Core layout */
     body,
     html {
       margin: 0;
@@ -20,13 +21,13 @@
     }
 
     #left {
-      flex-direction: column;
       width: 14rem;
       min-width: 100px;
       max-width: 90vw;
       padding: 0.75rem;
       box-sizing: border-box;
       display: flex;
+      flex-direction: column;
       position: relative;
       z-index: 1;
       background-color: #eee7;
@@ -51,6 +52,7 @@
       display: block;
     }
 
+    /* UI elements */
     #textarea {
       width: 100%;
       height: 100%;
@@ -83,9 +85,10 @@
       margin: 0.5rem 0;
     }
 
+    /* Dividers */
     .dividerv:hover {
       cursor: col-resize;
-      background-color: #ccc;
+      /*background-color: #ccc;*/
     }
 
     .divider {
@@ -94,17 +97,18 @@
     }
 
     .dividerv {
-      width: 1px;
+      width: 0px;
     }
 
     .dividerh {
-      height: 1px;
+      height: 0px;
     }
 
     #butt:hover {
       cursor: row-resize;
     }
 
+    /* Error and small SVGs */
     .error {
       background: #d22;
     }
@@ -122,6 +126,7 @@
       cursor: pointer;
     }
 
+    /* Help modal */
     #helpModal {
       display: none;
       position: fixed;
@@ -139,7 +144,7 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
       overflow: hidden;
     }
-    
+
     #helpText {
       max-height: 80vh;
       max-width: 84ch;
@@ -168,6 +173,7 @@
       font-family: sans-serif;
     }
 
+    /* Buttons */
     button[data-checked] {
       filter: invert();
     }
@@ -175,8 +181,8 @@
     button {
       color: #000;
       font-size: 1rem;
-      padding: .625rem 1.25rem;
-      border-radius: .3125rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.3125rem;
       cursor: pointer;
       border: none;
       background-color: #ccc;
@@ -187,6 +193,12 @@
       background-color: #acf;
     }
 
+    div[contentEditable=true]:empty:not(:focus):before {
+      content: attr(data-placeholder);
+      color: #777;
+    }
+
+    /* Mobile styles */
     @media only screen and (max-width: 600px) {
 
       body,
@@ -197,7 +209,7 @@
       #left {
         width: 100%;
         max-width: 100%;
-        padding:0;
+        padding: 0;
         height: auto;
       }
 
@@ -262,245 +274,338 @@
 
 <body>
   <div id="left">
-    <div id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n, images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+    <div id="textarea" data-placeholder="Click around or type L-System rules here (e.g., S=AX, A=[+AX-AX-AX]-AX+AX+AX-, _n=3) Thumbs ctrl or shift click into standalone svg." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+    <!--div id="butt" class="divider dividerh"-->
     <div id="butt">
-      <button id="helpButton">?</button>
-      <button onclick="update();" id="buttonsubmit">ctrl+enter</button>
-      <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();" title="examples">&lt;</button>
-      <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();" title="examples">&gt;</button>
-      <button id="buttondot" title="endpoints only of segments">●</button>
-      <button onclick="smallsvgs();" title="all examples">✱</button>
-      <button onclick="$log.classList.toggle('hidden')" title="log">L</button>
+      <button id="helpButton" title="Help">?</button>
+      <button id="buttonsubmit" title="Update (Ctrl+Enter)">Run</button>
+      <button id="prevExample" title="Previous example">&lt;</button>
+      <button id="nextExample" title="Next example">&gt;</button>
+      <button id="buttondot" title="Show endpoints only">●</button>
+      <button id="allExamples" title="Show all examples">✱</button>
+      <button id="toggleLog" title="Toggle log">L</button>
+      <button id="openstandalone" title="Open standalone">#</button>
     </div>
-    <div id="log">log..</div>
+    <div id="log" class="hidden">log...</div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
 
-  <script>
-    let egs = typeof examples !== 'undefined' ? examples : [{
-      S: 'AX',
-      A: '[+AX-AX-AX]-AX+AX+AX-',
-      F: '',
-      X: 'F+F+F+FFF-F-F-F',
-      _l: 2,
-      _a: 60,
-      _n: 3,
-      '': 'tilesgLizard',
-    }];
-    addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
-  </script>
-  <script>
+  <div id="helpModal">
+    <div id="helpWindow">
+      <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right;cursor:pointer">X</span>
+      <div id="helpText">
+        <pre class="md">
+## Logo Turtle with Context-Free Grammar - L-System Fractals
 
-    let egsi = 0;
+### How it Works:
+Start with a sentence 'S'. Each iteration replaces characters in the sentence using key-value rules. The resulting sentence instructs a Logo turtle.
 
-    function toggleCustomLog(a, f) {
-      if (f) { console.oldLog = console.log; console.customLog = f; }
-      if (!console.oldLog || !console.customLog) return;
-      if (a === undefined) a = console.oldLog === console.log;
-      if (a) { console.log = console.customLog; }
-      else { console.customLog = console.log; console.log = console.oldLog; }
-    }
+### Rule Key-Value Pairs:
+Keys starting with `_` have numeric values:
+- `_n`: Number of iterations
+- `_l`: Initial line length (width=1)
+- `_m`: Line length multiplier
+- `_a`: Angle in degrees
+- Single char: A rule
+- Single char + `2`: Rule for n+1 iteration
+- Empty key: Title
 
-    toggleCustomLog(1, (...o) => {
-      if (!$log) { console.oldLog(...o); return; }
-      $log.prepend(document.createElement('hr'));
-      $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
-        .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
-    });
+### Rule Value Characters:
+- `S`: Starting sentence
+- `F`, `f`: Move forward with/without drawing
+- `+`, `-`, `^`, `|`: Rotate by _a, -_a, right, or straight
+- `!`: Toggle rotation parity
+- `*`, `/`: Multiply/divide line length by _m
+- `[`, `]`: Push/pop position, length, direction
 
-    const $textarea = document.querySelector('#textarea');
-    const $log = document.querySelector('#log');
-    const $dot = document.querySelector('#buttondot');
-    const $right = document.querySelector('#right');
-    const $loading = document.createElement('div'); $loading.textContent = 'loading...';
-    const $left = document.querySelector('#left');
-    const $submit = document.querySelector('#buttonsubmit');
+### Syntax:
+- Key-value separators: `=` or `:`
+- Rule separators: `,`, `&`, or newline
+- Supports URLs, plaintext, JSON
+        </pre>
+      </div>
+    </div>
+  </div>
 
-    let $divider1 = document.querySelector('#divider1');
-    let $divider2 = document.querySelector('#butt');
-    let isDividering = false;
-    let activeDivider = null;
-    let startX = 0;
-    let startY = 0;
-    let startWidth = 0;
-    let startHeight = 0;
+  <script type="module">
+    // Core state and DOM elements
+    const state = {
+      examples: (typeof examples !== 'undefined' ? examples : [{
+        S: 'AX',
+        A: '[+AX-AX-AX]-AX+AX+AX-',
+        F: '',
+        X: 'F+F+F+FFF-F-F-F',
+        _l: 2,
+        _a: 60,
+        _n: 3,
+        '': 'tilesgLizard'
+      }]).map(s => typeof s === 'string' ? parseRules(s) : s),
+      currentExampleIndex: 0,
+      isDividerActive: false,
+      activeDivider: null,
+      startX: 0,
+      startY: 0,
+      startWidth: 0,
+      startHeight: 0,
+      isMobile: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        typeof window.orientation !== 'undefined' ||
+        (navigator.maxTouchPoints && navigator.maxTouchPoints > 1),
+      lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight
+    };
 
-    function isMobile() {
-      return (
-        /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-        (typeof window.orientation !== "undefined") ||
-        (navigator.maxTouchPoints && navigator.maxTouchPoints > 1)
+    const elements = {
+      textarea: document.querySelector('#textarea'),
+      log: document.querySelector('#log'),
+      dotButton: document.querySelector('#buttondot'),
+      right: document.querySelector('#right'),
+      left: document.querySelector('#left'),
+      submit: document.querySelector('#buttonsubmit'),
+      divider1: document.querySelector('#divider1'),
+      divider2: document.querySelector('#butt'),
+      helpModal: document.querySelector('#helpModal'),
+      helpButton: document.querySelector('#helpButton'),
+      prevExample: document.querySelector('#prevExample'),
+      nextExample: document.querySelector('#nextExample'),
+      allExamples: document.querySelector('#allExamples'),
+      toggleLog: document.querySelector('#toggleLog'),
+      openstandalone: document.querySelector('#openstandalone'),
+      loading: Object.assign(document.createElement('div'), { textContent: 'loading...' })
+    };
+
+    // Utility functions
+    function parseRules(str) {
+      return Object.fromEntries(
+        str.replace(/&/g, ',')
+          .replace(/([^,=]*)=([^,=]*)/g, '$1=$2')
+          .split(',')
+          .map(a => a.split('='))
       );
     }
 
-    const setDividering = e => {
-      if (isMobile() && e.target === $divider1) return;
-      e.preventDefault();
-      isDividering = true;
-      activeDivider = e.target;
-      startX = e.clientX;
-      startY = e.clientY;
-      startWidth = $left.offsetWidth;
-      startHeight = $textarea.offsetHeight;
-    };
+    function serializeRules(obj) {
+      return Object.entries(obj).map(([k, v]) => `${k}=${v}`).join(',');
+    }
 
-    $divider1.addEventListener('pointerdown', setDividering);
-    $divider2.addEventListener('pointerdown', setDividering);
+    function getText() {
+      return elements.textarea.tagName.toLowerCase() === 'textarea'
+        ? elements.textarea.value
+        : elements.textarea.innerText;
+    }
 
-    window.addEventListener('pointerup', e => {
-      isDividering = false;
-      activeDivider = null;
-    });
-
-    window.addEventListener('pointermove', e => {
-      if (!isDividering || !activeDivider) return;
-      if (activeDivider === $divider1 && !isMobile()) {
-        const deltaX = e.clientX - startX;
-        const newWidth = startWidth + deltaX;
-        $left.style.width = Math.min(Math.max(newWidth, 50), window.innerWidth - 50) + 'px';
-      } else if (activeDivider === $divider2) {
-        const deltaY = e.clientY - startY;
-        const newHeight = startHeight + deltaY;
-        $textarea.style.height = Math.min(Math.max(newHeight, 50), window.innerHeight - 50) + 'px';
+    function setText(text) {
+      if (elements.textarea.tagName.toLowerCase() === 'textarea') {
+        elements.textarea.value = text;
+      } else {
+        elements.textarea.innerText = text;
       }
-    });
+    }
 
-    /* Keyboard handling */
-    if (isMobile()) {
-      let lastViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    function setDot(state) {
+      if (state) {
+        elements.dotButton.setAttribute('data-checked', true);
+      } else {
+        elements.dotButton.removeAttribute('data-checked');
+      }
+    }
+
+    function getDot() {
+      return elements.dotButton.getAttribute('data-checked') === 'true';
+    }
+
+    // Custom logging
+    function setupCustomLog() {
+      console.oldLog = console.log;
+      console.customLog = (...args) => {
+        if (!elements.log) return console.oldLog(...args);
+        elements.log.prepend(document.createElement('hr'));
+        elements.log.prepend(args.flatMap(arg => typeof arg === 'object' ? Object.entries(arg) : [['', arg]])
+          .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
+      };
+      console.log = console.customLog;
+    }
+
+    function toggleCustomLog(enable) {
+      if (!console.oldLog || !console.customLog) return;
+      console.log = enable ? console.customLog : console.oldLog;
+    }
+
+    // Divider handling
+    function setupDividers() {
+      const setDividering = e => {
+        if (state.isMobile && e.target === elements.divider1) return;
+        e.preventDefault();
+        state.isDividerActive = true;
+        state.activeDivider = e.target;
+        state.startX = e.clientX;
+        state.startY = e.clientY;
+        state.startWidth = elements.left.offsetWidth;
+        state.startHeight = elements.textarea.offsetHeight;
+      };
+
+      elements.divider1.addEventListener('pointerdown', setDividering);
+      elements.divider2.addEventListener('pointerdown', setDividering);
+
+      window.addEventListener('pointerup', () => {
+        state.isDividerActive = false;
+        state.activeDivider = null;
+      });
+
+      window.addEventListener('pointermove', e => {
+        if (!state.isDividerActive || !state.activeDivider) return;
+        if (state.activeDivider === elements.divider1 && !state.isMobile) {
+          const deltaX = e.clientX - state.startX;
+          const newWidth = state.startWidth + deltaX;
+          elements.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
+        } else if (state.activeDivider === elements.divider2) {
+          const deltaY = e.clientY - state.startY;
+          const newHeight = state.startHeight + deltaY;
+          elements.textarea.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
+        }
+      });
+    }
+
+    // Mobile keyboard handling
+    function setupMobileKeyboard() {
+      if (!state.isMobile) return;
 
       function updateRightSize() {
         if (document.body.classList.contains('keyboard-active') && window.visualViewport) {
-          $right.style.height = `${window.visualViewport.height}px`;
+          elements.right.style.height = `${window.visualViewport.height}px`;
         } else {
-          $right.style.height = 'auto';
+          elements.right.style.height = 'auto';
         }
       }
 
-      $textarea.addEventListener('focus', () => {
+      elements.textarea.addEventListener('focus', () => {
         document.body.classList.add('keyboard-active');
         updateRightSize();
       });
 
-      $textarea.addEventListener('blur', () => {
+      elements.textarea.addEventListener('blur', () => {
         document.body.classList.remove('keyboard-active');
-        $right.style.height = 'auto';
-        $left.style.background = 'transparent';
+        elements.right.style.height = 'auto';
+        elements.left.style.background = 'transparent';
       });
 
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
-          if (Math.abs(window.visualViewport.height - lastViewportHeight) > 50) {
-            // Significant height change likely due to keyboard
-            if (window.visualViewport.height < lastViewportHeight) {
-              document.body.classList.add('keyboard-active');
-            } else {
-              document.body.classList.remove('keyboard-active');
-            }
+          if (Math.abs(window.visualViewport.height - state.lastViewportHeight) > 50) {
+            document.body.classList.toggle('keyboard-active', window.visualViewport.height < state.lastViewportHeight);
             updateRightSize();
-            lastViewportHeight = window.visualViewport.height;
+            state.lastViewportHeight = window.visualViewport.height;
           }
         });
       }
     }
 
-    const setDot = i => i ? $dot.setAttribute('data-checked', true) : $dot.removeAttribute('data-checked');
-    const getDot = () => $dot.getAttribute('data-checked') === "true";
-
-    function getText() { return $textarea.tagName.toLowerCase() === 'textarea' ? $textarea.value : $textarea.innerText; }
-    function setText(text) { if ($textarea.tagName.toLowerCase() === 'textarea') $textarea.value = text; else $textarea.innerText = text; }
-
-    $dot.addEventListener('click', e => { setDot(!getDot()); getText() && update(); });
-
-    let s2o = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a;
-    function o2s(R) { return Object.keys(R).map(k => `${k}=${R[k]}`).join(','); }
-
-    egs = egs.map(s2o);
-    let fromEgs = 0;
-    let getEgsi = () => {
-      fromEgs = 1;
-      let R = egsi in egs ? egs[egsi] : undefined;
-      R = R ?? '';
-      update(R);
-    };
-
-    let update = (s) => {
-      if (undefined != s) {
-        setText(typeof s == 'string' ? s.replace(/,/g, '\n')
-          : Object.entries(s).map(([k, v]) => k + '=' + v).join('\n'));
-      }
-      $right.replaceChildren($loading);
-      setTimeout(e => {
-        $submit.classList.remove('error');
-        try {
-          const R = getText()
-            .replace(/[\n&]+/gm, ',')
-            .replace(/[ \t]+/g, '')
-            .replace(/^,+|,+$/g, '')
-            .replace(/:/g, '=');
-          if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(R)) { throw new Error("wrongformat"); }
-          const t0 = performance.now();
-          let $svg = createSvg(R, getDot());
-          addSvgZoom($svg, $right);
-          console.log(
-            //...(fromEgs ? { [`#${egsi}`]: `${egs[egsi]?.[''] ?? `of ${egs.length}`}` } : {}),
-            //[(performance.now() - t0 | 0)+'ms']: `${fromEgs ? egs[egsi]?.[''] ?? `of ${egs.length} $`}`});
-            { [(performance.now() - t0 | 0) + 'ms']: `${fromEgs ? `${egsi + 1}/${egs.length} ${egs[egsi]?.['']}` : ''}` });
-          $right.replaceChildren($svg);
-        } catch (e) {
-          $submit.classList.add('error');
+    function getObject() {
+        const input = getText()
+          .replace(/[\n&]+/g, ',')
+          .replace(/[ \t]+/g, '')
+          .replace(/^,+|,+$/g, '')
+          .replace(/:/g, '=');
+        if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(input)) {
+          throw new Error('Invalid format');
         }
-        fromEgs = 0;
-      }, 0);
-    };
-
-    $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
-    $textarea.addEventListener('input', e => update());
-
-    function smallsvgs() {
-      async function string2span(R, i) {
-        toggleCustomLog(0);
-        svg = createSvg(R, getDot());
-        console.log({ [`#${i}`]: egs[i]?.[''] });
-        toggleCustomLog(1);
-        svg.addEventListener('click', e => (e.shiftKey || e.ctrlKey) ? location.href = `lsystem.js.svg#${o2s(egs[i])}` : update(egs[i]));
-        return svg;
-      }
-      (async () => {
-        const $a = document.createElement('div');
-        $a.classList.add('smallsvgs');
-        $right.replaceChildren($a);
-        for (let i = 0; i < egs.length; i++) {
-          const R = Object.fromEntries(
-            Object.entries(egs[i])
-              .map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
-          );
-          $a.appendChild(await string2span(R, i));
-          await new Promise(r => setTimeout(r, 0));
-        }
-      })();
+        return parseRules(input);
     }
-    function addSvgZoom(s) {
-      let isDown = false, startX, startY, scrollStartX, scrollStartY;
-      let rectDiv = document.querySelector('#svgzoomrectangle9fg34gs6h')
-        || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'svgzoomrectangle9fg34gs6h' }));
-      rectDiv.style.cssText = 'position:absolute;pointerEvents:none;display:none;';
-      s.style.cursor = 'zoom-out';
+
+    // SVG rendering and updates
+    async function update(rules) {
+      if (rules) {
+        setText(typeof rules === 'string'
+          ? rules.replace(/,/g, '\n')
+          : Object.entries(rules).map(([k, v]) => `${k}=${v}`).join('\n'));
+      }
+
+      elements.right.replaceChildren(elements.loading);
+      elements.submit.classList.remove('error');
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      try {
+        const input = getText()
+          .replace(/[\n&]+/g, ',')
+          .replace(/[ \t]+/g, '')
+          .replace(/^,+|,+$/g, '')
+          .replace(/:/g, '=');
+
+        if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(input)) {
+          throw new Error('Invalid format');
+        }
+
+        const t0 = performance.now();
+        const svg = createSvg(input, getDot());
+        addSvgZoom(svg, elements.right);
+        console.log({ [`${(performance.now() - t0) | 0}ms`]: state.currentExampleIndex ? `${state.currentExampleIndex + 1}/${state.examples.length} ${state.examples[state.currentExampleIndex]?.[''] || ''}` : '' });
+        elements.right.replaceChildren(svg);
+      } catch (e) {
+        elements.loading.textContent = e.message;
+        elements.submit.classList.add('error');
+      }
+    }
+
+    async function showExample(index) {
+      state.currentExampleIndex = (index + state.examples.length) % state.examples.length;
+      await update(state.examples[state.currentExampleIndex]);
+    }
+
+    async function showAllExamples() {
+      const container = Object.assign(document.createElement('div'), { className: 'smallsvgs' });
+      elements.right.replaceChildren(container);
+
+      for (let i = 0; i < state.examples.length; i++) {
+        const rules = Object.fromEntries(
+          Object.entries(state.examples[i]).map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
+        );
+        toggleCustomLog(false);
+        const svg = createSvg(serializeRules(rules), getDot());
+        console.log({ [`#${i}`]: state.examples[i]?.[''] || '' });
+        toggleCustomLog(true);
+        svg.addEventListener('click', e => {
+          if (e.shiftKey || e.ctrlKey) {
+            location.href = `lsystem.js.svg#${serializeRules({...state.examples[i],...(getDot()?{dot:1}:{})})}`;
+          } else {
+            update(state.examples[i]);
+          }
+        });
+        container.appendChild(svg);
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+    }
+
+    // SVG zoom functionality
+    function addSvgZoom(svg, parent) {
+      let isDown = false;
+      let startX, startY, scrollStartX, scrollStartY;
+      const rectDiv = document.querySelector('#svgzoomrectangle9fg34gs6h') ||
+        document.body.appendChild(Object.assign(document.createElement('div'), {
+          id: 'svgzoomrectangle9fg34gs6h',
+          style: 'position:absolute;pointer-events:none;display:none;'
+        }));
+
+      svg.style.cursor = 'zoom-out';
+
       const getXY = e => {
         const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
         return { x: t.pageX, y: t.pageY };
       };
+
       const start = e => {
         if (e.button) return;
         const p = getXY(e);
-        startX = p.x; startY = p.y;
-        scrollStartX = scrollX; scrollStartY = scrollY;
+        startX = p.x;
+        startY = p.y;
+        scrollStartX = scrollX;
+        scrollStartY = scrollY;
         isDown = true;
       };
+
       const move = e => {
         if (!isDown || e.button) return;
-        const p = getXY(e), out = p.x + scrollX - 2 < startX;
+        const p = getXY(e);
+        const out = p.x + scrollX - 2 < startX;
         rectDiv.style.cssText = `
           left:${Math.min(startX, p.x)}px;
           top:${Math.min(startY, p.y)}px;
@@ -514,76 +619,62 @@
           background-color:${out ? '#e823' : '#17d3'};
         `;
       };
+
       const end = e => {
         if (!isDown) return;
         const p = getXY(e);
-        const r = s.getBoundingClientRect();
-        const v = s.getAttribute('viewBox').split(' ').map(parseFloat);
+        const r = svg.getBoundingClientRect();
+        const v = svg.getAttribute('viewBox').split(' ').map(parseFloat);
         const x1 = v[0] + v[2] * (startX + scrollStartX - r.left) / r.width;
         const y1 = v[1] + v[3] * (startY + scrollStartY - r.top) / r.height;
         const x2 = v[0] + v[2] * (p.x + scrollX - r.left) / r.width;
         const y2 = v[1] + v[3] * (p.y + scrollY - r.top) / r.height;
         if (p.x + scrollX - 2 < startX + scrollStartX) {
-          s.setAttribute('viewBox', `${v[0] - v[2]} ${v[1] - v[3]} ${3 * v[2]} ${3 * v[3]}`);
+          svg.setAttribute('viewBox', `${v[0] - v[2]} ${v[1] - v[3]} ${3 * v[2]} ${3 * v[3]}`);
         } else {
-          s.setAttribute('viewBox', `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`);
+          svg.setAttribute('viewBox', `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`);
         }
         isDown = false;
         rectDiv.style.display = 'none';
-        s.style.cursor = 'zoom-out';
+        svg.style.cursor = 'zoom-out';
       };
-      ['mousedown', 'touchstart'].forEach(e => s.addEventListener(e, start));
-      ['mousemove', 'touchmove'].forEach(e => s.addEventListener(e, move));
-      ['mouseup', 'touchend', 'touchcancel'].forEach(e => s.addEventListener(e, end));
-      return s;
+
+      ['mousedown', 'touchstart'].forEach(e => svg.addEventListener(e, start));
+      ['mousemove', 'touchmove'].forEach(e => svg.addEventListener(e, move));
+      ['mouseup', 'touchend', 'touchcancel'].forEach(e => svg.addEventListener(e, end));
+      return svg;
     }
 
-    if (isMobile()) $log.classList.add('hidden');
+    // Event listeners
+    function setupEventListeners() {
+      elements.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && update());
+      elements.textarea.addEventListener('input', () => update());
+      elements.dotButton.addEventListener('click', () => {
+        setDot(!getDot());
+        if (getText()) update();
+      });
+      elements.submit.addEventListener('click', () => update());
+      elements.prevExample.addEventListener('click', () => showExample(state.currentExampleIndex - 1));
+      elements.nextExample.addEventListener('click', () => showExample(state.currentExampleIndex + 1));
+      elements.allExamples.addEventListener('click', showAllExamples);
+      elements.toggleLog.addEventListener('click', () => elements.log.classList.toggle('hidden'));
+      elements.helpButton.addEventListener('click', () => elements.helpModal.style.display = 'flex');
+      elements.helpModal.addEventListener('click', e => e.target === elements.helpModal && (elements.helpModal.style.display = 'none'));
+      elements.openstandalone.addEventListener('click', () => window.open(`lsystem.js.svg#${serializeRules({...getObject(),...(getDot()?{dot:1}:{})})}`, '_blank').focus());
+    }
 
-    if (0) getEgsi(); else smallsvgs();
+    // Initialization
+    function init() {
+      setupCustomLog();
+      setupDividers();
+      setupMobileKeyboard();
+      setupEventListeners();
+      if (state.isMobile) elements.log.classList.add('hidden');
+      showAllExamples();
+    }
+
+    init();
   </script>
-
-  <div id="helpModal">
-    <script>
-      document.querySelector('#helpModal').onclick = e => e.target === helpModal && (helpModal.style.display = 'none');
-      document.querySelector('#helpButton').onclick = e => document.querySelector('#helpModal').style.display = 'flex';
-    </script>
-    <div id="helpWindow">
-      <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right;cursor:pointer">X</span>
-      <div id="helpText">
-        <pre class="md">
-##  Logo Turtle with Context Free grammar - L-System fractals
-
-###  How it works:
-Starting sentence is 'S'. In an iteration every character of the
-sentence replaced by the key-value rule set. A key's default value is the
-key itself. The resulted sentence says to the logo turtle what to do.
-
-###  Parameter key - value pairs:
-If key starts with `_`, than value is a number.
-- `_n` - iterations
-- `_l` - initial length of line (width=1)
-- `_m` - multiply linelength
-- `_a` - angle in degrees
-- (1char) - a rule
-- (empty) - title 
-- (chars) - invalid, ContextSensitiveGrammar is not implemented
-
-###  Characters of rule value:
-- `S`: starting sentence
-- `F`, `f`: forward with, without drawing a line
-- `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
-- `!`: change parity of rotation
-- `*`, `/`: multiply, divide length of line with m
-- `[`, `]`: store, load (position, length, direction)
-
-### Syntax - accepts multiple (urls,plaintext,json)
-- Key-value separators: `=` `:`
-- Rule separators: `,` `&` `\n`
-</pre>
-      </div>
-    </div>
-  </div>
 </body>
 
 </html>

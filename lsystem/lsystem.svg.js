@@ -76,14 +76,14 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
   [x, y, a, b] = D.vb(2);
   try { console.log(D.stat()); } catch (e) { }
   //try { console.log({ ...D.stat(), ...R, RZ: Z }); } catch (e) { }
-  return C('svg', { viewBox: `${x} ${y} ${a} ${b}` },
+  return C('svg', { viewBox: `${x} ${y} ${a} ${b}`,  'aria-label': 'desc', 'aria-labelledby': 'desc' },
     C('path', {
       stroke: dot ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
       ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
     }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('rect', { fill: '#fff', x, y, width: a, height: b }),
-    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g,''), t))(C('desc')),
+    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g,''), t))(C('desc', {id:'desc'})),
     (t => (t.textContent = R[''], t))(C('title'))
   );
 }

@@ -1,24 +1,79 @@
 <svg onload='b(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
 const b=(e)=>{
   const svg=e.target; (onhashchange=()=>{
-  const R=JSON.parse('{"'+(location.href.split(/[?#]/)[1] ||
-    'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3'
-  ).replace(/[&,]/g,'","').replace(/=/g,'":"')+'"}');
-  const S=[], Q=Math.PI/2, T=R._a/90||1;
-  let [x,y,a,A,mx,Mx,my,My]=Array(8).fill(0), o='M0,0', d=1, l=R._l||9;
-  for (const q of function*g(n) {
-    if (n) for (const p of g(n-1)) yield* R?.[p]??p; else yield* R.S;
-  }(R._n))
-    'F'==q || 'f'==q ? (x+=l*Math.cos(Q*(a*T+A)), mx=x>mx?mx:x, Mx=x>Mx?x:Mx,
-                        y+=l*Math.sin(Q*(a*T+A)), my=y>my?my:y, My=y>My?y:My,
-                        o+=('f'==q?'M':'L')+x+','+y) :
-    '+'==q ? a+=d : '*'==q ? l*=R._m : '!'==q ? d=-d :
-    '-'==q ? a-=d : '/'==q ? l/=R._m :
-    '|'==q ? A=(A+2)%4 : '^'==q ? A=(A+d+4)%4 :
-    '['==q ? S.push([x,y,a,A,l]) :
-    ']'==q ? ([x,y,a,A,l]=S.pop(), o+='M'+x+','+y) : 0;
-  svg.setAttribute('viewBox',`${mx-1} ${my-1} ${Mx-mx+2} ${My-my+2}`);
-  svg.querySelector('path').setAttribute('d',o); })()
+    const R = JSON.parse(`{${(location.href.split(/[?#]/)[1] ||
+      'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3'
+    ).replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`), dot = R?.['dot'] === '1';
+    let [x, y, a, b, q] = Array(5).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
+    R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
+    const Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith('2')).map(([k, v]) => [k[0], v]))
+      , z = [], u = n => Z && n === R._n ? Z : R, B = R._a / 90
+      , D = ((d, E = 1, F = 2 * E) => {
+        let lp = '0,0', LL, lines = new Set(), grid = {};
+        let mx = 1 / 0, Mx = -1 / 0, my = 1 / 0, My = -1 / 0,
+          [lx, ly] = align(0, 0), lall = 0;
+        function align(X, Y) {
+          let ps, p, d, i, j, k,
+            D = Infinity, P = null,
+            x = Math.floor(X / F),
+            y = Math.floor(Y / F),
+            e = Math.ceil(E / F);
+          for (j = -e; j <= e; j++) for (i = -e; i <= e; i++) {
+            ps = grid[`${x + i},${y + j}`];
+            if (ps) for (k = 0; k < ps.length; k++) {
+              p = ps[k];
+              d = Math.hypot(p[0] - X, p[1] - Y);
+              if (d < D) { D = d; P = p; }
+            }
+          }
+          if (D >= E) (grid[`${x},${y}`] ??= []).push(P = [X, Y]);
+          return P;
+        }
+        return {
+          vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },
+          put: function (x, y, L) {
+            let XY = align(x, y);[x, y] = XY; let p = `${x},${y}`;
+            if (L) {
+              const l = lp < p ? `${lp} ${p}` : `${p} ${lp}`;
+              lall++;
+              if (!lines.has(l)) {
+                lines.add(l);
+                if (!LL || lp !== p) { d(`\nM${lp}`); LL = true; }
+                d(` ${p}`);
+                mx = Math.min(x, lx, mx);
+                Mx = Math.max(x, lx, Mx);
+                my = Math.min(y, ly, my);
+                My = Math.max(y, ly, My);
+              }
+            } else { LL = false; }
+            lp = p; lx = x; ly = y;
+            return XY;
+          },
+        };
+      })(p => d += p)
+      , C = (t, a, ...b) => {
+        t = document.createElementNS('http://www.w3.org/2000/svg', t);
+        for (i in a) t.setAttribute(i, a[i]);
+        b?.map(b => t.prepend(b));
+        return t;
+      }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
+    for (i of function* g(n) { if (n) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
+      'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
+      '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
+      '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
+      '!' === i ? p = -p :
+      '[' === i ? z.push([x, y, a, b, q]) :
+      ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+    [x, y, a, b] = D.vb(2);
+    svg.setAttribute('viewBox', `${x} ${y} ${a} ${b}`);
+    svg.prepend(C('path', {
+      stroke: dot ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
+    }));
+    svg.prepend(C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))));
+    svg.prepend(C('rect', { fill: '#fff', x, y, width: a, height: b }));
+    svg.prepend((t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g, ''), t))(C('desc')));
+    svg.prepend((t => (t.textContent = R[''], t))(C('title')));
+  })()
 }//]]></script>
-<path stroke='#000' stroke-linecap='round' stroke-linejoin='round' fill='none'/>
 </svg>

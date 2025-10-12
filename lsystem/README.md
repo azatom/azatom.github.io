@@ -10,17 +10,17 @@ Starting sentence is 'S'. In an iteration every character of the
 sentence replaced by the key-value rule set. A key's default value is the
 key itself. The resulted sentence says to the logo turtle what to do.
 
-##  Parameter key - value pairs:
+##  Rula key - value pairs:
 If key starts with `_`, than value is a number.
 - `_n` - iterations
 - `_l` - initial length of line (width=1)
 - `_m` - multiply linelength
 - `_a` - angle in degrees
-- (1char) - a rule
-- (empty) - title
-- (chars) - invalid, ContextSensitiveGrammar is not implemented
+- 1char - a rule
+- 1char`2` - n+1 iteration
+- empty - title 
 
-##  Characters of rule value:
+##  Meaining of characters:
 - `S`: starting sentence
 - `F`, `f`: forward with, without drawing a line
 - `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
@@ -28,14 +28,14 @@ If key starts with `_`, than value is a number.
 - `*`, `/`: multiply, divide length of line with m
 - `[`, `]`: store, load (position, length, direction)
 
-## Syntax
+##  Syntax
 The rule used different places, accepts more variants.
-- In url preceed with `?` `#`
-- Key-value separator `=` `:`
-- Rule separator `,` `&` `\n`
+- `?`, `#`: in url preceds the rule set
+- `=`, `:`: key-value separator
+- `,`, `&`, `\n`: rule separator
 - Or full json format.
 
-## Files
+##  Files
 - `lsystem.js.svg`
   - embedable with `<object>` or `<embed>`, not with `<img>`.
   - browser can open as standalone image
