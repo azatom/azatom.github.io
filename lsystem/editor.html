@@ -2,417 +2,556 @@
 <html dir="ltr" lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>title</title>
-    <script src="lsystem.svg.js"></script>
-    <script src="svgZoom.js"></script>
-    <script src="lsystem.examples.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>title</title>
+  <script src="lsystem.svg.js"></script>
+  <script src="lsystem.examples.js"></script>
 
-    <style>
-        body,
-        html {
-            margin: 0;
-            height: 100%;
-            font-family: system-ui, sans-serif;
-            display: flex;
-            flex-direction: row;
-            overflow: hidden;
-        }
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
 
-        #left {
-            flex-direction: column;
-            width: 14rem;
-            min-width: 100px;
-            max-width: 90vw;
-            padding: 0.75rem;
-            box-sizing: border-box;
-            display: flex;
-        }
+    #left {
+      flex-direction: column;
+      width: 14rem;
+      min-width: 100px;
+      max-width: 90vw;
+      padding: 0.75rem;
+      box-sizing: border-box;
+      display: flex;
+      position: relative;
+      z-index: 1;
+      background-color: #eee7;
+    }
 
-        #right {
-            flex: 1;
-            display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
-            padding: 0;
-            overflow: auto;
-        }
+    #right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 0;
+      overflow: auto;
+      position: relative;
+      z-index: 0;
+    }
 
-        svg {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            object-position: top left;
-            display: block;
-        }
+    svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: top left;
+      display: block;
+    }
 
-        #textarea {
-            width: 100%;
-            height: 50%;
-            min-height: 4rem;
-            font-size: 1rem;
-            font-family: monospace;
-            padding: 0.5rem;
-            border: none;
-            box-sizing: border-box;
-            overflow: auto;
-        }
+    #textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 4rem;
+      font-size: 1rem;
+      font-family: monospace;
+      padding: 0.5rem;
+      border: none;
+      box-sizing: border-box;
+      overflow: auto;
+      background: #fff;
+    }
 
-        #log {
-            flex: 1;
-            font-size: 0.9rem;
-            font-family: monospace;
-            padding: 0.5rem;
-            white-space: pre-wrap;
-            background: #f5f5f5;
-            overflow: auto;
-            height: 10rem;
-        }
+    #log {
+      flex: 2;
+      font-size: 0.9rem;
+      font-family: monospace;
+      padding: 0.5rem;
+      white-space: pre-wrap;
+      overflow: auto;
+      height: 9rem;
+    }
 
-        #butt {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex: none;
-            flex-wrap: wrap;
-            margin: 0.5rem 0;
-        }
+    #butt {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: none;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
 
-        button {
-            padding: 0.35rem 0.75rem;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            background: linear-gradient(to bottom, #fff, #eee);
-            height: 2rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
+    .dividerv:hover {
+      cursor: col-resize;
+      background-color: #ccc;
+    }
 
-        .divider,
-        .dividerv:hover {
-            cursor: col-resize;
-        }
+    .divider {
+      padding: 0.4rem;
+      background-clip: content-box;
+    }
 
-        .divider {
-            padding: 0.4rem;
-            background-color: #ccc;
-            background-clip: content-box;
-        }
+    .dividerv {
+      width: 1px;
+    }
 
-        .dividerv {
-            width: 1px;
-        }
+    .dividerh {
+      height: 1px;
+    }
 
-        .dividerh {
-            height: 1px;
-        }
+    #butt:hover {
+      cursor: row-resize;
+    }
 
-        #butt:hover {
-            cursor: row-resize;
-        }
+    .error {
+      background: #d22;
+    }
 
-        .error {
-            background: #d22;
-        }
+    .smallsvgs {
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      align-content: flex-start;
+    }
 
-        .smallsvgs {
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: row;
-            align-content: flex-start;
-        }
+    .smallsvgs>svg {
+      width: calc(max(11vh, 11vw));
+      height: calc(max(11vh, 11vw));
+      cursor: pointer;
+    }
 
-        .smallsvgs>svg {
-            width: calc(max(11vh, 11vw));
-            height: calc(max(11vh, 11vw));
-            cursor: pointer;
-        }
+    #helpModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
 
-        #helpModal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-        }
+    #helpWindow {
+      background: #fff;
+      padding: 1em;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    #helpText {
+      max-height: 80vh;
+      max-width: 84ch;
+      font-size: 1rem;
+      overflow: auto;
+    }
 
-        #helpWindow {
-            background: #fff;
-            padding: 1em;
-            border-radius: 6px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            overflow: auto;
-        }
+    .hidden {
+      display: none;
+    }
 
-        #helpText {
-            max-height: 80vh;
-            max-width: 84ch;
-            font-size: 1rem;
-        }
+    hr {
+      border-top: 1px solid #ccc;
+      max-width: 10rem;
+      margin: auto 0.25rem;
+    }
 
-        .hidden {
-            display: none;
-        }
+    .divaspre {
+      white-space: pre;
+      font-size: 1rem;
+      font-family: monospace;
+    }
 
-        hr {
-            border-top: 1px solid #ccc;
-            max-width: 10rem;
-            margin: auto 0.25rem;
-        }
+    .preasdiv {
+      white-space: normal;
+      font-family: sans-serif;
+    }
 
-        .divaspre {
-            white-space: pre;
-            font-size: 1rem;
-            font-family: monospace;
-        }
+    button[data-checked] {
+      filter: invert();
+    }
 
-        .preasdiv {
-            white-space: normal;
-            font-family: sans-serif;
-        }
+    button {
+      color: #000;
+      font-size: 1rem;
+      padding: .625rem 1.25rem;
+      border-radius: .3125rem;
+      cursor: pointer;
+      border: none;
+      background-color: #ccc;
+      height: 2rem;
+    }
 
-        button[data-checked] {
-            filter: invert();
-        }
+    button:hover {
+      background-color: #acf;
+    }
 
-        @media only screen and (max-width: 600px) {
+    @media only screen and (max-width: 600px) {
 
-            body,
-            html {
-                flex-direction: column;
-            }
+      body,
+      html {
+        flex-direction: column;
+      }
 
-            #left {
-                width: 100%;
-                max-width: 100%;
-                padding: 0.5rem;
-                height: auto;
-            }
+      #left {
+        width: 100%;
+        max-width: 100%;
+        padding:0;
+        height: auto;
+      }
 
-            #divider1 {
-                display: none;
-            }
+      #divider1 {
+        display: none;
+      }
 
-            #right {
-                width: 100%;
-                height: auto;
-                flex: 1;
-            }
+      #right {
+        width: 100%;
+        height: auto;
+        flex: 1;
+      }
 
-            #textarea {
-                height: 30vh;
-                padding: 0.2rem;
-            }
+      #textarea {
+        height: 30vh;
+        padding: 0.2rem;
+      }
 
-            #log {
-                max-height: 10rem;
-                padding: 0.2rem;
-            }
+      #log {
+        max-height: 9rem;
+        padding: 0.2rem;
+      }
 
-            #butt {
-                padding: 0.2rem;
-                margin: 0;
-                gap: 0.2rem;
-            }
-        }
-    </style>
+      #butt {
+        padding: 0.2rem;
+        margin: 0;
+        gap: 0.2rem;
+      }
+
+      body.keyboard-active #left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        z-index: 2;
+      }
+
+      body.keyboard-active #textarea {
+        background: rgba(255, 255, 255, 0.9);
+        position: relative;
+        z-index: 3;
+      }
+
+      body.keyboard-active #butt,
+      body.keyboard-active #log {
+        display: none;
+      }
+
+      body.keyboard-active #right {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div id="left">
-        <div id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n, images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
-        <div id="butt">
-            <button id="helpButton">?</button>
-            <button onclick="update();" id="buttonsubmit">ctrl+enter</button>
-            <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();" title="examples">&lt;</button>
-            <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();" title="examples">&gt;</button>
-            <button id="buttondot" title="endpoints only of segments">●</button>
-            <button onclick="smallsvgs();" title="all examples">✱</button>
-            <button onclick="$log.classList.toggle('hidden')" title="log">L</button>
-        </div>
-        <div id="log">log..</div>
+  <div id="left">
+    <div id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n, images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+    <div id="butt">
+      <button id="helpButton">?</button>
+      <button onclick="update();" id="buttonsubmit">ctrl+enter</button>
+      <button onclick="egsi=(egsi+egs.length-1)%egs.length;getEgsi();" title="examples">&lt;</button>
+      <button onclick="egsi=(egsi+egs.length+1)%egs.length;getEgsi();" title="examples">&gt;</button>
+      <button id="buttondot" title="endpoints only of segments">●</button>
+      <button onclick="smallsvgs();" title="all examples">✱</button>
+      <button onclick="$log.classList.toggle('hidden')" title="log">L</button>
     </div>
-    <div class="divider dividerv" id="divider1"></div>
-    <div id="right"></div>
+    <div id="log">log..</div>
+  </div>
+  <div class="divider dividerv" id="divider1"></div>
+  <div id="right"></div>
 
+  <script>
+    let egs = typeof examples !== 'undefined' ? examples : [{
+      S: 'AX',
+      A: '[+AX-AX-AX]-AX+AX+AX-',
+      F: '',
+      X: 'F+F+F+FFF-F-F-F',
+      _l: 2,
+      _a: 60,
+      _n: 3,
+      '': 'tilesgLizard',
+    }];
+    addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
+  </script>
+  <script>
+
+    let egsi = 0;
+
+    function toggleCustomLog(a, f) {
+      if (f) { console.oldLog = console.log; console.customLog = f; }
+      if (!console.oldLog || !console.customLog) return;
+      if (a === undefined) a = console.oldLog === console.log;
+      if (a) { console.log = console.customLog; }
+      else { console.customLog = console.log; console.log = console.oldLog; }
+    }
+
+    toggleCustomLog(1, (...o) => {
+      if (!$log) { console.oldLog(...o); return; }
+      $log.prepend(document.createElement('hr'));
+      $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
+        .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
+    });
+
+    const $textarea = document.querySelector('#textarea');
+    const $log = document.querySelector('#log');
+    const $dot = document.querySelector('#buttondot');
+    const $right = document.querySelector('#right');
+    const $loading = document.createElement('div'); $loading.textContent = 'loading...';
+    const $left = document.querySelector('#left');
+    const $submit = document.querySelector('#buttonsubmit');
+
+    let $divider1 = document.querySelector('#divider1');
+    let $divider2 = document.querySelector('#butt');
+    let isDividering = false;
+    let activeDivider = null;
+    let startX = 0;
+    let startY = 0;
+    let startWidth = 0;
+    let startHeight = 0;
+
+    function isMobile() {
+      return (
+        /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (typeof window.orientation !== "undefined") ||
+        (navigator.maxTouchPoints && navigator.maxTouchPoints > 1)
+      );
+    }
+
+    const setDividering = e => {
+      if (isMobile() && e.target === $divider1) return;
+      e.preventDefault();
+      isDividering = true;
+      activeDivider = e.target;
+      startX = e.clientX;
+      startY = e.clientY;
+      startWidth = $left.offsetWidth;
+      startHeight = $textarea.offsetHeight;
+    };
+
+    $divider1.addEventListener('pointerdown', setDividering);
+    $divider2.addEventListener('pointerdown', setDividering);
+
+    window.addEventListener('pointerup', e => {
+      isDividering = false;
+      activeDivider = null;
+    });
+
+    window.addEventListener('pointermove', e => {
+      if (!isDividering || !activeDivider) return;
+      if (activeDivider === $divider1 && !isMobile()) {
+        const deltaX = e.clientX - startX;
+        const newWidth = startWidth + deltaX;
+        $left.style.width = Math.min(Math.max(newWidth, 50), window.innerWidth - 50) + 'px';
+      } else if (activeDivider === $divider2) {
+        const deltaY = e.clientY - startY;
+        const newHeight = startHeight + deltaY;
+        $textarea.style.height = Math.min(Math.max(newHeight, 50), window.innerHeight - 50) + 'px';
+      }
+    });
+
+    /* Keyboard handling */
+    if (isMobile()) {
+      let lastViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+      function updateRightSize() {
+        if (document.body.classList.contains('keyboard-active') && window.visualViewport) {
+          $right.style.height = `${window.visualViewport.height}px`;
+        } else {
+          $right.style.height = 'auto';
+        }
+      }
+
+      $textarea.addEventListener('focus', () => {
+        document.body.classList.add('keyboard-active');
+        updateRightSize();
+      });
+
+      $textarea.addEventListener('blur', () => {
+        document.body.classList.remove('keyboard-active');
+        $right.style.height = 'auto';
+        $left.style.background = 'transparent';
+      });
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          if (Math.abs(window.visualViewport.height - lastViewportHeight) > 50) {
+            // Significant height change likely due to keyboard
+            if (window.visualViewport.height < lastViewportHeight) {
+              document.body.classList.add('keyboard-active');
+            } else {
+              document.body.classList.remove('keyboard-active');
+            }
+            updateRightSize();
+            lastViewportHeight = window.visualViewport.height;
+          }
+        });
+      }
+    }
+
+    const setDot = i => i ? $dot.setAttribute('data-checked', true) : $dot.removeAttribute('data-checked');
+    const getDot = () => $dot.getAttribute('data-checked') === "true";
+
+    function getText() { return $textarea.tagName.toLowerCase() === 'textarea' ? $textarea.value : $textarea.innerText; }
+    function setText(text) { if ($textarea.tagName.toLowerCase() === 'textarea') $textarea.value = text; else $textarea.innerText = text; }
+
+    $dot.addEventListener('click', e => { setDot(!getDot()); getText() && update(); });
+
+    let s2o = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a;
+    function o2s(R) { return Object.keys(R).map(k => `${k}=${R[k]}`).join(','); }
+
+    egs = egs.map(s2o);
+    let fromEgs = 0;
+    let getEgsi = () => {
+      fromEgs = 1;
+      let R = egsi in egs ? egs[egsi] : undefined;
+      R = R ?? '';
+      update(R);
+    };
+
+    let update = (s) => {
+      if (undefined != s) {
+        setText(typeof s == 'string' ? s.replace(/,/g, '\n')
+          : Object.entries(s).map(([k, v]) => k + '=' + v).join('\n'));
+      }
+      $right.replaceChildren($loading);
+      setTimeout(e => {
+        $submit.classList.remove('error');
+        try {
+          const R = getText()
+            .replace(/[\n&]+/gm, ',')
+            .replace(/[ \t]+/g, '')
+            .replace(/^,+|,+$/g, '')
+            .replace(/:/g, '=');
+          if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(R)) { throw new Error("wrongformat"); }
+          const t0 = performance.now();
+          let $svg = createSvg(R, getDot());
+          addSvgZoom($svg, $right);
+          console.log(
+            //...(fromEgs ? { [`#${egsi}`]: `${egs[egsi]?.[''] ?? `of ${egs.length}`}` } : {}),
+            //[(performance.now() - t0 | 0)+'ms']: `${fromEgs ? egs[egsi]?.[''] ?? `of ${egs.length} $`}`});
+            { [(performance.now() - t0 | 0) + 'ms']: `${fromEgs ? `${egsi + 1}/${egs.length} ${egs[egsi]?.['']}` : ''}` });
+          $right.replaceChildren($svg);
+        } catch (e) {
+          $submit.classList.add('error');
+        }
+        fromEgs = 0;
+      }, 0);
+    };
+
+    $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
+    $textarea.addEventListener('input', e => update());
+
+    function smallsvgs() {
+      async function string2span(R, i) {
+        toggleCustomLog(0);
+        svg = createSvg(R, getDot());
+        console.log({ [`#${i}`]: egs[i]?.[''] });
+        toggleCustomLog(1);
+        svg.addEventListener('click', e => (e.shiftKey || e.ctrlKey) ? location.href = `lsystem.js.svg#${o2s(egs[i])}` : update(egs[i]));
+        return svg;
+      }
+      (async () => {
+        const $a = document.createElement('div');
+        $a.classList.add('smallsvgs');
+        $right.replaceChildren($a);
+        for (let i = 0; i < egs.length; i++) {
+          const R = Object.fromEntries(
+            Object.entries(egs[i])
+              .map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
+          );
+          $a.appendChild(await string2span(R, i));
+          await new Promise(r => setTimeout(r, 0));
+        }
+      })();
+    }
+    function addSvgZoom(s) {
+      let isDown = false, startX, startY, scrollStartX, scrollStartY;
+      let rectDiv = document.querySelector('#svgzoomrectangle9fg34gs6h')
+        || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'svgzoomrectangle9fg34gs6h' }));
+      rectDiv.style.cssText = 'position:absolute;pointerEvents:none;display:none;';
+      s.style.cursor = 'zoom-out';
+      const getXY = e => {
+        const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+        return { x: t.pageX, y: t.pageY };
+      };
+      const start = e => {
+        if (e.button) return;
+        const p = getXY(e);
+        startX = p.x; startY = p.y;
+        scrollStartX = scrollX; scrollStartY = scrollY;
+        isDown = true;
+      };
+      const move = e => {
+        if (!isDown || e.button) return;
+        const p = getXY(e), out = p.x + scrollX - 2 < startX;
+        rectDiv.style.cssText = `
+          left:${Math.min(startX, p.x)}px;
+          top:${Math.min(startY, p.y)}px;
+          width:${Math.abs(p.x - startX)}px;
+          height:${Math.abs(p.y - startY)}px;
+          cursor:${out ? 'zoom-out' : 'zoom-in'};
+          display:block;
+          position:absolute;
+          pointer-events:none;
+          border:.2rem solid ${out ? '#e82' : '#17d'};
+          background-color:${out ? '#e823' : '#17d3'};
+        `;
+      };
+      const end = e => {
+        if (!isDown) return;
+        const p = getXY(e);
+        const r = s.getBoundingClientRect();
+        const v = s.getAttribute('viewBox').split(' ').map(parseFloat);
+        const x1 = v[0] + v[2] * (startX + scrollStartX - r.left) / r.width;
+        const y1 = v[1] + v[3] * (startY + scrollStartY - r.top) / r.height;
+        const x2 = v[0] + v[2] * (p.x + scrollX - r.left) / r.width;
+        const y2 = v[1] + v[3] * (p.y + scrollY - r.top) / r.height;
+        if (p.x + scrollX - 2 < startX + scrollStartX) {
+          s.setAttribute('viewBox', `${v[0] - v[2]} ${v[1] - v[3]} ${3 * v[2]} ${3 * v[3]}`);
+        } else {
+          s.setAttribute('viewBox', `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`);
+        }
+        isDown = false;
+        rectDiv.style.display = 'none';
+        s.style.cursor = 'zoom-out';
+      };
+      ['mousedown', 'touchstart'].forEach(e => s.addEventListener(e, start));
+      ['mousemove', 'touchmove'].forEach(e => s.addEventListener(e, move));
+      ['mouseup', 'touchend', 'touchcancel'].forEach(e => s.addEventListener(e, end));
+      return s;
+    }
+
+    if (isMobile()) $log.classList.add('hidden');
+
+    if (0) getEgsi(); else smallsvgs();
+  </script>
+
+  <div id="helpModal">
     <script>
-        let egs = typeof examples !== 'undefined' ? examples : [{
-            S: 'AX',
-            A: '[+AX-AX-AX]-AX+AX+AX-',
-            F: '',
-            X: 'F+F+F+FFF-F-F-F',
-            _l: 2,
-            _a: 60,
-            _n: 3,
-            '': 'tilesgLizard',
-        }];
-        addSvgZoom = typeof addSvgZoom !== 'undefined' ? addSvgZoom : () => { };
+      document.querySelector('#helpModal').onclick = e => e.target === helpModal && (helpModal.style.display = 'none');
+      document.querySelector('#helpButton').onclick = e => document.querySelector('#helpModal').style.display = 'flex';
     </script>
-    <script>
-        let egsi = 0;
-
-        function toggleCustomLog(a, f) {
-            if (f) { console.oldLog = console.log; console.customLog = f; }
-            if (!console.oldLog || !console.customLog) return;
-            if (a === undefined) a = console.oldLog === console.log;
-            if (a) { console.log = console.customLog; }
-            else { console.customLog = console.log; console.log = console.oldLog; }
-        }
-
-        toggleCustomLog(1, (...o) => {
-            if (!$log) { console.oldLog(...o); return; }
-            $log.prepend(document.createElement('hr'));
-            $log.prepend(o.flatMap(o => 'object' == typeof o ? Object.entries(o) : [['', o]])
-                .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
-        });
-
-        const $textarea = document.querySelector('#textarea');
-        const $log = document.querySelector('#log');
-        const $dot = document.querySelector('#buttondot');
-        const $right = document.querySelector('#right');
-        const $loading = document.createElement('div'); $loading.textContent = 'loading...';
-        const $left = document.querySelector('#left');
-        const $submit = document.querySelector('#buttonsubmit');
-
-        let $divider1 = document.querySelector('#divider1');
-        let $divider2 = document.querySelector('#butt');
-        let isDividering = false;
-        let activeDivider = null;
-        let startX = 0;
-        let startY = 0;
-        let startWidth = 0;
-        let startHeight = 0;
-
-        function isMobile() {
-            return (
-                /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                (typeof window.orientation !== "undefined") ||
-                (navigator.maxTouchPoints && navigator.maxTouchPoints > 1)
-            );
-        }
-
-        const setDividering = e => {
-            if (isMobile() && e.target === $divider1) return;
-            e.preventDefault();
-            isDividering = true;
-            activeDivider = e.target;
-            startX = e.clientX;
-            startY = e.clientY;
-            startWidth = $left.offsetWidth;
-            startHeight = $textarea.offsetHeight;
-        };
-
-        $divider1.addEventListener('pointerdown', setDividering);
-        $divider2.addEventListener('pointerdown', setDividering);
-
-        window.addEventListener('pointerup', e => {
-            isDividering = false;
-            activeDivider = null;
-        });
-
-        window.addEventListener('pointermove', e => {
-            if (!isDividering || !activeDivider) return;
-            if (activeDivider === $divider1 && !isMobile()) {
-                const deltaX = e.clientX - startX;
-                const newWidth = startWidth + deltaX;
-                $left.style.width = Math.min(Math.max(newWidth, 50), window.innerWidth - 50) + 'px';
-            } else if (activeDivider === $divider2) {
-                const deltaY = e.clientY - startY;
-                const newHeight = startHeight + deltaY;
-                $textarea.style.height = Math.min(Math.max(newHeight, 50), window.innerHeight - 50) + 'px';
-            }
-        });
-
-        const setDot = i => i ? $dot.setAttribute('data-checked', true) : $dot.removeAttribute('data-checked');
-        const getDot = () => $dot.getAttribute('data-checked') === "true";
-
-        function getText() { return $textarea.tagName.toLowerCase() === 'textarea' ? $textarea.value : $textarea.innerText; }
-        function setText(text) { if ($textarea.tagName.toLowerCase() === 'textarea') $textarea.value = text; else $textarea.innerText = text; }
-
-        $dot.addEventListener('click', e => { setDot(!getDot()); getText() && update(); });
-
-        let s2o = a => 'string' == typeof a ? JSON.parse(`{${a.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : a;
-        function o2s(R) { return Object.keys(R).map(k => `${k}=${R[k]}`).join(','); }
-
-        egs = egs.map(s2o);
-        let fromEgs = 0;
-        let getEgsi = () => {
-            fromEgs = 1;
-            let R = egsi in egs ? egs[egsi] : undefined;
-            R = R ?? '';
-            update(R);
-        };
-
-        let update = (s) => {
-            if (undefined != s) {
-                setText(typeof s == 'string' ? s.replace(/,/g, '\n')
-                    : Object.entries(s).map(([k, v]) => k + '=' + v).join('\n'));
-            }
-            $right.replaceChildren($loading);
-            setTimeout(e => {
-                $submit.classList.remove('error');
-                try {
-                    const R = getText()
-                        .replace(/[\n&]+/gm, ',')
-                        .replace(/[ \t]+/g, '')
-                        .replace(/^,+|,+$/g, '')
-                        .replace(/:/g, '=');
-                    if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(R)) { throw new Error("wrongformat"); }
-                    const t0 = performance.now();
-                    let $svg = createSvg(R, getDot());
-                    addSvgZoom($svg, $right);
-                    console.log({
-                        ...(fromEgs ? { [`#${egsi}`]: `${egs[egsi]?.[''] ?? `of ${egs.length}`}` } : {}),
-                        '[ms]': performance.now() - t0 | 0});
-                    $right.replaceChildren($svg);
-                } catch (e) {
-                    $submit.classList.add('error');
-                }
-                fromEgs = 0;
-            }, 0);
-        };
-
-        $textarea.addEventListener('keydown', e => e.ctrlKey && e.key == 'Enter' && update());
-        $textarea.addEventListener('input', e => update());
-
-        function smallsvgs() {
-            async function string2span(R, i) {
-                toggleCustomLog(0);
-                svg = createSvg(R, getDot());
-                console.log({ [`#${i}`]: egs[i]?.[''] });
-                toggleCustomLog(1);
-                svg.addEventListener('click', e => (e.shiftKey || e.ctrlKey) ? location.href = `lsystem.js.svg#${o2s(egs[i])}` : update(egs[i]));
-                return svg;
-            }
-            (async () => {
-                const $a = document.createElement('div');
-                $a.classList.add('smallsvgs');
-                $right.replaceChildren($a);
-                for (let i = 0; i < egs.length; i++) {
-                    const R = Object.fromEntries(
-                        Object.entries(egs[i])
-                            .map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
-                    );
-                    $a.appendChild(await string2span(R, i));
-                    await new Promise(r => setTimeout(r, 0));
-                }
-            })();
-        }
-        if (isMobile()) $log.classList.add('hidden');
-        if (0) getEgsi(); else smallsvgs();
-    </script>
-
-    <div id="helpModal">
-        <script>
-            document.querySelector('#helpModal').onclick = e => e.target === helpModal && (helpModal.style.display = 'none');
-            document.querySelector('#helpButton').onclick = e => document.querySelector('#helpModal').style.display = 'flex';
-        </script>
-        <div id="helpWindow">
-            <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right">X</span>
-            <div id="helpText">
-                <pre class="md">
+    <div id="helpWindow">
+      <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right;cursor:pointer">X</span>
+      <div id="helpText">
+        <pre class="md">
 ##  Logo Turtle with Context Free grammar - L-System fractals
 
 ###  How it works:
@@ -436,10 +575,15 @@ If key starts with `_`, than value is a number.
 - `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
 - `!`: change parity of rotation
 - `*`, `/`: multiply, divide length of line with m
-- `[`, `]`: store, load (position, length, direction)</pre>
-            </div>
-        </div>
+- `[`, `]`: store, load (position, length, direction)
+
+### Syntax - accepts multiple (urls,plaintext,json)
+- Key-value separators: `=` `:`
+- Rule separators: `,` `&` `\n`
+</pre>
+      </div>
     </div>
+  </div>
 </body>
 
 </html>

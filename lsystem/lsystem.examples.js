@@ -1,6 +1,7 @@
 let examples=[
 //undefined,
 //'',
+'S=FS+Sf+fS++SSFf,_n=4',
 'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=4,=tilesgLizard',
 {   '': 'hat-aperiodic',
     S: '+U++V++W++V++R',

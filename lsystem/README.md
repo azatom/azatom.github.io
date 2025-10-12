@@ -1,12 +1,9 @@
 #  Logo Turtle with Context Free grammar - L-System fractals
 
-##  Example:
 
-[Editor](editor.html) 
+[Editor](editor.html)
 
-Standalone svg file example: [`lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3`](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
-
-A [big collection](lsystem.examples.html).
+Standalone svg file example: [lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
 ##  How it works:
 Starting sentence is 'S'. In an iteration every character of the
@@ -20,7 +17,7 @@ If key starts with `_`, than value is a number.
 - `_m` - multiply linelength
 - `_a` - angle in degrees
 - (1char) - a rule
-- (empty) - title 
+- (empty) - title
 - (chars) - invalid, ContextSensitiveGrammar is not implemented
 
 ##  Characters of rule value:
@@ -29,13 +26,20 @@ If key starts with `_`, than value is a number.
 - `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
 - `!`: change parity of rotation
 - `*`, `/`: multiply, divide length of line with m
-- `[`, `]`: store, load (position, length, direction) 
+- `[`, `]`: store, load (position, length, direction)
 
-## Files 
-- lsystem.js.svg
-  - embedable with `<object>` or '<embed>', not with `<img>`.
+## Syntax
+The rule used different places, accepts more variants.
+- In url preceed with `?` `#`
+- Key-value separator `=` `:`
+- Rule separator `,` `&` `\n`
+- Or full json format.
+
+## Files
+- `lsystem.js.svg`
+  - embedable with `<object>` or `<embed>`, not with `<img>`.
   - browser can open as standalone image
-- lsystem.svg.js
+- `lsystem.svg.js`
   - generates img capable svg
   - accuracy: within eps merges points
   - faster: draw segments one time
@@ -43,11 +47,11 @@ If key starts with `_`, than value is a number.
 
 ##  Some fibonacci:
 ```
-  2; 2,5,12,29,70,169,408,985,2378; 2a(n-1)+a(n-2)
-  3; 4,15,56,209,780,2911;          4a(n-1)-a(n-2)
-  5; 4,17,72,305,1292;              4a(n-1)+a(n-2)
-  6; 2,20,198,1960;                10a(n-1)-a(n-2)
-  7; 3,48,765;                     16a(n-1)-a(n-2)
-  8; 6,35,204,1189;                 6a(n-1)-a(n-2)
-  10;
+ 2;  2a(n-1)+a(n-2) 2,5,12,29,70,169,408,985,2378
+ 3;  4a(n-1)-a(n-2) 4,15,56,209,780,2911
+ 5;  4a(n-1)+a(n-2) 4,17,72,305,1292
+ 6; 10a(n-1)-a(n-2) 2,20,198,1960
+ 7; 16a(n-1)-a(n-2) 3,48,765
+ 8;  6a(n-1)-a(n-2) 6,35,204,1189
+10;
 ```

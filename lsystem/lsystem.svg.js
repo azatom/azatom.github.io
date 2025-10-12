@@ -25,7 +25,7 @@ function createStep(d, E = 1, F = 2 * E) {
       const grids = Object.keys(grid).length;
       const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
       return {
-        _min, _max, ' M/m': `${(_max / _min).toFixed(6)}`,
+        ' min':_min.toExponential(3), ' max':_max.toExponential(3), ' M/m': `${(_max / _min).toExponential(3)}`,
         comp: `${_cmp} ${_cmp/points*100|0}%`,
         keys: `${grids} +${points-grids} ${((points-grids)/points*100).toFixed(0)}%`,
         pnts: `${points} +${_all-points} ${((_all-points )/ points*100).toFixed(0)}%` ,
