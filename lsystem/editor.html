@@ -41,7 +41,7 @@
         #left {
             display: flex;
             flex-direction: column;
-            width: 20vw;
+            width: 14rem;
             min-width: 100px;
             max-width: 90vw;
             box-sizing: border-box;
@@ -49,27 +49,26 @@
             overflow: hidden;
         }
 
-        #divider1 {
+        .divider {
+            padding: .4rem;
+            background-color: #ccc;
+            cursor: col-resize;
+            background-clip: content-box;
+        }
+
+        .dividerv {
             width: 1px;
-            padding: .4rem;
-            background-color: #ccc;
-            cursor: col-resize;
-            background-clip: content-box;
         }
 
-        #divider2 {
+        .dividerh {
             height: 1px;
-            padding: .4rem;
-            background-color: #ccc;
-            cursor: col-resize;
-            background-clip: content-box;
         }
 
-        #divider1:hover {
+        .dividerv:hover {
             cursor: col-resize;
         }
 
-        #divider2:hover {
+        .dividerh:hover {
             cursor: row-resize;
         }
 
@@ -80,9 +79,7 @@
         #textarea {
             width: 100%;
             height: 50%;
-            resize: both;
             min-height: 4rem;
-            max-height: 90vh;
             padding: 0.5rem;
             font-family: monospace;
             font-size: 1rem;
@@ -211,10 +208,16 @@
         }
 
         @media only screen and (max-width: 600px) {
+            butt {
+                margin: 0;
+                gap: 0;
+            }
 
+            #left{width: 11rem;}
             #left,
             #textarea {
                 padding: 0;
+                height: 100%;
             }
 
             #log {
@@ -228,7 +231,7 @@
     <div id="left">
         <!--textarea id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n,  images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></textarea-->
         <div id="textarea" placeholder="type here, standalone svg does not support some, ✱:1 less itered, careful with _n,  images zoomable" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
-        <div id="divider2"></div>
+        <div class="divider dividerh" id="divider2"></div>
         <div id="butt">
             <button id="helpButton">?</button>
             <button onclick="update();" id="buttonsubmit">ctrl+enter</button>
@@ -239,7 +242,7 @@
         </div>
         <div id="log"></div>
     </div>
-    <div id="divider1"></div>
+    <div class="divider dividerv" id="divider1"></div>
     <div id="right"></div>
 
     <script>
@@ -279,12 +282,12 @@
         const $loading = document.createElement('span'); $loading.textContent = 'loading...';
         const $left = document.querySelector('#left');
         const $submit = document.querySelector('#buttonsubmit');
-        
+
         /*divider*/
         const $divider1 = document.getElementById('divider1');
         const $divider2 = document.getElementById('divider2');
         let isDividering = false;
-        let activeDivider = null; 
+        let activeDivider = null;
         let startX = 0;
         let startY = 0;
         let startWidth = 0;
@@ -292,7 +295,7 @@
         const setDividering = e => {
             e.preventDefault();
             isDividering = true;
-            activeDivider = e.target; 
+            activeDivider = e.target;
             startX = e.clientX;
             startY = e.clientY;
             startWidth = $left.offsetWidth;
@@ -309,11 +312,11 @@
             if (activeDivider === $divider1) {
                 const deltaX = e.clientX - startX;
                 const newWidth = startWidth + deltaX;
-                $left.style.width = Math.min(Math.max(newWidth, 100), window.innerWidth - 100) + 'px';
+                $left.style.width = Math.min(Math.max(newWidth, 50), window.innerWidth - 50) + 'px';
             } else if (activeDivider === $divider2) {
                 const deltaY = e.clientY - startY;
                 const newHeight = startHeight + deltaY;
-                $textarea.style.height = Math.min(Math.max(newHeight, 100), window.innerHeight - 100) + 'px';
+                $textarea.style.height = Math.min(Math.max(newHeight, 50), window.innerHeight - 50) + 'px';
             }
         });
         /**/
