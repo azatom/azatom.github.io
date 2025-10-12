@@ -5,35 +5,33 @@
 
 Standalone svg file example: [lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
-##  How it works:
-Starting sentence is 'S'. In an iteration every character of the
-sentence replaced by the key-value rule set. A key's default value is the
-key itself. The resulted sentence says to the logo turtle what to do.
+Tiny, old (~25yo) [version](ver1).
 
-##  Rula key - value pairs:
-If key starts with `_`, than value is a number.
-- `_n` - iterations
-- `_l` - initial length of line (width=1)
-- `_m` - multiply linelength
-- `_a` - angle in degrees
-- 1char - a rule
-- 1char`2` - n+1 iteration
-- empty - title 
+### How it Works:
+Start with a sentence 'S'. Each iteration replaces characters in the sentence using key-value rules. The resulting sentence instructs a Logo turtle.
 
-##  Meaining of characters:
-- `S`: starting sentence
-- `F`, `f`: forward with, without drawing a line
-- `+`, `-`, `^`, `|`: rotate _a, -_a, right, straight
-- `!`: change parity of rotation
-- `*`, `/`: multiply, divide length of line with m
-- `[`, `]`: store, load (position, length, direction)
+### Rule Key-Value Pairs:
+Keys starting with `_` have numeric values:
+- `_n`: Number of iterations
+- `_l`: Initial line length (width=1)
+- `_m`: Line length multiplier
+- `_a`: Angle in degrees
+- Single char: A rule
+- Single char + `2`: Rule for n+1 iteration
+- Empty key: Title
 
-##  Syntax
-The rule used different places, accepts more variants.
-- `?`, `#`: in url preceds the rule set
-- `=`, `:`: key-value separator
-- `,`, `&`, `\n`: rule separator
-- Or full json format.
+### Rule Value Characters:
+- `S`: Starting sentence
+- `F`, `f`: Move forward with/without drawing
+- `+`, `-`, `^`, `|`: Rotate by _a, -_a, right, or straight
+- `!`: Toggle rotation parity
+- `*`, `/`: Multiply/divide line length by _m
+- `[`, `]`: Push/pop position, length, direction
+
+### Syntax:
+- Key-value separators: `=` or `:`
+- Rule separators: `,`, `&`, or newline
+- Supports URLs, plaintext, JSON
 
 ##  Files
 - `lsystem.js.svg`
