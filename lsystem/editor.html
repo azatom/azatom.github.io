@@ -83,7 +83,9 @@
       flex: none;
       flex-wrap: wrap;
       margin: 0.5rem 0;
+      user-select: none;
     }
+
 
     /* Dividers */
     .dividerv:hover {
@@ -278,13 +280,13 @@
     <!--div id="butt" class="divider dividerh"-->
     <div id="butt">
       <button id="helpButton" title="Help">?</button>
-      <button id="buttonsubmit" title="Update (Ctrl+Enter)">Run</button>
+      <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
       <button id="prevExample" title="Previous example">&lt;</button>
       <button id="nextExample" title="Next example">&gt;</button>
       <button id="buttondot" title="Show endpoints only">●</button>
       <button id="allExamples" title="Show all examples">✱</button>
       <button id="toggleLog" title="Toggle log">L</button>
-      <button id="openstandalone" title="Open standalone">#</button>
+      <button id="openstandalone" title="Open standalone">🔗</button>
     </div>
     <div id="log" class="hidden">log...</div>
   </div>
@@ -370,7 +372,7 @@ Keys starting with `_` have numeric values:
       allExamples: document.querySelector('#allExamples'),
       toggleLog: document.querySelector('#toggleLog'),
       openstandalone: document.querySelector('#openstandalone'),
-      loading: Object.assign(document.createElement('div'), { textContent: 'loading...' })
+      loading: Object.assign(document.createElement('div'), { textContent: 'loading...', style:'font-size:2rem' })
     };
 
     // Utility functions
