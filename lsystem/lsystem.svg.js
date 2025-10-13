@@ -1,63 +1,64 @@
-function createStep(d, E = 1, F = 2 * E) {
-  let lp = '0,0', LL, lines = new Set(), grid = {};
-  let _min = 1 / 0, _max = -1 / 0, _all = 0, _cmp = 0, mx = _min, Mx = _max, my = _min, My = _max,
-    [lx, ly] = align(0, 0), lall = 0;
-  function align(X, Y) {
-    let ps, p, d, i, j, k,
-      D = Infinity, P = null,
-      x = Math.floor(X / F),
-      y = Math.floor(Y / F),
-      e = Math.ceil(E / F);
-    for (j = -e; j <= e; j++) for (i = -e; i <= e; i++) {
-      ps = grid[`${x + i},${y + j}`];
-      if (ps) for (k = 0; k < ps.length; k++) {
-        p = ps[k];
-        d = Math.hypot(p[0] - X, p[1] - Y);
-        if (d < D) { D = d; P = p; }
-        _cmp++; _max < d && d < E && (_max = d); E < d && d < _min && (_min = d);
-      }
-    } _all++;
-    if (D >= E) (grid[`${x},${y}`] ??= []).push(P = [X, Y]);
-    return P;
-  }
-  return {
-    stat: function () {
-      const grids = Object.keys(grid).length;
-      const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
-      return {
-        ' min':_min.toExponential(3), ' max':_max.toExponential(3), ' M/m': `${(_max / _min).toExponential(3)}`,
-        comp: `${_cmp} ${_cmp/points*100|0}%`,
-        keys: `${grids} +${points-grids} ${((points-grids)/points*100).toFixed(0)}%`,
-        pnts: `${points} +${_all-points} ${((_all-points )/ points*100).toFixed(0)}%` ,
-        line: `${lines.size} +${lall-lines.size} ${((lall-lines.size) / lines.size*100).toFixed(0)}%` ,
-      };
-    },
-    vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },
-    put: function (x, y, L) {
-      let XY = align(x, y);[x, y] = XY; let p = `${x},${y}`;
-      if (L) {
-        const l = lp < p ? `${lp} ${p}` : `${p} ${lp}`;
-        lall++;
-        if (!lines.has(l)) {
-          lines.add(l);
-          if (!LL || lp !== p) { d(`\nM${lp}`); LL = true; }
-          d(` ${p}`);
-          mx = Math.min(x, lx, mx);
-          Mx = Math.max(x, lx, Mx);
-          my = Math.min(y, ly, my);
-          My = Math.max(y, ly, My);
-        }
-      } else { LL = false; }
-      lp = p; lx = x; ly = y;
-      return XY;
-    },
-  };
-}
-function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', dot) {
-  R = 'string' === typeof R ? JSON.parse(`{${R.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '"$1":"$2"')}}`) : R;
+function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3') {
+  // const R = location.href.split(/[?#]/)[1] || 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3';
+  R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let [x, y, a, b, q] = Array(5).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
-  const Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith('2')).map(([k, v]) => [k[0], v]))
+  const createStep = (d, E = 1, F = 2 * E) => {
+    let lp = '0,0', LL, lines = new Set(), grid = {};
+    let _min = 1 / 0, _max = -1 / 0, _all = 0, _cmp = 0, mx = _min, Mx = _max, my = _min, My = _max,
+      [lx, ly] = align(0, 0), lall = 0;
+    function align(X, Y) {
+      let ps, p, d, i, j, k,
+        D = Infinity, P = null,
+        x = Math.floor(X / F),
+        y = Math.floor(Y / F),
+        e = Math.ceil(E / F);
+      for (j = -e; j <= e; j++) for (i = -e; i <= e; i++) {
+        ps = grid[`${x + i},${y + j}`];
+        if (ps) for (k = 0; k < ps.length; k++) {
+          p = ps[k];
+          d = Math.hypot(p[0] - X, p[1] - Y);
+          if (d < D) { D = d; P = p; }
+          _cmp++; _max < d && d < E && (_max = d); E < d && d < _min && (_min = d);
+        }
+      } _all++;
+      if (D >= E) (grid[`${x},${y}`] ??= []).push(P = [X, Y]);
+      return P;
+    }
+    return {
+      stat: function () {
+        const grids = Object.keys(grid).length;
+        const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
+        return {
+          ' min': _min.toExponential(3), ' max': _max.toExponential(3), ' M/m': `${(_max / _min).toExponential(3)}`,
+          comp: `${_cmp} ${_cmp / points * 100 | 0}%`,
+          keys: `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
+          pnts: `${points} +${_all - points} ${((_all - points) / points * 100).toFixed(0)}%`,
+          line: `${lines.size} +${lall - lines.size} ${((lall - lines.size) / lines.size * 100).toFixed(0)}%`,
+        };
+      },
+      vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },
+      put: function (x, y, L) {
+        let XY = align(x, y);[x, y] = XY; let p = `${x},${y}`;
+        if (L) {
+          const l = lp < p ? `${lp} ${p}` : `${p} ${lp}`;
+          lall++;
+          if (!lines.has(l)) {
+            lines.add(l);
+            if (!LL || lp !== p) { d(`M${lp}`); LL = true; }
+            d(` ${p}`);
+            mx = Math.min(x, lx, mx);
+            Mx = Math.max(x, lx, Mx);
+            my = Math.min(y, ly, my);
+            My = Math.max(y, ly, My);
+          }
+        } else { LL = false; }
+        lp = p; lx = x; ly = y;
+        return XY;
+      },
+    };
+  }
+    , Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith('2')).map(([k, v]) => [k[0], v]))
     , z = [], u = n => Z && n === R._n ? Z : R, B = R._a / 90
     , D = createStep(p => d += p)
     , C = (t, a, ...b) => {
@@ -72,18 +73,23 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
     '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
     '!' === i ? p = -p :
     '[' === i ? z.push([x, y, a, b, q]) :
-    ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+    ']' === i ? z.length
+        ? ([x, y, a, b, q] = z.pop(), D.put(x, y))
+        : (_ => { throw new Error(']:empty stack'); })()
+    : 0;
   [x, y, a, b] = D.vb(2);
   try { console.log(D.stat()); } catch (e) { }
-  //try { console.log({ ...D.stat(), ...R, RZ: Z }); } catch (e) { }
-  return C('svg', { viewBox: `${x} ${y} ${a} ${b}`,  'aria-label': 'desc', 'aria-labelledby': 'desc' },
-    C('path', {
-      stroke: dot ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-      ...dot && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
-    }),
-    C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
+  const svg = C('svg');
+  svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
+  svg.replaceChildren(
+    (t => (t.textContent = R[''], t))(C('title')),
+    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g, ''), t))(C('desc')),
     C('rect', { fill: '#fff', x, y, width: a, height: b }),
-    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g,''), t))(C('desc', {id:'desc'})),
-    (t => (t.textContent = R[''], t))(C('title'))
+    C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
+    C('path', {
+      stroke: R._d ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      ...R._d && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
+    }),
   );
+  return svg;
 }

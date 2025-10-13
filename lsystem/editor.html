@@ -21,16 +21,17 @@
     }
 
     #left {
-      width: 14rem;
+      width: 16rem;
       min-width: 100px;
       max-width: 90vw;
-      padding: 0.75rem;
+      padding: 0.8rem  0.4rem .8rem .8rem;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       position: relative;
       z-index: 1;
       background-color: #eee7;
+      gap: .5rem;
     }
 
     #right {
@@ -54,6 +55,7 @@
 
     /* UI elements */
     #textarea {
+      resize: vertical;
       width: 100%;
       height: 100%;
       min-height: 4rem;
@@ -67,13 +69,15 @@
     }
 
     #log {
-      flex: 2;
+      flex: 1;
+      flex-basis: auto;
       font-size: 0.9rem;
       font-family: monospace;
       padding: 0.5rem;
       white-space: pre-wrap;
       overflow: auto;
       height: 9rem;
+      width: 100%;
     }
 
     #butt {
@@ -82,7 +86,6 @@
       gap: 0.5rem;
       flex: none;
       flex-wrap: wrap;
-      margin: 0.5rem 0;
       user-select: none;
     }
 
@@ -90,24 +93,28 @@
     /* Dividers */
     .dividerv:hover {
       cursor: col-resize;
-      /*background-color: #ccc;*/
+    }
+
+    .dividerh:hover {
+      cursor: row-resize;
     }
 
     .divider {
-      padding: 0.4rem;
+      padding: .4rem;
       background-clip: content-box;
     }
 
     .dividerv {
-      width: 0px;
+      width: 0;
+      background: linear-gradient(to right,
+          #f5f5f5 0%,
+          #f5f5f5 50%,
+          #fff 50%,
+          #fff 100%);
     }
 
     .dividerh {
-      height: 0px;
-    }
-
-    #butt:hover {
-      cursor: row-resize;
+      height: 0;
     }
 
     /* Error and small SVGs */
@@ -182,13 +189,15 @@
 
     button {
       color: #000;
-      font-size: 1rem;
-      padding: 0.625rem 1.25rem;
+      font-size: 1.2rem;
       border-radius: 0.3125rem;
       cursor: pointer;
       border: none;
-      background-color: #ccc;
+      background-color: #ddd;
       height: 2rem;
+      width: 2rem;
+      line-height: 1;
+      padding: 0;
     }
 
     button:hover {
@@ -196,6 +205,9 @@
     }
 
     div[contentEditable=true]:empty:not(:focus):before {
+      font-family: sans-serif;
+      font-style: italic;
+      font-size: 1.2rem;
       content: attr(data-placeholder);
       color: #777;
     }
@@ -213,6 +225,7 @@
         max-width: 100%;
         padding: 0;
         height: auto;
+        gap: 0;
       }
 
       #divider1 {
@@ -276,19 +289,19 @@
 
 <body>
   <div id="left">
-    <div id="textarea" data-placeholder="Click around or type L-System rules here (e.g., S=AX, A=[+AX-AX-AX]-AX+AX+AX-, _n=3) Thumbs ctrl or shift click into standalone svg." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
-    <!--div id="butt" class="divider dividerh"-->
+    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2 or click around" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
     <div id="butt">
       <button id="helpButton" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
       <button id="prevExample" title="Previous example">&lt;</button>
       <button id="nextExample" title="Next example">&gt;</button>
-      <button id="buttondot" title="Show endpoints only">●</button>
+      <button id="dot" title="Show endpoints only">●</button>
       <button id="allExamples" title="Show all examples">✱</button>
-      <button id="toggleLog" title="Toggle log">L</button>
-      <button id="openstandalone" title="Open standalone">🔗</button>
+      <button id="openStandalone" title="Open standalone">⇗</button>
+      <button id="download" title="Download">⇓</button>
+      <button id="toggleLog" title="Toggle log">㏒</button>
+      <div id="log"></div>
     </div>
-    <div id="log" class="hidden">log...</div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -301,9 +314,18 @@
 ## Logo Turtle with Context-Free Grammar - L-System Fractals
 
 ### How it Works:
-Start with a sentence 'S'. Each iteration replaces characters in the sentence using key-value rules. The resulting sentence instructs a Logo turtle.
+Start with a sentence 'S'. Each iteration replaces
+characters in the sentence using key-value rules.
+The resulting sentence instructs a Logo turtle in
+which direction, ho much go and draw or not its path.
 
-### Rule Key-Value Pairs:
+### Syntax:
+As ruleset can be in url fragment, queryparam, json
+or plaintext:
+- Rules separated by `,` or `&` or `\n`
+- Rule's key-value separated by `=` or `:`
+
+### Rule's key-value pairs:
 Keys starting with `_` have numeric values:
 - `_n`: Number of iterations
 - `_l`: Initial line length (width=1)
@@ -316,15 +338,11 @@ Keys starting with `_` have numeric values:
 ### Rule Value Characters:
 - `S`: Starting sentence
 - `F`, `f`: Move forward with/without drawing
-- `+`, `-`, `^`, `|`: Rotate by _a, -_a, right, or straight
+- `+`, `-`, `^`, `|`: Rotate +a, -a, +90, 180
 - `!`: Toggle rotation parity
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
 
-### Syntax:
-- Key-value separators: `=` or `:`
-- Rule separators: `,`, `&`, or newline
-- Supports URLs, plaintext, JSON
         </pre>
       </div>
     </div>
@@ -359,34 +377,26 @@ Keys starting with `_` have numeric values:
     const elements = {
       textarea: document.querySelector('#textarea'),
       log: document.querySelector('#log'),
-      dotButton: document.querySelector('#buttondot'),
+      dot: document.querySelector('#dot'),
       right: document.querySelector('#right'),
       left: document.querySelector('#left'),
       submit: document.querySelector('#buttonsubmit'),
       divider1: document.querySelector('#divider1'),
-      divider2: document.querySelector('#butt'),
+      //divider2: document.querySelector('#butt'),
       helpModal: document.querySelector('#helpModal'),
       helpButton: document.querySelector('#helpButton'),
       prevExample: document.querySelector('#prevExample'),
       nextExample: document.querySelector('#nextExample'),
       allExamples: document.querySelector('#allExamples'),
       toggleLog: document.querySelector('#toggleLog'),
-      openstandalone: document.querySelector('#openstandalone'),
-      loading: Object.assign(document.createElement('div'), { textContent: 'loading...', style:'font-size:2rem' })
+      openStandalone: document.querySelector('#openStandalone'),
+      download: document.querySelector('#download'),
+      message: Object.assign(document.createElement('div'), { textContent: 'generating...', style: 'font-size:2rem' })
     };
 
     // Utility functions
-    function parseRules(str) {
-      return Object.fromEntries(
-        str.replace(/&/g, ',')
-          .replace(/([^,=]*)=([^,=]*)/g, '$1=$2')
-          .split(',')
-          .map(a => a.split('='))
-      );
-    }
-
-    function serializeRules(obj) {
-      return Object.entries(obj).map(([k, v]) => `${k}=${v}`).join(',');
+    function stringify(o) {
+      return Object.entries(o).map(([k, v]) => `${k}=${v}`).join(',');
     }
 
     function getText() {
@@ -405,31 +415,14 @@ Keys starting with `_` have numeric values:
 
     function setDot(state) {
       if (state) {
-        elements.dotButton.setAttribute('data-checked', true);
+        elements.dot.setAttribute('data-checked', true);
       } else {
-        elements.dotButton.removeAttribute('data-checked');
+        elements.dot.removeAttribute('data-checked');
       }
     }
 
     function getDot() {
-      return elements.dotButton.getAttribute('data-checked') === 'true';
-    }
-
-    // Custom logging
-    function setupCustomLog() {
-      console.oldLog = console.log;
-      console.customLog = (...args) => {
-        if (!elements.log) return console.oldLog(...args);
-        elements.log.prepend(document.createElement('hr'));
-        elements.log.prepend(args.flatMap(arg => typeof arg === 'object' ? Object.entries(arg) : [['', arg]])
-          .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`).join('\n'));
-      };
-      console.log = console.customLog;
-    }
-
-    function toggleCustomLog(enable) {
-      if (!console.oldLog || !console.customLog) return;
-      console.log = enable ? console.customLog : console.oldLog;
+      return elements.dot.getAttribute('data-checked') === 'true';
     }
 
     // Divider handling
@@ -446,7 +439,7 @@ Keys starting with `_` have numeric values:
       };
 
       elements.divider1.addEventListener('pointerdown', setDividering);
-      elements.divider2.addEventListener('pointerdown', setDividering);
+      //elements.divider2.addEventListener('pointerdown', setDividering);
 
       window.addEventListener('pointerup', () => {
         state.isDividerActive = false;
@@ -459,10 +452,10 @@ Keys starting with `_` have numeric values:
           const deltaX = e.clientX - state.startX;
           const newWidth = state.startWidth + deltaX;
           elements.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
-        } else if (state.activeDivider === elements.divider2) {
-          const deltaY = e.clientY - state.startY;
-          const newHeight = state.startHeight + deltaY;
-          elements.textarea.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
+          //        } else if (state.activeDivider === elements.divider2) {
+          //          const deltaY = e.clientY - state.startY;
+          //          const newHeight = state.startHeight + deltaY;
+          //          elements.textarea.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
         }
       });
     }
@@ -501,16 +494,26 @@ Keys starting with `_` have numeric values:
       }
     }
 
+    function parseRules(str) {
+      return Object.fromEntries(
+        str.replace(/&/g, ',')
+          .replace(/([^,=]*)=([^,=]*)/g, '$1=$2')
+          .split(',')
+          .map(a => a.split('='))
+      );
+    }
+
     function getObject() {
-        const input = getText()
-          .replace(/[\n&]+/g, ',')
-          .replace(/[ \t]+/g, '')
-          .replace(/^,+|,+$/g, '')
-          .replace(/:/g, '=');
-        if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(input)) {
-          throw new Error('Invalid format');
-        }
-        return parseRules(input);
+      const input = getText()
+        .replace(/[\n&]+/g, ',')
+        .replace(/[ \t]+/g, '')
+        .replace(/^,+|,+$/g, '')
+        .replace(/:/g, '=');
+      if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(input)) {
+        elements.submit.classList.add('error');
+        throw new Error('Invalid format');
+      }
+      return parseRules(input);
     }
 
     // SVG rendering and updates
@@ -521,31 +524,34 @@ Keys starting with `_` have numeric values:
           : Object.entries(rules).map(([k, v]) => `${k}=${v}`).join('\n'));
       }
 
-      elements.right.replaceChildren(elements.loading);
+      elements.right.replaceChildren(elements.message);
       elements.submit.classList.remove('error');
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
       try {
-        const input = getText()
-          .replace(/[\n&]+/g, ',')
-          .replace(/[ \t]+/g, '')
-          .replace(/^,+|,+$/g, '')
-          .replace(/:/g, '=');
-
-        if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(input)) {
-          throw new Error('Invalid format');
-        }
-
         const t0 = performance.now();
-        const svg = createSvg(input, getDot());
-        addSvgZoom(svg, elements.right);
+        const svg = createSvg(createR(getObject()));
         console.log({ [`${(performance.now() - t0) | 0}ms`]: state.currentExampleIndex ? `${state.currentExampleIndex + 1}/${state.examples.length} ${state.examples[state.currentExampleIndex]?.[''] || ''}` : '' });
+        addSvgZoom(svg, elements.right);
         elements.right.replaceChildren(svg);
       } catch (e) {
-        elements.loading.textContent = e.message;
+        elements.message.textContent = e.message;
         elements.submit.classList.add('error');
       }
+    }
+
+    function createR(o) {
+      let R = typeof o === 'string' ? parseRules(o) : o
+        , G = getDot() ? { _d: 1 } : {}
+        , B = elements.right.querySelector('svg');
+      if (!B) return { ...R, ...G };
+      let r = B.getAttribute('viewBox')?.split(' ') || []
+        , g = ['x', 'y', 'width', 'height'].map(attr => B.querySelector('rect')?.getAttribute(attr));
+      B = r.length && g.join(' ') !== r.join(' ')
+        ? { _x: r[0], _y: r[1], _w: r[2], _h: r[3] }
+        : {};
+      return { ...R, ...G, ...B };
     }
 
     async function showExample(index) {
@@ -562,12 +568,12 @@ Keys starting with `_` have numeric values:
           Object.entries(state.examples[i]).map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
         );
         toggleCustomLog(false);
-        const svg = createSvg(serializeRules(rules), getDot());
+        const svg = createSvg(createR(rules));
         console.log({ [`#${i}`]: state.examples[i]?.[''] || '' });
         toggleCustomLog(true);
         svg.addEventListener('click', e => {
           if (e.shiftKey || e.ctrlKey) {
-            location.href = `lsystem.js.svg#${serializeRules({...state.examples[i],...(getDot()?{dot:1}:{})})}`;
+            openStandalone(state.examples[i]);
           } else {
             update(state.examples[i]);
           }
@@ -647,23 +653,53 @@ Keys starting with `_` have numeric values:
       return svg;
     }
 
+    function openStandalone(o) { window.open(`lsystem.js.svg#${stringify(createR(o))}`, '_blank').focus(); };
+
     // Event listeners
     function setupEventListeners() {
       elements.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && update());
       elements.textarea.addEventListener('input', () => update());
-      elements.dotButton.addEventListener('click', () => {
+      elements.textarea.addEventListener('blur', () => elements.textarea.textContent === '' && (elements.textarea.textContent = ''));
+      elements.dot.addEventListener('click', () => {
         setDot(!getDot());
-        if (getText()) update();
+        if (getText()) update(); else showAllExamples();
       });
       elements.submit.addEventListener('click', () => update());
       elements.prevExample.addEventListener('click', () => showExample(state.currentExampleIndex - 1));
       elements.nextExample.addEventListener('click', () => showExample(state.currentExampleIndex + 1));
       elements.allExamples.addEventListener('click', showAllExamples);
-      elements.toggleLog.addEventListener('click', () => elements.log.classList.toggle('hidden'));
+      elements.toggleLog.addEventListener('click', () => { elements.textarea.style.height = '100%'; elements.log.classList.toggle('hidden'); });
       elements.helpButton.addEventListener('click', () => elements.helpModal.style.display = 'flex');
       elements.helpModal.addEventListener('click', e => e.target === elements.helpModal && (elements.helpModal.style.display = 'none'));
-      elements.openstandalone.addEventListener('click', () => window.open(`lsystem.js.svg#${serializeRules({...getObject(),...(getDot()?{dot:1}:{})})}`, '_blank').focus());
+      elements.openStandalone.addEventListener('click', () => openStandalone(getObject()));
+      elements.download.addEventListener('click', () => download());
     }
+
+    function download() {
+
+    }
+
+    function toggleCustomLog(enable, customLog) {
+      if ('function' == typeof customLog) {
+        console.oldLog = console.log;
+        console.customLog = customLog;
+        console.log = console.customLog;
+      }
+      if (!console.oldLog || !console.customLog) return;
+      console.log = enable ? console.customLog : console.oldLog;
+    }
+
+    function setupCustomLog() {
+      toggleCustomLog(true, (...args) => elements.log ? (
+        elements.log.prepend(document.createElement('hr')),
+        elements.log.prepend(args
+          .flatMap(a => typeof a === 'object' ? Object.entries(a) : [['', a]])
+          .map(([k, v]) => `${k.padStart(3, ' ')} ${v}`)
+          .join('\n')
+        )
+      ) : console.oldLog(...args));
+    }
+    function setupMobile() { if (state.isMobile) elements.log.classList.add('hidden'); }
 
     // Initialization
     function init() {
@@ -671,7 +707,7 @@ Keys starting with `_` have numeric values:
       setupDividers();
       setupMobileKeyboard();
       setupEventListeners();
-      if (state.isMobile) elements.log.classList.add('hidden');
+      setupMobile();
       showAllExamples();
     }
 

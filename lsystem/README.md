@@ -5,12 +5,10 @@
 
 Standalone svg file example: [lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
-Tiny, old (~25yo) [version](ver1).
-
-### How it Works:
+### How it Works
 Start with a sentence 'S'. Each iteration replaces characters in the sentence using key-value rules. The resulting sentence instructs a Logo turtle.
 
-### Rule Key-Value Pairs:
+### Rule Key-Value Pairs
 Keys starting with `_` have numeric values:
 - `_n`: Number of iterations
 - `_l`: Initial line length (width=1)
@@ -20,7 +18,7 @@ Keys starting with `_` have numeric values:
 - Single char + `2`: Rule for n+1 iteration
 - Empty key: Title
 
-### Rule Value Characters:
+### Rule Value Characters
 - `S`: Starting sentence
 - `F`, `f`: Move forward with/without drawing
 - `+`, `-`, `^`, `|`: Rotate by _a, -_a, right, or straight
@@ -28,22 +26,28 @@ Keys starting with `_` have numeric values:
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
 
-### Syntax:
+### Syntax
 - Key-value separators: `=` or `:`
 - Rule separators: `,`, `&`, or newline
 - Supports URLs, plaintext, JSON
 
-##  Files
+### Files
 - `lsystem.js.svg`
   - embedable with `<object>` or `<embed>`, not with `<img>`.
   - browser can open as standalone image
 - `lsystem.svg.js`
-  - generates img capable svg
-  - accuracy: within eps merges points
-  - faster: draw segments one time
+  - generates img capable plain svg
   - browser can not open as standalone image
 
-##  Some fibonacci:
+### Notes
+- At svg generating it merges points within eps neighbourhood.
+- Generating system.js.svg from lsystem.svg.js:
+  - strip console, fn head, optionally stat
+  - T and svg: switch init vs declare
+  - minimize, prefer apos above quots, escape: & lt quot
+  - `<svg xmlns="http://www.w3.org/2000/svg" onload="const svg=event.target;(onhashchange=()=>{`...`})();"></svg>`
+
+### Some fibonacci:
 ```
  2;  2a(n-1)+a(n-2) 2,5,12,29,70,169,408,985,2378
  3;  4a(n-1)-a(n-2) 4,15,56,209,780,2911
