@@ -9,199 +9,279 @@
   <script src="lsystem.examples.js"></script>
 
   <style>
-    /* Core layout */
+    #left,
+    #right {
+      position: relative
+    }
+
+    #textarea,
+    body,
+    html,
+    svg {
+      height: 100%
+    }
+
+    #left,
+    #textarea {
+      box-sizing: border-box
+    }
+
+    #log,
+    #textarea {
+      padding: .5rem;
+      white-space: pre-wrap;
+      width: 100%;
+      overflow: auto;
+      font-family: monospace
+    }
+
+    #log,
+    #textarea,
+    svg {
+      width: 100%
+    }
+
+    #butt,
+    #left {
+      gap: .5rem;
+      display: flex
+    }
+
+    #helpText,
+    #log,
+    #right,
+    #textarea {
+      overflow: auto
+    }
+
+    #log,
+    #textarea,
+    .divaspre {
+      font-family: monospace
+    }
+
+    #helpWindow,
+    body,
+    button,
+    html {
+      overflow: hidden
+    }
+
+    #butt,
+    #left,
+    #right,
+    .smallsvgs,
+    body,
+    button.txt,
+    html {
+      display: flex
+    }
+
     body,
     html {
       margin: 0;
-      height: 100%;
       font-family: system-ui, sans-serif;
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
+      flex-direction: row
     }
 
     #left {
       width: 16rem;
       min-width: 100px;
       max-width: 90vw;
-      padding: 0.8rem  0.4rem .8rem .8rem;
-      box-sizing: border-box;
-      display: flex;
       flex-direction: column;
-      position: relative;
       z-index: 1;
-      background-color: #eee7;
-      gap: .5rem;
+      background-color: #eee7
     }
 
     #right {
       flex: 1;
-      display: flex;
       justify-content: flex-start;
       align-items: flex-start;
       padding: 0;
-      overflow: auto;
-      position: relative;
-      z-index: 0;
+      z-index: 0
     }
 
     svg {
-      width: 100%;
-      height: 100%;
       object-fit: contain;
       object-position: top left;
-      display: block;
+      display: block
     }
 
-    /* UI elements */
+    #right>svg {
+      cursor: zoom-out
+    }
+
     #textarea {
       resize: vertical;
-      width: 100%;
-      height: 100%;
+      border: none;
+      background: #fff;
       min-height: 4rem;
       font-size: 1rem;
-      font-family: monospace;
-      padding: 0.5rem;
-      border: none;
-      box-sizing: border-box;
-      overflow: auto;
-      background: #fff;
+      word-break: break-all
+    }
+
+    #textarea>p::first-letter {
+      font-weight: 900
+    }
+
+    #textarea>p {
+      text-indent: -3.3ch;
+      padding-left: 3.3ch;
+      margin: .4rem 0;
+      letter-spacing: .1ch;
+      line-height: 1rem
     }
 
     #log {
       flex: 1;
       flex-basis: auto;
-      font-size: 0.9rem;
-      font-family: monospace;
-      padding: 0.5rem;
-      white-space: pre-wrap;
-      overflow: auto;
-      height: 9rem;
-      width: 100%;
+      font-size: .9rem;
+      height: 9rem
     }
 
     #butt {
-      display: flex;
       align-items: center;
-      gap: 0.5rem;
       flex: none;
       flex-wrap: wrap;
       user-select: none;
+      padding: 0 .3rem .5rem .5rem
     }
 
-
-    /* Dividers */
     .dividerv:hover {
-      cursor: col-resize;
+      cursor: col-resize
     }
 
     .dividerh:hover {
-      cursor: row-resize;
+      cursor: row-resize
     }
 
     .divider {
-      padding: .4rem;
-      background-clip: content-box;
+      padding: .3rem;
+      background-clip: content-box
     }
 
     .dividerv {
       width: 0;
-      background: linear-gradient(to right,
-          #f5f5f5 0%,
-          #f5f5f5 50%,
-          #fff 50%,
-          #fff 100%);
+      background: linear-gradient(to right, #f5f5f5 0, #f5f5f5 50%, #fff 50%, #fff 100%)
     }
 
     .dividerh {
-      height: 0;
+      height: 0
     }
 
-    /* Error and small SVGs */
     .error {
-      background: #d22;
+      background: #d22
     }
 
     .smallsvgs {
-      display: flex;
       flex-wrap: wrap;
       flex-direction: row;
-      align-content: flex-start;
+      align-content: flex-start
+    }
+
+    #helpModal,
+    .hidden,
+    button:hover>.a,
+    button[data-checked]:hover>.b,
+    button[data-checked]>.a {
+      display: none
     }
 
     .smallsvgs>svg {
       width: calc(max(11vh, 11vw));
       height: calc(max(11vh, 11vw));
-      cursor: pointer;
+      cursor: pointer
     }
 
-    /* Help modal */
     #helpModal {
-      display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, .6);
       justify-content: center;
       align-items: center;
-      z-index: 2;
+      z-index: 2
     }
 
     #helpWindow {
       background: #fff;
       padding: 1em;
       border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .3)
     }
 
     #helpText {
       max-height: 80vh;
       max-width: 84ch;
-      font-size: 1rem;
-      overflow: auto;
-    }
-
-    .hidden {
-      display: none;
+      font-size: 1rem
     }
 
     hr {
-      border-top: 1px solid #ccc;
+      border: none;
+      border-top: .5px solid #ccc;
       max-width: 10rem;
-      margin: auto 0.25rem;
+      margin: 0 .25rem
     }
 
     .divaspre {
       white-space: pre;
-      font-size: 1rem;
-      font-family: monospace;
+      font-size: 1rem
+    }
+
+    .preasdiv,
+    button.txt {
+      font-family: sans-serif
     }
 
     .preasdiv {
-      white-space: normal;
-      font-family: sans-serif;
+      white-space: normal
     }
 
-    /* Buttons */
-    button[data-checked] {
-      filter: invert();
+    button>object {
+      pointer-events: none
+    }
+
+    button,
+    button>object {
+      height: 2rem;
+      width: 2rem
     }
 
     button {
       color: #000;
       font-size: 1.2rem;
-      border-radius: 0.3125rem;
+      border-radius: .3125rem;
       cursor: pointer;
       border: none;
       background-color: #ddd;
-      height: 2rem;
-      width: 2rem;
       line-height: 1;
-      padding: 0;
+      padding: 0
     }
 
     button:hover {
-      background-color: #acf;
+      background-color: #acf
+    }
+
+    button.off {
+      color: #aaa
+    }
+
+    button.txt {
+      align-items: center;
+      font-weight: 100;
+      justify-content: center;
+      font-size: 1rem
+    }
+
+    button>.b {
+      font-size: 2rem;
+      display: none
+    }
+
+    button:hover>.b,
+    button>.a,
+    button[data-checked]:hover>.a,
+    button[data-checked]>.b {
+      display: block
     }
 
     div[contentEditable=true]:empty:not(:focus):before {
@@ -209,49 +289,55 @@
       font-style: italic;
       font-size: 1.2rem;
       content: attr(data-placeholder);
-      color: #777;
+      color: #777
     }
 
-    /* Mobile styles */
-    @media only screen and (max-width: 600px) {
+    @media only screen and (max-width:600px) {
+
+      #left,
+      #right {
+        height: auto;
+        width: 100%
+      }
+
+      #butt,
+      #log,
+      #textarea {
+        padding: .2rem
+      }
 
       body,
       html {
-        flex-direction: column;
+        flex-direction: column
       }
 
       #left {
-        width: 100%;
         max-width: 100%;
         padding: 0;
-        height: auto;
-        gap: 0;
+        gap: 0
       }
 
-      #divider1 {
-        display: none;
+      #divider1,
+      body.keyboard-active #butt,
+      body.keyboard-active #log {
+        display: none
       }
 
       #right {
-        width: 100%;
-        height: auto;
-        flex: 1;
+        flex: 1
       }
 
       #textarea {
-        height: 30vh;
-        padding: 0.2rem;
+        height: 30vh
       }
 
       #log {
-        max-height: 9rem;
-        padding: 0.2rem;
+        max-height: 9rem
       }
 
       #butt {
-        padding: 0.2rem;
         margin: 0;
-        gap: 0.2rem;
+        gap: .2rem
       }
 
       body.keyboard-active #left {
@@ -260,19 +346,14 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: transparent;
-        z-index: 2;
+        background: 0 0;
+        z-index: 2
       }
 
       body.keyboard-active #textarea {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, .9);
         position: relative;
-        z-index: 3;
-      }
-
-      body.keyboard-active #butt,
-      body.keyboard-active #log {
-        display: none;
+        z-index: 3
       }
 
       body.keyboard-active #right {
@@ -281,7 +362,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 1;
+        z-index: 1
       }
     }
   </style>
@@ -295,11 +376,24 @@
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
       <button id="prevExample" title="Previous example">&lt;</button>
       <button id="nextExample" title="Next example">&gt;</button>
-      <button id="dot" title="Show endpoints only">●</button>
+      <button id="dot" title="Show endpoints only">
+        <object class="a c" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=fff0,_l=4,_M=2,_d=1" type="image/svg+xml">●</object>
+        <object class="b d" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=4,_M=2" type="image/svg+xml">l</object>
+      </button>
       <button id="allExamples" title="Show all examples">✱</button>
-      <button id="openStandalone" title="Open standalone">⇗</button>
-      <button id="download" title="Download">⇓</button>
-      <button id="toggleLog" title="Toggle log">㏒</button>
+      <button id="openStandalone" title="" class="txt">
+        <div class="a">url</div>
+        <div class="b">⇗</div>
+      </button>
+      <button id="downloadSvg" title="" class="txt">
+        <div class="a">svg</div>
+        <div class="b">🡇</div>
+      </button>
+      <button id="downloadPng" title="" class="txt">
+        <div class="a">png</div>
+        <div class="b">🡇</div>
+      </button>
+      <button id="buttonlog" title="Toggle log">㏒</button>
       <div id="log"></div>
     </div>
   </div>
@@ -349,7 +443,6 @@ Keys starting with `_` have numeric values:
   </div>
 
   <script type="module">
-    // Core state and DOM elements
     const state = {
       examples: (typeof examples !== 'undefined' ? examples : [{
         S: 'AX',
@@ -382,50 +475,44 @@ Keys starting with `_` have numeric values:
       left: document.querySelector('#left'),
       submit: document.querySelector('#buttonsubmit'),
       divider1: document.querySelector('#divider1'),
-      //divider2: document.querySelector('#butt'),
       helpModal: document.querySelector('#helpModal'),
       helpButton: document.querySelector('#helpButton'),
       prevExample: document.querySelector('#prevExample'),
       nextExample: document.querySelector('#nextExample'),
       allExamples: document.querySelector('#allExamples'),
-      toggleLog: document.querySelector('#toggleLog'),
+      buttonlog: document.querySelector('#buttonlog'),
       openStandalone: document.querySelector('#openStandalone'),
-      download: document.querySelector('#download'),
+      downloadSvg: document.querySelector('#downloadSvg'),
+      downloadPng: document.querySelector('#downloadPng'),
       message: Object.assign(document.createElement('div'), { textContent: 'generating...', style: 'font-size:2rem' })
     };
 
-    // Utility functions
     function stringify(o) {
       return Object.entries(o).map(([k, v]) => `${k}=${v}`).join(',');
     }
 
     function getText() {
-      return elements.textarea.tagName.toLowerCase() === 'textarea'
-        ? elements.textarea.value
-        : elements.textarea.innerText;
+      return elements.textarea.innerText;
     }
 
     function setText(text) {
-      if (elements.textarea.tagName.toLowerCase() === 'textarea') {
-        elements.textarea.value = text;
-      } else {
-        elements.textarea.innerText = text;
-      }
+      return elements.textarea.innerText = text;
+    }
+
+    function setTextR(R) {
+      return elements.textarea.innerHTML = Object.entries(R)
+        .map(([k, v]) => `<p>${k.padStart(2, ' ')}=${v}</p>`)
+        .join('');
     }
 
     function setDot(state) {
-      if (state) {
-        elements.dot.setAttribute('data-checked', true);
-      } else {
-        elements.dot.removeAttribute('data-checked');
-      }
+      elements.dot.toggleAttribute('data-checked', state);
     }
 
     function getDot() {
-      return elements.dot.getAttribute('data-checked') === 'true';
+      return elements.dot.hasAttribute('data-checked');
     }
 
-    // Divider handling
     function setupDividers() {
       const setDividering = e => {
         if (state.isMobile && e.target === elements.divider1) return;
@@ -439,7 +526,6 @@ Keys starting with `_` have numeric values:
       };
 
       elements.divider1.addEventListener('pointerdown', setDividering);
-      //elements.divider2.addEventListener('pointerdown', setDividering);
 
       window.addEventListener('pointerup', () => {
         state.isDividerActive = false;
@@ -452,15 +538,10 @@ Keys starting with `_` have numeric values:
           const deltaX = e.clientX - state.startX;
           const newWidth = state.startWidth + deltaX;
           elements.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
-          //        } else if (state.activeDivider === elements.divider2) {
-          //          const deltaY = e.clientY - state.startY;
-          //          const newHeight = state.startHeight + deltaY;
-          //          elements.textarea.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
         }
       });
     }
 
-    // Mobile keyboard handling
     function setupMobileKeyboard() {
       if (!state.isMobile) return;
 
@@ -504,54 +585,60 @@ Keys starting with `_` have numeric values:
     }
 
     function getObject() {
-      const input = getText()
+      error();
+      const R = getText()
         .replace(/[\n&]+/g, ',')
-        .replace(/[ \t]+/g, '')
-        .replace(/^,+|,+$/g, '')
-        .replace(/:/g, '=');
-      if (!/^((|[^=,]|_[^=,]|[^=,]2)=[^=,]*,)*[^=,]*=[^=,]*$/.test(input)) {
-        elements.submit.classList.add('error');
+        .replace(/[\r \t\s\u00A0]+/g, '')
+        .split(',')
+        .filter(s => s !== '')
+        .map(a => a.split('='));
+      if (!R.every(([k, v]) =>
+        /^(|[^=,]|_[^=,]|[^=,]2)$/.test(k) &&
+        /[^=,]*/.test(v))
+      ) {
+        error('Invalid format');
         throw new Error('Invalid format');
       }
-      return parseRules(input);
+      return Object.fromEntries(R);
     }
 
-    // SVG rendering and updates
+    function error(msg) {
+      elements.message.innerText = msg || '...';
+      elements.submit.classList.toggle('error', !!msg);
+      msg && elements.right.replaceChildren(elements.message);
+    }
+
     async function update(rules) {
       if (rules) {
-        setText(typeof rules === 'string'
-          ? rules.replace(/,/g, '\n')
-          : Object.entries(rules).map(([k, v]) => `${k}=${v}`).join('\n'));
+        //        setText(typeof rules === 'string'
+        //          ? rules.replace(/,/g, '\n')
+        //          : Object.entries(rules).map(([k, v]) => `${k}=${v}`).join('\n'));
+        setTextR(typeof rules === 'string' ? parseRules(rules) : rules);
       }
-
-      elements.right.replaceChildren(elements.message);
-      elements.submit.classList.remove('error');
-
       await new Promise(resolve => setTimeout(resolve, 0));
-
+      error();
       try {
         const t0 = performance.now();
         const svg = createSvg(createR(getObject()));
         console.log({ [`${(performance.now() - t0) | 0}ms`]: state.currentExampleIndex ? `${state.currentExampleIndex + 1}/${state.examples.length} ${state.examples[state.currentExampleIndex]?.[''] || ''}` : '' });
-        addSvgZoom(svg, elements.right);
+        addSvgZoom(svg, '#right>svg');
         elements.right.replaceChildren(svg);
       } catch (e) {
-        elements.message.textContent = e.message;
-        elements.submit.classList.add('error');
+        error(e.message + '\n' + e.stack);
       }
     }
 
-    function createR(o) {
+    function createR(o, c) {
       let R = typeof o === 'string' ? parseRules(o) : o
-        , G = getDot() ? { _d: 1 } : {}
-        , B = elements.right.querySelector('svg');
-      if (!B) return { ...R, ...G };
-      let r = B.getAttribute('viewBox')?.split(' ') || []
-        , g = ['x', 'y', 'width', 'height'].map(attr => B.querySelector('rect')?.getAttribute(attr));
-      B = r.length && g.join(' ') !== r.join(' ')
-        ? { _x: r[0], _y: r[1], _w: r[2], _h: r[3] }
+        , dot = getDot() ? { _d: 1 } : {}
+        , vb = elements.right.querySelector('svg');
+      if (!c || !vb) return { ...R, ...dot };
+      let v = vb.getAttribute('viewBox')?.split(' ') || []
+        , rect = ['x', 'y', 'width', 'height'].map(attr => vb.querySelector('rect')?.getAttribute(attr));
+      vb = v.length && rect.join(' ') !== v.join(' ')
+        ? { _x: v[0], _y: v[1], _w: v[2], _h: v[3] }
         : {};
-      return { ...R, ...G, ...B };
+      return { ...R, ...dot, ...vb };
     }
 
     async function showExample(index) {
@@ -583,17 +670,18 @@ Keys starting with `_` have numeric values:
       }
     }
 
-    // SVG zoom functionality
-    function addSvgZoom(svg, parent) {
+    function createIfAbsent(t, id) {
+      return document.getElementById(id) ||
+        document.body.appendChild(Object.assign(document.createElement(t), { id }));
+    }
+
+    function addSvgZoom(svg, cs) {
       let isDown = false;
       let startX, startY, scrollStartX, scrollStartY;
-      const rectDiv = document.querySelector('#svgzoomrectangle9fg34gs6h') ||
-        document.body.appendChild(Object.assign(document.createElement('div'), {
-          id: 'svgzoomrectangle9fg34gs6h',
-          style: 'position:absolute;pointer-events:none;display:none;'
-        }));
-
-      svg.style.cursor = 'zoom-out';
+      const rip = CSS.escape('svgzoomr9fg34gs6h');
+      const $rect = createIfAbsent('div', `${rip}rect`);
+      $rect.style = 'position:absolute;pointer-events:none;display:none;';
+      createIfAbsent('style', `${rip}css`).sheet.insertRule(`#${rip}rect>svg{cursor:zoom-out}`);
 
       const getXY = e => {
         const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
@@ -614,7 +702,7 @@ Keys starting with `_` have numeric values:
         if (!isDown || e.button) return;
         const p = getXY(e);
         const out = p.x + scrollX - 2 < startX;
-        rectDiv.style.cssText = `
+        $rect.style.cssText = `
           left:${Math.min(startX, p.x)}px;
           top:${Math.min(startY, p.y)}px;
           width:${Math.abs(p.x - startX)}px;
@@ -643,7 +731,7 @@ Keys starting with `_` have numeric values:
           svg.setAttribute('viewBox', `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`);
         }
         isDown = false;
-        rectDiv.style.display = 'none';
+        $rect.style.display = 'none';
         svg.style.cursor = 'zoom-out';
       };
 
@@ -653,40 +741,39 @@ Keys starting with `_` have numeric values:
       return svg;
     }
 
-    function openStandalone(o) { window.open(`lsystem.js.svg#${stringify(createR(o))}`, '_blank').focus(); };
+    function openStandalone(o) { window.open(`lsystem.js.svg#${stringify(createR(o, 1))}`, '_blank').focus(); };
 
-    // Event listeners
     function setupEventListeners() {
       elements.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && update());
       elements.textarea.addEventListener('input', () => update());
       elements.textarea.addEventListener('blur', () => elements.textarea.textContent === '' && (elements.textarea.textContent = ''));
       elements.dot.addEventListener('click', () => {
-        setDot(!getDot());
+        setDot(!getDot()); console.error('click');
         if (getText()) update(); else showAllExamples();
       });
       elements.submit.addEventListener('click', () => update());
       elements.prevExample.addEventListener('click', () => showExample(state.currentExampleIndex - 1));
       elements.nextExample.addEventListener('click', () => showExample(state.currentExampleIndex + 1));
       elements.allExamples.addEventListener('click', showAllExamples);
-      elements.toggleLog.addEventListener('click', () => { elements.textarea.style.height = '100%'; elements.log.classList.toggle('hidden'); });
+      elements.buttonlog.addEventListener('click', () => {
+        elements.textarea.style.height = '100%';
+        elements.log.classList.toggle('hidden');
+        elements.buttonlog.classList.toggle('off');
+      });
       elements.helpButton.addEventListener('click', () => elements.helpModal.style.display = 'flex');
       elements.helpModal.addEventListener('click', e => e.target === elements.helpModal && (elements.helpModal.style.display = 'none'));
       elements.openStandalone.addEventListener('click', () => openStandalone(getObject()));
-      elements.download.addEventListener('click', () => download());
+      elements.downloadSvg.addEventListener('click', () => downloadSvg(elements.right.querySelector(':scope>svg')));
+      elements.downloadPng.addEventListener('click', () => downloadPng(elements.right.querySelector(':scope>svg')));
     }
 
-    function download() {
-
-    }
-
-    function toggleCustomLog(enable, customLog) {
+    function toggleCustomLog(enable, customLog, _ = console) {
       if ('function' == typeof customLog) {
-        console.oldLog = console.log;
-        console.customLog = customLog;
-        console.log = console.customLog;
+        _.oldLog ||= _.log;
+        _.customLog = customLog;
+        _.log = _.customLog;
       }
-      if (!console.oldLog || !console.customLog) return;
-      console.log = enable ? console.customLog : console.oldLog;
+      if (_.oldLog && _.customLog) _.log = enable ? _.customLog : _.oldLog;
     }
 
     function setupCustomLog() {
@@ -701,14 +788,38 @@ Keys starting with `_` have numeric values:
     }
     function setupMobile() { if (state.isMobile) elements.log.classList.add('hidden'); }
 
-    // Initialization
+    const downloadPng = async (svg) => {
+    };
+    const downloadSvg = async (svg) => {
+      if (!svg) return;
+      const downloadBlob = async (blob, filename) => {
+        const url = URL.createObjectURL(blob);
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } finally {
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+      };
+      const xmlString = new XMLSerializer().serializeToString(svg);
+      const uint8Array = new TextEncoder().encode(xmlString);
+      await downloadBlob(
+        new Blob([uint8Array], { type: 'image/svg+xml' }),
+        `${svg.querySelector('title')?.textContent ?? 'untitled'}.svg`
+      );
+    };
+
     function init() {
       setupCustomLog();
       setupDividers();
       setupMobileKeyboard();
       setupEventListeners();
       setupMobile();
-      showAllExamples();
+      if (1) showExample(2); else showAllExamples();
     }
 
     init();

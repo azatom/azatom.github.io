@@ -27,9 +27,11 @@ Keys starting with `_` have numeric values:
 - `[`, `]`: Push/pop position, length, direction
 
 ### Syntax
-- Key-value separators: `=` or `:`
-- Rule separators: `,`, `&`, or newline
-- Supports URLs, plaintext, JSON
+- Plaintext and url:
+  - Rule separators: `,` or `&`. Plaintext: `\n` works too.
+  - Key-value separator: `=`
+- Url: preceed with `#` or `?` (fragment/queryparams)
+- JSON: straightforward key-values
 
 ### Files
 - `lsystem.js.svg`
@@ -38,14 +40,6 @@ Keys starting with `_` have numeric values:
 - `lsystem.svg.js`
   - generates img capable plain svg
   - browser can not open as standalone image
-
-### Notes
-- At svg generating it merges points within eps neighbourhood.
-- Generating system.js.svg from lsystem.svg.js:
-  - strip console, fn head, optionally stat
-  - T and svg: switch init vs declare
-  - minimize, prefer apos above quots, escape: & lt quot
-  - `<svg xmlns="http://www.w3.org/2000/svg" onload="const svg=event.target;(onhashchange=()=>{`...`})();"></svg>`
 
 ### Some fibonacci:
 ```

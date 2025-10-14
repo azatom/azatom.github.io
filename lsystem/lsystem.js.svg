@@ -4,6 +4,7 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
   R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let [x, y, a, b, q] = Array(5).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
+  // TODO print str+=a.toPrecision(12)
   const createStep = (d, E = 1, F = 2 * E) => {
     let lp = '0,0', LL, lines = new Set(), grid = {};
     let _min = 1 / 0, _max = -1 / 0, _all = 0, _cmp = 0, mx = _min, Mx = _max, my = _min, My = _max,
@@ -46,7 +47,7 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
           lall++;
           if (!lines.has(l)) {
             lines.add(l);
-            if (!LL || lp !== p) { d(`\nM${lp}`); LL = true; }
+            if (!LL || lp !== p) { d(`M${lp}`); LL = true; }
             d(` ${p}`);
             mx = Math.min(x, lx, mx);
             Mx = Math.max(x, lx, Mx);
@@ -75,14 +76,14 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
     '!' === i ? p = -p :
     '[' === i ? z.push([x, y, a, b, q]) :
     ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
-  [x, y, a, b] = D.vb(2);
+  [x, y, a, b] = D.vb(R._M??2);
   try { console.log(D.stat()); } catch (e) { }
   // const svg = C('svg');
   svg.setAttribute('viewBox', `${R._x??x} ${R._y??y} ${R._w??a} ${R._h??b}`);
   svg.replaceChildren(
     (t => (t.textContent = R[''], t))(C('title')),
-    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g, ''), t))(C('desc')),
-    C('rect', { fill: '#fff', x, y, width: a, height: b }),
+    (t => (t.textContent = JSON.stringify(R).replace(/[{}"]/g, ''), t))(C('desc')),
+    C('rect', { fill: `#${R._b??'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {
       stroke: R._d ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',

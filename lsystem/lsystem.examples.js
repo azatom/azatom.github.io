@@ -35,7 +35,7 @@ let examples=[
 'S=[k]++[k]++[k]++[k]++[k],A=[/k]+F/[|A]----F+F----[A]*F,F=f,=kd2,_a=36,_l=99,_m=1.618,k=+[/A]F/---[-k]F-F---[-k]*F[/|A],_n=4',
 'S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],=kd3,_a=36,_l=99,_m=1.618,_n=4',
 'S=FB,A=FBFA+HFA+FB-FA,B=FB+FA-FB-JFBFA,F=,H=-,J=+,=Quartet,_a=90,_n=4',
-'S=F+F+F+F,F=F+F-F-FFF+F+F-F,=Koch5,_a=90,_n=2',
+'S=F-F-F-F,F=F-F+F+FFF-F-F+F,=Koch5,_a=90,_n=2',
 'S=F-F-F-F-,F=F+FF-FF-F-F+F+FF-F-F+F+FF+FF-F,=QuadKoch,_a=90,_n=2',
 'S=F--F--F,F=F+F--F+F,=Koch,_a=60,_l=2,_n=5',
 'S=X,F=F+f-F,X=[X]F+[X]F+[X]F+[X]F+[X]F+[X]F+,=tilesg4,_a=60,_l=6,f=F,_n=5',

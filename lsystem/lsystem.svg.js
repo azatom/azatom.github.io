@@ -3,6 +3,7 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
   R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let [x, y, a, b, q] = Array(5).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
+  // TODO print str+=a.toPrecision(12)
   const createStep = (d, E = 1, F = 2 * E) => {
     let lp = '0,0', LL, lines = new Set(), grid = {};
     let _min = 1 / 0, _max = -1 / 0, _all = 0, _cmp = 0, mx = _min, Mx = _max, my = _min, My = _max,
@@ -30,11 +31,13 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
         const grids = Object.keys(grid).length;
         const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
         return {
-          ' min': _min.toExponential(3), ' max': _max.toExponential(3), ' M/m': `${(_max / _min).toExponential(3)}`,
-          comp: `${_cmp} ${_cmp / points * 100 | 0}%`,
-          keys: `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
-          pnts: `${points} +${_all - points} ${((_all - points) / points * 100).toFixed(0)}%`,
-          line: `${lines.size} +${lall - lines.size} ${((lall - lines.size) / lines.size * 100).toFixed(0)}%`,
+          ' min': _min.toExponential(3),
+          ' max': _max.toExponential(3),
+          ' M/m': `${(_max / _min).toExponential(3)}`,
+          'comp': `${_cmp} ${_cmp / points * 100 | 0}%`,
+          'grid': `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
+          'dots': `${points} +${_all - points} ${((_all - points) / points * 100).toFixed(0)}%`,
+          'line': `${lines.size} +${lall - lines.size} ${((lall - lines.size) / lines.size * 100).toFixed(0)}%`,
         };
       },
       vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },
@@ -69,22 +72,20 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
     }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
   for (i of function* g(n) { if (n) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
-    '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
-    '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
-    '!' === i ? p = -p :
-    '[' === i ? z.push([x, y, a, b, q]) :
-    ']' === i ? z.length
-        ? ([x, y, a, b, q] = z.pop(), D.put(x, y))
-        : (_ => { throw new Error(']:empty stack'); })()
-    : 0;
-  [x, y, a, b] = D.vb(2);
+      '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
+        '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
+          '!' === i ? p = -p :
+            '[' === i ? z.push([x, y, a, b, q]) :
+              ']' === i ? z.length ? ([x, y, a, b, q] = z.pop(), D.put(x, y))
+                : (_ => { throw new Error(']:empty stack'); })() : 0;
+  [x, y, a, b] = D.vb(R._M??2);
   try { console.log(D.stat()); } catch (e) { }
   const svg = C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
     (t => (t.textContent = R[''], t))(C('title')),
-    (t => (t.textContent = JSON.stringify(R).replace(/[{}'"]/g, ''), t))(C('desc')),
-    C('rect', { fill: '#fff', x, y, width: a, height: b }),
+    (t => (t.textContent = JSON.stringify(R).replace(/[{}"]/g, ''), t))(C('desc')),
+    C('rect', { fill: `#${R._b??'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {
       stroke: R._d ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
