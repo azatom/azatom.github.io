@@ -377,8 +377,8 @@
       <button id="prevExample" title="Previous example">&lt;</button>
       <button id="nextExample" title="Next example">&gt;</button>
       <button id="dot" title="Show endpoints only">
-        <object class="a c" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=fff0,_l=4,_M=2,_d=1" type="image/svg+xml">●</object>
-        <object class="b d" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=4,_M=2" type="image/svg+xml">l</object>
+        <object class="a" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=4,_M=2,_d=1">●</object>
+        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=4,_M=2">l</object>
       </button>
       <button id="allExamples" title="Show all examples">✱</button>
       <button id="openStandalone" title="" class="txt">
@@ -464,23 +464,27 @@ Keys starting with `_` have numeric values:
 - JSON: straightforward key-values
 
 ### Files
+2 same versions: vaguelly first 2 lines, script/svg tag swapped.
 - `lsystem.js.svg`
   - embedable with `&lt;object>` or `&lt;embed>`, not with `&lt;img>`.
-  - browser can open as standalone image
+  - browser opens as standalone image with parameters
+  - editable in urlbar
 - `lsystem.svg.js`
   - generates img capable plain svg
-  - browser can not open as standalone image
 
 ### Some fibonacci:
 ```
- x  a b f1 f(n)=a*f(n-1)+b*f(n-2)
- 2  2 +1 2 5,12,29,70,169,408,985
- 3  4 -1 4 15,56,209,780,2911
- 5  4 +1 4 17,72,305,1292
- 6 10 -1 2 20,198,1960
- 7 16 -1 3 48,765
- 8  6 -1 6 35,204,1189
+f(0) = 0
+f(n) = a*f(n-1)+b*f(n-2)
+ x  a  b f(1)
+ 2  2 +1    2 
+ 3  4 -1    4 
+ 5  4 +1    4 
+ 6 10 -1    2 
+ 7 16 -1    3 
+ 8  6 -1    6 
 10
+x ?= i + round sqrt i ; A000037
 ```</pre>
       </div>
     </div>
