@@ -7,6 +7,7 @@
   <title>L-System Fractals</title>
   <script src="lsystem.svg.js"></script>
   <script src="lsystem.examples.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
 
   <style>
     #left,
@@ -212,7 +213,7 @@
     #helpText {
       max-height: 80vh;
       max-width: 84ch;
-      font-size: 1rem
+      font-size: .9rem
     }
 
     hr {
@@ -286,8 +287,7 @@
 
     div[contentEditable=true]:empty:not(:focus):before {
       font-family: sans-serif;
-      font-style: italic;
-      font-size: 1.2rem;
+      font-size: 1rem;
       content: attr(data-placeholder);
       color: #777
     }
@@ -370,7 +370,7 @@
 
 <body>
   <div id="left">
-    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2 or click around. '>' shows next example" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2&#xa;or click around&#xa;▶: redraws (for autozoom)&#xa;>: shows next example.&#xa;url: small svg&#xa;svg: generated large svg&#xa;png: TBD&#xa;dot:...&#xa;*:all examples&#xa;log:just dragons" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
     <div id="butt">
       <button id="helpButton" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
@@ -401,6 +401,25 @@
   <div id="right"></div>
 
   <div id="helpModal">
+    <script>
+      document.querySelector('#helpModal').onclick = e =>
+        e.target === helpModal && (helpModal.style.display = 'none');
+      document.querySelector('#helpButton').onclick = async e => {
+        let a = document.querySelector('.md');
+        document.querySelector('#helpModal').style.display = 'flex';
+        const f = t => {
+          try {
+            if (typeof marked != 'undefined' && a) {
+              a.innerHTML = marked.parse(a.innerText);
+              a.classList.remove('md');
+              a.classList.add('preasdiv');
+            } else if (t < 1e4) setTimeout(() => f(t * 1.5 + 100), t);
+          } catch (e) { };
+          t || (document.querySelector('#helpModal').style.display = 'flex');
+        };
+        f(0);
+      }
+    </script>
     <div id="helpWindow">
       <span onclick="document.querySelector('#helpModal').style.display='none'" style="float:right;cursor:pointer">X</span>
       <div id="helpText">
@@ -446,7 +465,7 @@ Keys starting with `_` have numeric values:
 
 ### Files
 - `lsystem.js.svg`
-  - embedable with `<object>` or `<embed>`, not with `<img>`.
+  - embedable with `&lt;object>` or `&lt;embed>`, not with `&lt;img>`.
   - browser can open as standalone image
 - `lsystem.svg.js`
   - generates img capable plain svg
@@ -461,8 +480,7 @@ Keys starting with `_` have numeric values:
  7; 16a(n-1)-a(n-2) 3,48,765
  8;  6a(n-1)-a(n-2) 6,35,204,1189
 10;
-```
-        </pre>
+```</pre>
       </div>
     </div>
   </div>
