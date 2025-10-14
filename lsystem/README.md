@@ -6,9 +6,18 @@
 Standalone svg file example: [lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
 ### How it Works
-Start with a sentence 'S'. Each iteration replaces characters in the sentence using key-value rules. The resulting sentence instructs a Logo turtle.
+Start with a sentence 'S'. Each iteration replaces
+characters in the sentence using key-value rules.
+The resulting sentence instructs a Logo turtle in
+which direction, ho much go and draw or not its path.
 
-### Rule Key-Value Pairs
+### Syntax:
+As ruleset can be in url fragment, queryparam, json
+or plaintext:
+- Rules separated by `,` or `&` or `\n`
+- Rule's key-value separated by `=` or `:`
+
+### Rule's key-value pairs:
 Keys starting with `_` have numeric values:
 - `_n`: Number of iterations
 - `_l`: Initial line length (width=1)
@@ -18,10 +27,10 @@ Keys starting with `_` have numeric values:
 - Single char + `2`: Rule for n+1 iteration
 - Empty key: Title
 
-### Rule Value Characters
+### Rule Value Characters:
 - `S`: Starting sentence
 - `F`, `f`: Move forward with/without drawing
-- `+`, `-`, `^`, `|`: Rotate by _a, -_a, right, or straight
+- `+`, `-`, `^`, `|`: Rotate +a, -a, +90, 180
 - `!`: Toggle rotation parity
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction

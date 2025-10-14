@@ -370,7 +370,7 @@
 
 <body>
   <div id="left">
-    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2 or click around" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2 or click around. '>' shows next example" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
     <div id="butt">
       <button id="helpButton" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
@@ -437,6 +437,31 @@ Keys starting with `_` have numeric values:
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
 
+### Syntax
+- Plaintext and url:
+  - Rule separators: `,` or `&`. Plaintext: `\n` works too.
+  - Key-value separator: `=`
+- Url: preceed with `#` or `?` (fragment/queryparams)
+- JSON: straightforward key-values
+
+### Files
+- `lsystem.js.svg`
+  - embedable with `<object>` or `<embed>`, not with `<img>`.
+  - browser can open as standalone image
+- `lsystem.svg.js`
+  - generates img capable plain svg
+  - browser can not open as standalone image
+
+### Some fibonacci:
+```
+ 2;  2a(n-1)+a(n-2) 2,5,12,29,70,169,408,985,2378
+ 3;  4a(n-1)-a(n-2) 4,15,56,209,780,2911
+ 5;  4a(n-1)+a(n-2) 4,17,72,305,1292
+ 6; 10a(n-1)-a(n-2) 2,20,198,1960
+ 7; 16a(n-1)-a(n-2) 3,48,765
+ 8;  6a(n-1)-a(n-2) 6,35,204,1189
+10;
+```
         </pre>
       </div>
     </div>
@@ -819,7 +844,7 @@ Keys starting with `_` have numeric values:
       setupMobileKeyboard();
       setupEventListeners();
       setupMobile();
-      if (1) showExample(2); else showAllExamples();
+      if (0) showExample(2); else showAllExamples();
     }
 
     init();
