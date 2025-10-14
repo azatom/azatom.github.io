@@ -189,8 +189,8 @@
     }
 
     .smallsvgs>svg {
-      width: calc(max(11vh, 11vw));
-      height: calc(max(11vh, 11vw));
+      width: calc(max(10vh, 10vw));
+      height: calc(max(10vh, 10vw));
       cursor: pointer
     }
 
@@ -268,7 +268,6 @@
 
     button.txt {
       align-items: center;
-      font-weight: 100;
       justify-content: center;
       font-size: 1rem
     }
@@ -370,7 +369,7 @@
 
 <body>
   <div id="left">
-    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2&#xa;or click around&#xa;▶: redraws (for autozoom)&#xa;>: shows next example.&#xa;url: small svg&#xa;svg: generated large svg&#xa;png: TBD&#xa;dot:...&#xa;*:all examples&#xa;log:just dragons" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
+    <div id="textarea" data-placeholder="Type here S=FS+SF,_n=2&#xa;Click around:&#xa; ▶: redraws (eg. autozoom)&#xa; &lt;>: prev/next example&#xa; dot:...&#xa; *:all examples&#xa; url: small svg&#xa; svg: generated large svg&#xa; png: TBD&#xa; log:just dragons" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"></div>
     <div id="butt">
       <button id="helpButton" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
@@ -702,6 +701,7 @@ Keys starting with `_` have numeric values:
         console.log({ [`#${i}`]: state.examples[i]?.[''] || '' });
         toggleCustomLog(true);
         svg.addEventListener('click', e => {
+          state.currentExampleIndex = i;
           if (e.shiftKey || e.ctrlKey) {
             openStandalone(state.examples[i]);
           } else {
