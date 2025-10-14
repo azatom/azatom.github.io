@@ -37,14 +37,14 @@ Keys starting with `_` have numeric values:
 
 ### Syntax
 - Plaintext and url:
-  - Rule separators: `,` or `&`. Plaintext: `\n` works too.
+  - Rule separators: `,` or `&`. Plaintext: `\n` works too
   - Key-value separator: `=`
 - Url: preceed with `#` or `?` (fragment/queryparams)
 - JSON: straightforward key-values
 
 ### Files
 - `lsystem.js.svg`
-  - embedable with `<object>` or `<embed>`, not with `<img>`.
+  - embedable with `<object>` or `<embed>`, not with `<img>`
   - browser can open as standalone image
 - `lsystem.svg.js`
   - generates img capable plain svg
@@ -52,11 +52,12 @@ Keys starting with `_` have numeric values:
 
 ### Some fibonacci:
 ```
- 2;  2a(n-1)+a(n-2) 2,5,12,29,70,169,408,985,2378
- 3;  4a(n-1)-a(n-2) 4,15,56,209,780,2911
- 5;  4a(n-1)+a(n-2) 4,17,72,305,1292
- 6; 10a(n-1)-a(n-2) 2,20,198,1960
- 7; 16a(n-1)-a(n-2) 3,48,765
- 8;  6a(n-1)-a(n-2) 6,35,204,1189
-10;
+ x  a b f1 f(n)=a*f(n-1)+b*f(n-2)
+ 2  2 +1 2 5,12,29,70,169,408,985
+ 3  4 -1 4 15,56,209,780,2911
+ 5  4 +1 4 17,72,305,1292
+ 6 10 -1 2 20,198,1960
+ 7 16 -1 3 48,765
+ 8  6 -1 6 35,204,1189
+10
 ```
