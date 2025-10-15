@@ -1,5 +1,6 @@
 <svg onload='b(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
-const b=(event)=>{(onhashchange=(R, svg)=>{
+const b=(e)=>{const svg=e.target;(onhashchange=()=>{
+  let R = location.href.split(/[?#]/)[1] || 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3';
   R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let T = performance.now(), [x, y, a, b, q, O] = Array(9).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
@@ -95,5 +96,6 @@ const b=(event)=>{(onhashchange=(R, svg)=>{
     }),
   );
   return svg;
-}
-)(location.href.split(/[?#]/)[1] || 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', event.target)}//]]></script></svg>
+})(e.target)}//]]></script>
+<path stroke='#000' stroke-linecap='round' stroke-linejoin='round' fill='none'/>
+</svg>
