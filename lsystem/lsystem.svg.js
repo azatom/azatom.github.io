@@ -72,7 +72,7 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
       b?.map(b => t.prepend(b));
       return t;
     }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
-  for (i of function* g(n) { if (n) for (j of g(n - 1)) { O++; yield* u(n)?.[j] ?? j; } else yield* R.S; }(R._n))
+  for (i of function* g(n) { if (n>0) for (j of g(n - 1)) { O++; yield* u(n)?.[j] ?? j; } else yield* R.S; }(R._n))
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
       '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
         '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
