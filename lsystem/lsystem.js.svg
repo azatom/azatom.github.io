@@ -1,8 +1,8 @@
 <svg onload='b(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
 const b=(e)=>{const svg=e.target; (onhashchange=()=>{
   let R = location.href.split(/[?#]/)[1] || 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3';
-  R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,=]*)=([^,=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
-  let [x, y, a, b, q] = Array(5).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
+  R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
+  let t0 = performance.now(), [x, y, a, b, q, o] = Array(9).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
   // TODO print str+=a.toPrecision(12)
   const createStep = (d, E = 1, F = 2 * E) => {
@@ -32,7 +32,11 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
         const grids = Object.keys(grid).length;
         const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
         return {
-          ' min': _min.toExponential(3), ' max': _max.toExponential(3), ' M/m': `${(_max / _min).toExponential(3)}`,
+          t:performance.now()-t0,
+          o,
+          min: _min.toExponential(3),
+          max: _max.toExponential(3),
+          Mpm: `${(_max / _min).toExponential(3)}`,
           comp: `${_cmp} ${_cmp / points * 100 | 0}%`,
           keys: `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
           pnts: `${points} +${_all - points} ${((_all - points) / points * 100).toFixed(0)}%`,
@@ -69,21 +73,21 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
       b?.map(b => t.prepend(b));
       return t;
     }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
-  for (i of function* g(n) { if (n) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
+  for (i of function* g(n) { if (n) for (j of g(n - 1)) {o++;yield* u(n)?.[j] ?? j;} else yield* R.S; }(R._n))
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
     '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
     '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
     '!' === i ? p = -p :
     '[' === i ? z.push([x, y, a, b, q]) :
-    ']' === i ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
-  [x, y, a, b] = D.vb(R._M??2);
-  try { console.log(D.stat()); } catch (e) { }
+    ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+  [x, y, a, b] = D.vb(R._M ?? 2);
+  // try { console.log(D.stat()); } catch (e) { }
   // const svg = C('svg');
-  svg.setAttribute('viewBox', `${R._x??x} ${R._y??y} ${R._w??a} ${R._h??b}`);
+  svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
-    (t => (t.textContent = R[''], t))(C('title')),
-    (t => (t.textContent = JSON.stringify(R).replace(/[{}"]/g, ''), t))(C('desc')),
-    C('rect', { fill: `#${R._b??'fff'}`, x, y, width: a, height: b }),
+    (t => (t.textContent = JSON.stringify(R, Object.keys(R).sort()).replace(/[{}"]/g, ''), t))(C('title')),
+    (t => (t.textContent = JSON.stringify(D.stat()), t))(C('desc')),
+    C('rect', { fill: `#${R._b ?? 'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {
       stroke: R._d ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
