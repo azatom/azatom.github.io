@@ -7,16 +7,17 @@
   <title>L-System Fractals</title>
   <script src="lsystem.svg.js"></script>
   <script src="lsystem.examples.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
   <style>
-    body,
-    html {
-      background-color: #fafafa;
+    body {
+      background-color: #fff;
       display: flex;
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      flex-direction: row;
     }
 
-    #left,
-    #right {
+    #left {
       position: relative;
       display: flex;
       flex-direction: column;
@@ -24,8 +25,7 @@
 
     #textarea,
     body,
-    html,
-    svg {
+    html {
       height: 100%;
     }
 
@@ -41,8 +41,7 @@
     }
 
     #log,
-    #textarea,
-    svg {
+    #textarea {
       width: 100%;
     }
 
@@ -53,7 +52,6 @@
 
     #helpText,
     #log,
-    #right,
     #textarea {
       overflow: auto;
     }
@@ -66,27 +64,28 @@
     }
 
     #helpModal,
-    .hidden,
+    .hidden {
+      display: none;
+    }
+
     button:hover>.a,
     button>.b,
     button[data-checked]:hover>.b,
     button[data-checked]>.a {
-      display: none;
+      /*display: none;*/
+      opacity: .2;
+      /*filter: invert(.5);*/
+      position: absolute;
     }
-
+    
     button:hover>.b,
     button>.a,
     button[data-checked]:hover>.a,
-    button[data-checked]>.b,
-    svg {
+    button[data-checked]>.b {
       display: block;
-    }
-
-    body,
-    html {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      flex-direction: row;
+      opacity: 1;
+      /*filter: invert(.2);*/
+      position: absolute;
     }
 
     #left {
@@ -99,11 +98,34 @@
     }
 
     #right {
+      display: flex;
       flex: 1;
-      justify-content: flex-start;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: auto;
       padding: 0;
       z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .smallsvgs {
+      width: 100%;
+      height: 100%;
+      align-items: flex-start;
+      justify-content: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      align-content: flex-start;
+    }
+
+    .smallsvgs>svg {
+      width: calc(min(12.2vh, 12.2vw) - 2px);
+      height: calc(min(12.2vh, 12.2vw) - 2px);
+      cursor: pointer;
     }
 
     #textarea {
@@ -140,9 +162,13 @@
     }
 
     svg {
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      object-position: top left;
+      max-width: 100%;
+      max-height: 100%;
     }
+
 
     #butt {
       display: flex;
@@ -173,6 +199,11 @@
       background-color: #ddd;
       line-height: 1;
       padding: 0;
+      font-family: sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
     }
 
     button:hover {
@@ -181,14 +212,6 @@
 
     button.off {
       color: #aaa;
-    }
-
-    button.txt {
-      font-family: sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
     }
 
     button>.b {
@@ -244,19 +267,6 @@
       border-top: 0.5px solid #ccc;
       max-width: 10rem;
       margin: 0 0.25rem;
-    }
-
-    .smallsvgs {
-      display: flex;
-      flex-wrap: wrap;
-      flex-direction: row;
-      align-content: flex-start;
-    }
-
-    .smallsvgs>svg {
-      width: calc(min(12.2vh, 12.2vw) - 2px);
-      height: calc(min(12.2vh, 12.2vw) - 2px);
-      cursor: pointer;
     }
 
     .error {
@@ -360,23 +370,23 @@
       <button id="prevExample" title="Previous example">&lt;</button>
       <button id="nextExample" title="Next example">&gt;</button>
       <button id="dot" title="Show endpoints only">
-        <object class="a" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=4,_M=2,_d=1">●</object>
-        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=2">l</object>
+        <object class="a" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1">●</object>
+        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4">l</object>
       </button>
       <button id="allExamples" title="Show all examples">✱</button>
-      <button id="openStandalone" title="" class="txt">
-        <div class="a">svg<br>url</div>
+      <button id="openStandalone" title="Small, url .svg">
+        <div class="a">url</div>
         <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_M=4">㏒</object>
       </button>
-      <button id="downloadSvg" title="" class="txt">
-        <div class="a">svg<br>big</div>
+      <button id="downloadSvg" title="Download big, generated .svg">
+        <div class="a">svg</div>
         <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=F++*F/--/F+++*FF++FF/+++F--**F++F,_m=1.41,_a=45,_b=0000,_l=3,_M=2">l</object>
       </button>
-      <button id="downloadPng" title="" class="txt">
+      <button id="downloadPng" title="TODO">
         <div class="a">png</div>
         <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=F++*F/--/F+++*FF++FF/+++F--**F++F,_m=1.41,_a=45,_b=0000,_l=3,_M=2">l</object>
       </button>
-      <button id="buttonlog" title="Toggle log" class="txt">
+      <button id="buttonlog" title="Toggle log">
         <div class="a">log</div>
         <object class="b" type="image/svg+xml" data="lsystem.js.svg?A=[+AX-AX-AX]-AX+AX+AX-,F=,S=AX,X=F+F+F+FFF-F-F-F,_a=60,_m=1.5,_n=3,_b=0000,_l=4,_M=2">㏒</object>
       </button>
@@ -919,8 +929,7 @@ x ?= i + round sqrt i ; A000037
       setupMobileKeyboard();
       setupEventListeners();
       setupMobile();
-      if (0) showExample(2);
-      else showAllExamples();
+      showAllExamples();
     }
 
     init();

@@ -1,5 +1,5 @@
 <svg onload='b(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
-const b=(e)=>{const svg=e.target; (onhashchange=()=>{
+const b=(e)=>{(onhashchange=(svg)=>{
   let R = location.href.split(/[?#]/)[1] || 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3';
   R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let T = performance.now(), [x, y, a, b, q, O] = Array(9).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
@@ -82,12 +82,12 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
     '[' === i ? z.push([x, y, a, b, q]) :
     ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   [x, y, a, b] = D.vb(R._M ?? 2).map(o);
-  // try { console.log(D.stat()); } catch (e) { }
-  // const svg = C('svg');
+  try { console.log(D.stat()); } catch (e) { }
+  svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
     (t => (t.textContent = R?.[''] ?? 'a', t))(C('title')),
-    (t => (t.textContent = JSON.stringify({ ...D.stat(), R: JSON.stringify(R).replace(/[{}"]/g, '') }), t))(C('desc')),
+    (t => (t.textContent = JSON.stringify({ ...D.stat(), R: Object.keys(R).sort().map(k=>`${k}=${R[k]}`).join(',')}), t))(C('desc')),
     C('rect', { fill: `#${R._b ?? 'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {
@@ -96,6 +96,6 @@ const b=(e)=>{const svg=e.target; (onhashchange=()=>{
     }),
   );
   return svg;
-})()}//]]></script>
+})(e.target)}//]]></script>
 <path stroke='#000' stroke-linecap='round' stroke-linejoin='round' fill='none'/>
 </svg>

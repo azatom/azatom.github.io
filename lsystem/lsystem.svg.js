@@ -1,5 +1,4 @@
-function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3') {
-  // const R = location.href.split(/[?#]/)[1] || 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3';
+function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', svg) {
   R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let T = performance.now(), [x, y, a, b, q, O] = Array(9).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
   R.S ??= 'F'; R._a = R._a ?? 90; R._n ??= 1; R._l ??= 9; R._m ??= Q;
@@ -79,14 +78,14 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
         '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
           '!' === i ? p = -p :
             '[' === i ? z.push([x, y, a, b, q]) :
-              ']' === i ? z.length ? ([x, y, a, b, q] = z.pop(), D.put(x, y)) : (_ => { throw new Error(']:SUF'); })() : 0;
+              ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   [x, y, a, b] = D.vb(R._M ?? 2).map(o);
   try { console.log(D.stat()); } catch (e) { }
-  const svg = C('svg');
+  svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
     (t => (t.textContent = R?.[''] ?? 'a', t))(C('title')),
-    (t => (t.textContent = JSON.stringify({ ...D.stat(), R: JSON.stringify(R).replace(/[{}"]/g, '') }), t))(C('desc')),
+    (t => (t.textContent = JSON.stringify({ ...D.stat(), R: Object.keys(R).sort().map(k=>`${k}=${R[k]}`).join(',')}), t))(C('desc')),
     C('rect', { fill: `#${R._b ?? 'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {
