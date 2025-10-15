@@ -77,7 +77,7 @@
       /*filter: invert(.5);*/
       position: absolute;
     }
-    
+
     button:hover>.b,
     button>.a,
     button[data-checked]:hover>.a,
@@ -192,7 +192,6 @@
 
     button {
       color: #000;
-      font-size: 1.2rem;
       border-radius: 0.3125rem;
       cursor: pointer;
       border: none;
@@ -203,7 +202,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 1.2rem;
     }
 
     button:hover {
@@ -278,11 +277,12 @@
       font-family: sans-serif;
     }
 
-    div[contentEditable="true"]:empty:not(:focus):before {
+    div[contenteditable="true"]:empty:not(:focus):before {
       font-family: sans-serif;
       font-size: 1rem;
+      font-weight: bold;
       content: attr(data-placeholder);
-      color: #777;
+      color: #aaa;
     }
 
     @media only screen and (max-width: 600px) {
@@ -363,32 +363,36 @@
 
 <body>
   <div id="left">
-    <div id="textarea" contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder="Type here S=FS+SF,_n=2&#xa;Click around:&#xa; ? - if it helps&#xa;▶ - redraws (eg. autozoom)&#xa; &lt;> - prev/next example&#xa; dot - ...&#xa; * - all examples&#xa; url - small svg&#xa; svg - generated large svg&#xa; png - TBD&#xa; log - just dragons"></div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder="L-System Fractals&#xa;&#xa;Type here S=FS+SF,_n=2&#xa;Click around:&#xa; ?  - doc&#xa; >  - Update (eg. autozoom)&#xa; &lt;>  - prev/next example&#xa; dot - ...&#xa; *  - all examples&#xa; url  - small svg&#xa; svg  - generated large svg&#xa; png  - TBD but why?&#xa; log  - just dragons"></div>
     <div id="butt">
       <button id="helpButton" title="Help">?</button>
-      <button id="buttonsubmit" title="Update (Ctrl+Enter)">▶</button>
+      <button id="buttonsubmit" title="Update (Ctrl+Enter)">
+        <object data="lsystem.js.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_M=3" tabindex="-1" class="a" type="image/svg+xml">run</object>
+      </button>
       <button id="prevExample" title="Previous example">&lt;</button>
       <button id="nextExample" title="Next example">&gt;</button>
       <button id="dot" title="Show endpoints only">
-        <object class="a" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1">●</object>
-        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4">l</object>
+        <object data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
+        <object data="lsystem.js.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4" tabindex="-1" class="b" type="image/svg+xml">l</object>
       </button>
-      <button id="allExamples" title="Show all examples">✱</button>
+      <button id="allExamples" title="Show all examples">
+        <object data="lsystem.js.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_M=3" tabindex="-1" class="a" type="image/svg+xml">all</object>
+      </button>
       <button id="openStandalone" title="Small, url .svg">
         <div class="a">url</div>
-        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_M=4">㏒</object>
+        <object data="lsystem.js.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_M=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
       </button>
       <button id="downloadSvg" title="Download big, generated .svg">
         <div class="a">svg</div>
-        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=F++*F/--/F+++*FF++FF/+++F--**F++F,_m=1.41,_a=45,_b=0000,_l=3,_M=2">l</object>
+        <object data="lsystem.js.svg?S=F++*F/--/F+++*FF++FF/+++F--**F++F,_m=1.41,_a=45,_b=0000,_l=3,_M=2" tabindex="-1" class="b" type="image/svg+xml">l</object>
       </button>
       <button id="downloadPng" title="TODO">
         <div class="a">png</div>
-        <object class="b" type="image/svg+xml" data="lsystem.js.svg?S=F++*F/--/F+++*FF++FF/+++F--**F++F,_m=1.41,_a=45,_b=0000,_l=3,_M=2">l</object>
+        <object data="lsystem.js.svg?S=F++*F/--/F+++*FF++FF/+++F--**F++F,_m=1.41,_a=45,_b=0000,_l=3,_M=2" tabindex="-1" class="b" type="image/svg+xml">l</object>
       </button>
       <button id="buttonlog" title="Toggle log">
         <div class="a">log</div>
-        <object class="b" type="image/svg+xml" data="lsystem.js.svg?A=[+AX-AX-AX]-AX+AX+AX-,F=,S=AX,X=F+F+F+FFF-F-F-F,_a=60,_m=1.5,_n=3,_b=0000,_l=4,_M=2">㏒</object>
+        <object data="lsystem.js.svg?A=[+AX-AX-AX]-AX+AX+AX-,F=,S=AX,X=F+F+F+FFF-F-F-F,_a=60,_m=1.5,_n=3,_b=0000,_l=4,_M=2" tabindex="-1" class="b" type="image/svg+xml">log</object>
       </button>
       <div id="log"></div>
     </div>
@@ -401,7 +405,8 @@
       <span onclick="document.querySelector('#helpModal').style.display='none'" style="float: right; cursor: pointer">X</span>
       <div id="helpText">
         <pre class="md">
-## Logo Turtle with Context-Free Grammar - L-System Fractals
+# L-System Fractals
+## Logo Turtle with Context-Free Grammar
 
 ### How it Works:
 Start with a sentence 'S'. Each iteration replaces
@@ -433,6 +438,12 @@ Keys starting with `_` have numeric values:
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
 
+### Additional parameters for svg:
+- `_x`, `_y`, `_w`, `_h`: viewBox
+- `_d`: 1: dots instead of lines, use `_l` for size
+- `_b`: Background without `#`, eg. transparent:fff0 
+- `_M`: Padding
+
 ### Syntax
 - Plaintext and url:
   - Rule separators: `,` or `&`. Plaintext: `\n` works too.
@@ -441,7 +452,6 @@ Keys starting with `_` have numeric values:
 - JSON: straightforward key-values
 
 ### Files
-2 same versions: vaguelly first 2 lines, script/svg tag swapped.
 - `lsystem.js.svg`
   - embedable with `&lt;object>` or `&lt;embed>`, not with `&lt;img>`.
   - browser opens as standalone image with parameters
@@ -461,7 +471,7 @@ f(n) = a*f(n-1)+b*f(n-2)
  7 16 -1    3 
  8  6 -1    6 
 10
-x ?= i + round sqrt i ; A000037
+x = i + round sqrt i ; A000037
 ```</pre>
       </div>
     </div>
@@ -702,10 +712,7 @@ x ?= i + round sqrt i ; A000037
       try {
         const t0 = performance.now();
         const svg = createSvg(createR(getRulesObj()));
-        console.log(
-          `${state.cnt - ++state.cnt2}/${state.cnt} ${(performance.now() - t0) | 0
-          }ms`
-        );
+        console.log(`${state.cnt - ++state.cnt2}/${state.cnt} ${(performance.now() - t0) | 0}ms`);
         addSvgZoom(svg);
         els.right.replaceChildren(svg);
       } catch (err) {
@@ -720,9 +727,7 @@ x ?= i + round sqrt i ; A000037
     }
 
     async function showAllExamples() {
-      const container = Object.assign(document.createElement("div"), {
-        className: "smallsvgs",
-      });
+      const container = Object.assign(document.createElement("div"), { className: "smallsvgs", });
       els.right.replaceChildren(container);
 
       for (let i = 0; i < state.examples.length; i++) {
@@ -841,11 +846,7 @@ x ?= i + round sqrt i ; A000037
 
       if (window.visualViewport) {
         window.visualViewport.addEventListener("resize", () => {
-          if (
-            Math.abs(
-              window.visualViewport.height - state.lastViewportHeight
-            ) > 50
-          ) {
+          if (Math.abs(window.visualViewport.height - state.lastViewportHeight) > 50) {
             document.body.classList.toggle(
               "keyboard-active",
               window.visualViewport.height < state.lastViewportHeight
@@ -887,12 +888,10 @@ x ?= i + round sqrt i ; A000037
         () =>
           els.textarea.textContent === "" && (els.textarea.textContent = "")
       );
-
       els.dot.addEventListener("click", () => {
         setDot(!getDot());
         getText() ? update() : showAllExamples();
       });
-
       els.submit.addEventListener("click", () => update());
       els.prevExample.addEventListener("click", () =>
         showExample(state.currentExampleIndex - 1)
@@ -902,9 +901,8 @@ x ?= i + round sqrt i ; A000037
       );
       els.allExamples.addEventListener("click", showAllExamples);
       els.buttonlog.addEventListener("click", () => {
-        let a = els.log.classList.toggle("hidden");
-        els.textarea.style.height = a ? "auto" : "100%";
-        els.buttonlog.classList.toggle("off", a);
+        els.textarea.style.height = "100%";
+        els.buttonlog.classList.toggle("off", els.log.classList.toggle("hidden"));
       });
       els.helpButton.addEventListener("click", () => (els.helpModal.style.display = "flex"));
       els.helpModal.addEventListener("click", (e) => e.target === els.helpModal && (els.helpModal.style.display = "none"));
@@ -919,16 +917,13 @@ x ?= i + round sqrt i ; A000037
       );
     }
 
-    function setupMobile() {
-      if (state.isMobile) els.log.classList.add("hidden");
-    }
-
     function init() {
+      els.log.classList.add("hidden");
       setupCustomLog();
       setupDividers();
       setupMobileKeyboard();
       setupEventListeners();
-      setupMobile();
+      els.textarea.setAttribute('contenteditable', true);
       showAllExamples();
     }
 
