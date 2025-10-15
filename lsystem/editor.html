@@ -9,7 +9,11 @@
   <script src="lsystem.examples.js"></script>
   <script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
   <style>
+    html {
+      overflow: hidden;
+    }
     body {
+      overflow: hidden;
       background-color: #fff;
       display: flex;
       margin: 0;
@@ -56,14 +60,6 @@
       overflow: auto;
     }
 
-    #helpWindow,
-    body,
-    button,
-    html {
-      overflow: hidden;
-    }
-
-    #helpModal,
     .hidden {
       display: none;
     }
@@ -155,7 +151,7 @@
 
     #log {
       flex: 1;
-      height: 9rem;
+      height: 14rem;
       flex-basis: auto;
     }
 
@@ -182,13 +178,9 @@
       pointer-events: none;
     }
 
-    button,
-    button>object {
-      height: 2.1rem;
-      width: 2.1rem;
-    }
 
     button {
+      flex: 1;
       color: #000;
       border-radius: 0.3125rem;
       cursor: pointer;
@@ -201,6 +193,7 @@
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
+      overflow: hidden;
     }
 
     button:hover {
@@ -211,10 +204,13 @@
       color: #aaa;
     }
 
-    button>.b {
-      font-size: 2rem;
+    button,
+    button>object {
+      min-height: 2.6rem;
+      min-width: 2.6rem;
+      max-height: 3.3rem;
+      max-width: 4.3rem;
     }
-
 
     .divider {
       padding: 0.3rem;
@@ -239,6 +235,7 @@
     }
 
     #helpModal {
+      display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.6);
@@ -252,6 +249,7 @@
       padding: 1em;
       border-radius: 6px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
     }
 
     #helpText {
@@ -262,7 +260,7 @@
     hr {
       border: none;
       border-top: 0.5px solid #ccc;
-      max-width: 10rem;
+      max-width: 9rem;
       margin: 0 0.25rem;
     }
 
@@ -362,19 +360,17 @@
 
 <body>
   <div id="left">
-    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      data-placeholder=" L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - No save! Use 'url' button for oneline ruleset."></div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - No save! Use 'url' button for oneline ruleset."></div>
     <div id="butt">
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
         <object data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_M=3" tabindex="-1" class="a" type="image/svg+xml">run</object>
       </button>
-      <button id="buttonprev" title="Previous example">&lt;</button>
-      <button id="buttonnext" title="Next example">&gt;</button>
       <button id="buttondot" title="Show endpoints only">
         <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
         <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4" tabindex="-1" class="b" type="image/svg+xml">l</object>
       </button>
+      <button id="buttonnext" title="Next example">next<br>e.g.</button>
       <button id="buttonall" title="Show all examples">
         <object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_M=3" tabindex="-1" class="a" type="image/svg+xml">all</object>
       </button>
@@ -390,14 +386,11 @@
         <div class="a">png</div>
         <object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_M=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
-      <button id="buttonlog" title="Toggle log">
-        <div class="a">log</div>
-        <object data="lsystem.svg?A=[+AX-AX-AX]-AX+AX+AX-,F=,S=AX,X=F+F+F+FFF-F-F-F,_a=60,_m=1.5,_n=3,_b=0000,_l=4,_M=2" tabindex="-1" class="b" type="image/svg+xml">log</object>
-      </button>
+      <button id="buttonlog" title="Toggle log">log</button>
       <button id="buttonnmm" title="1 less iteration">n--</button>
-      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">n++</button>
-      <div id="log"></div>
+      <button id="buttonnpp" style="background-color: rgba(142, 52, 52, 0.726);" title="CAREFUL! above 9 edit rule by hand">n++</button>
     </div>
+    <div id="log"></div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -415,9 +408,8 @@
   - Buttons:
     - `?`  - doc
     - `&gt;` - ResetZoom,Cleanup,..
-    - `&lt;`,`&gt`;  - prev/next example
     - `dots` - endpoints of lines
-    - `*`  - all examples
+    - `next`, `*`  - next/all examples
     - `url`  - EXPORT rules
     - `svg`  - generated large svg
     - `png`  - TBD
@@ -471,12 +463,15 @@ Keys starting with `_` have numeric values:
 - JSON: straightforward key-values
 
 ### Files
+- `editor.html` - the "app" 
 - `lsystem.svg`
   - embedable with `&lt;object>` or `&lt;embed>`, not with `&lt;img>`.
   - browser opens as standalone image with parameters
-  - editable in urlbar
+  - editable svg in urlbar
 - `lsystem.js`
   - generates img capable plain svg
+  - use in app
+- `lsystem.examples.js`
 
 ### Some fibonacci:
 ```
@@ -535,7 +530,6 @@ x = i + round sqrt i ; A000037
       buttHelp: document.querySelector('#buttonhelp'),
       buttSubmit: document.querySelector('#buttonsubmit'),
       buttDot: document.querySelector('#buttondot'),
-      buttPrev: document.querySelector('#buttonprev'),
       buttNext: document.querySelector('#buttonnext'),
       buttAll: document.querySelector('#buttonall'),
       buttJs: document.querySelector('#buttonjs'),
@@ -562,8 +556,10 @@ x = i + round sqrt i ; A000037
       });
       el.buttHelp.addEventListener('click', help);
       el.buttSubmit.addEventListener('click', () => { setText(getRulesObj()); update(); });
-      el.buttPrev.addEventListener('click', () => showExample(state.currentExampleIndex - 1));
-      el.buttNext.addEventListener('click', () => showExample(state.currentExampleIndex + 1));
+      el.buttNext.addEventListener('click', () => {
+        showExample(state.currentExampleIndex + 1);
+        el.textarea.style.height = '100%';
+      });
       el.buttDot.addEventListener('click', () => {
         setDot(!getDot());
         getText() ? update() : showAllExamples();
@@ -685,12 +681,12 @@ x = i + round sqrt i ; A000037
       );
     }
 
-    function addSvgZoom(svg) {
+    function addSvgZoom(svg, parentSelector) {
       let isDown = false;
       let startX, startY, scrollStartX = 0, scrollStartY = 0;
       const rip = 'svgzoomr9fg34gs6h', $rect = createIfAbsent('div', `${rip}rect`);
       $rect.style = 'position:absolute;pointer-events:none;display:none;';
-      createIfAbsent('style', `${rip}css`).sheet.insertRule(`#${rip}rect>svg{cursor:zoom-out}`);
+      createIfAbsent('style', `${rip}css`).sheet.insertRule(`${parentSelector}>svg{cursor:zoom-out}`);
       const getXY = (e) => {
         const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
         return { x: t.pageX, y: t.pageY };
@@ -749,10 +745,9 @@ x = i + round sqrt i ; A000037
       if (rules) { setText(rules); }
       showError();
       try {
-        const t0 = performance.now();
         const svg = createSvg(createR(getRulesObj()));
-        console.log(`${state.cnt - ++state.cnt2}/${state.cnt} ${(performance.now() - t0) | 0}ms`);
-        addSvgZoom(svg);
+        console.log({ 'er/updts': `${state.cnt - ++state.cnt2} ${state.cnt}` });
+        addSvgZoom(svg, '#right');
         el.right.replaceChildren(svg);
       } catch (err) {
         showError(err.message);

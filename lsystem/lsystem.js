@@ -32,12 +32,12 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
           const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
           return {
             ms: performance.now() - T|0,
-            bytes: O,
+            byte: O,
             min: _min.toExponential(3),
             max: _max.toExponential(3),
             Mpm: `${(_max / _min).toExponential(3)}`,
-            comp: `${_cmp} ${_cmp / points * 100 | 0}%`,
-            keys: `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
+            cmps: `${_cmp} ${_cmp / points * 100 | 0}%`,
+            grid: `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
             pnts: `${points} +${_all - points} ${((_all - points) / points * 100).toFixed(0)}%`,
             line: `${lines.size} +${lall - lines.size} ${((lall - lines.size) / lines.size * 100).toFixed(0)}%`,
           };
