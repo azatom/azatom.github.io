@@ -3,7 +3,7 @@
 
 [Editor](editor.html)
 
-Standalone svg file example: [lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.js.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
+Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
 ### How it Works
 Start with a sentence 'S'. Each iteration replaces
@@ -43,10 +43,10 @@ Keys starting with `_` have numeric values:
 - JSON: straightforward key-values
 
 ### Files
-- `lsystem.js.svg`
+- `lsystem.svg`
   - embedable with `<object>` or `<embed>`, not with `<img>`
   - browser can open as standalone image
-- `lsystem.svg.js`
+- `lsystem.js`
   - generates img capable plain svg
   - browser can not open as standalone image
 

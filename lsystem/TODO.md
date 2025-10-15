@@ -5,7 +5,7 @@
 - SegmentSet instead of string of 4floats
 - "EmptyStack:]" add warning (it is feature, not error)
 - warn mixing alternative separators
-- Generating system.js.svg from lsystem.svg.js:
+- Generating system.js.svg from lsystem.js:
   - optional: strip consolelog/stat, minimize
   - use wrappers in svg-vs-js.txt for CDATA
   - optional: use attr onload="{...}" instead of CDATA:
