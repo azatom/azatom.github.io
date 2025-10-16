@@ -31,8 +31,8 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
           const grids = Object.keys(grid).length;
           const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
           return {
+            byte: O ,
             ms: performance.now() - T|0,
-            byte: O,
             min: _min.toExponential(3),
             max: _max.toExponential(3),
             Mpm: `${(_max / _min).toExponential(3)}`,
@@ -72,15 +72,17 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
       b?.map(b => t.prepend(b));
       return t;
     }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
-  for (i of function* g(n) { if (n>0) for (j of g(n - 1)) { O++; yield* u(n)?.[j] ?? j; } else yield* R.S; }(R._n))
+  for (i of function* g(n) { if (n>0) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
+  (O++,
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
       '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
         '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
           '!' === i ? p = -p :
             '[' === i ? z.push([x, y, a, b, q]) :
-              ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+              ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0
+  );
   [x, y, a, b] = D.vb(R._M ?? 2).map(o);
-  try { console.log(D.stat()); } catch (e) { }
+  // try { console.log(D.stat()); } catch (e) { }
   svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
