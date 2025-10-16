@@ -12,6 +12,7 @@
     html {
       overflow: hidden;
     }
+
     body {
       overflow: hidden;
       background-color: #fff;
@@ -44,7 +45,6 @@
       white-space: pre-wrap;
     }
 
-    #log,
     #textarea {
       width: 100%;
     }
@@ -206,10 +206,10 @@
 
     button,
     button>object {
-      min-height: 2.6rem;
-      min-width: 2.6rem;
-      max-height: 3.3rem;
-      max-width: 4.3rem;
+      min-height: 2.5rem;
+      min-width: 3.6rem;
+      max-height: 3rem;
+      max-width: 5rem;
     }
 
     .divider {
@@ -360,20 +360,14 @@
 
 <body>
   <div id="left">
-    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - No save! Use 'url' button for oneline ruleset."></div>
     <div id="butt">
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
         <object data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_M=3" tabindex="-1" class="a" type="image/svg+xml">run</object>
       </button>
-      <button id="buttondot" title="Show endpoints only">
-        <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
-        <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4" tabindex="-1" class="b" type="image/svg+xml">l</object>
-      </button>
-      <button id="buttonnext" title="Next example">next<br>e.g.</button>
-      <button id="buttonall" title="Show all examples">
+      <!--button id="buttonall" title="Show all examples">
         <object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_M=3" tabindex="-1" class="a" type="image/svg+xml">all</object>
-      </button>
+      </button-->
       <button id="buttonjs" title="Small, url .svg">
         <div class="a">url</div>
         <object data="lsystem.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_M=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
@@ -387,10 +381,18 @@
         <object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_M=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
       <button id="buttonlog" title="Toggle log">log</button>
+      <button id="buttondot" title="Show endpoints only">
+        <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
+        <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4" tabindex="-1" class="b" type="image/svg+xml">l</object>
+      </button>
       <button id="buttonnmm" title="1 less iteration">n--</button>
       <button id="buttonnpp" style="background-color: rgba(142, 52, 52, 0.726);" title="CAREFUL! above 9 edit rule by hand">n++</button>
+      <button></button>
+      <button></button>
+      <button id="buttonnext" title="Next example">next<br>e.g.</button>
     </div>
     <div id="log"></div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - No save! Use 'url' button for oneline ruleset."></div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -493,8 +495,8 @@ x = i + round sqrt i ; A000037
 
   <script type="module">
     const state = {
-      cnt: 0,
-      cnt2: 0,
+      cntUpdate: 0,
+      cntSuccess: 0,
       examples: (typeof examples !== 'undefined' ? examples : [{
         S: 'AX',
         A: '[+AX-AX-AX]-AX+AX+AX-',
@@ -527,23 +529,15 @@ x = i + round sqrt i ; A000037
       log: document.querySelector('#log'),
       divider1: document.querySelector('#divider1'),
       right: document.querySelector('#right'),
-      buttHelp: document.querySelector('#buttonhelp'),
-      buttSubmit: document.querySelector('#buttonsubmit'),
       buttDot: document.querySelector('#buttondot'),
-      buttNext: document.querySelector('#buttonnext'),
-      buttAll: document.querySelector('#buttonall'),
-      buttJs: document.querySelector('#buttonjs'),
-      buttSvg: document.querySelector('#buttonsvg'),
-      buttPng: document.querySelector('#buttonpng'),
-      buttLog: document.querySelector('#buttonlog'),
-      buttNmm: document.querySelector('#buttonnmm'),
-      buttNpp: document.querySelector('#buttonnpp'),
+      buttSubmit: document.querySelector('#buttonsubmit'),
       helpModal: document.querySelector('#helpModal'),
       message: Object.assign(document.createElement('div'), {
-        textContent: 'generating...',
         style: 'font-size:2rem',
       }),
     };
+
+    function ael(qs, fn, e = 'click') { document.querySelector(qs).addEventListener(e, fn); }
 
     function setupEventListeners() {
       el.textarea.addEventListener('keydown', (e) => e.ctrlKey && e.key === 'Enter' && update());
@@ -554,28 +548,26 @@ x = i + round sqrt i ; A000037
         let plainText = e.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, plainText);
       });
-      el.buttHelp.addEventListener('click', help);
-      el.buttSubmit.addEventListener('click', () => { setText(getRulesObj()); update(); });
-      el.buttNext.addEventListener('click', () => {
+      ael('#buttonhelp', help);
+      ael('#buttonsubmit', () => { setText(getRulesObj()); update(); });
+      ael('#buttonnext', () => {
         showExample(state.currentExampleIndex + 1);
         el.textarea.style.height = '100%';
       });
-      el.buttDot.addEventListener('click', () => {
+      ael('#buttondot', () => {
         setDot(!getDot());
         getText() ? update() : showAllExamples();
       });
-      el.buttAll.addEventListener('click', showAllExamples);
-      el.buttLog.addEventListener('click', () => {
+      ael('#buttonlog', function (e) {
         el.textarea.style.height = '100%';
-        el.buttLog.classList.toggle('off', el.log.classList.toggle('hidden'));
+        this.classList.toggle('off', el.log.classList.toggle('hidden'));
       });
-      el.buttNmm.addEventListener('click', () => { let R = getRulesObj(); R._n = Math.max(0, -1 + parseInt(R._n ?? 2)); setText(R); update(); });
-      el.buttNpp.addEventListener('click', () => { let R = getRulesObj(); R._n = Math.min(9, +1 + parseInt(R._n ?? 0)); setText(R); update(); });
-      el.helpModal.addEventListener('click', (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
-      el.buttJs.addEventListener('click', () => buttonjs(getRulesObj()));
-      el.buttSvg.addEventListener('click', () => buttonsvg(el.right.querySelector(':scope>svg')));
-      el.buttPng.addEventListener('click', () => buttonpng(el.right.querySelector(':scope>svg')));
-      el.helpModal.onclick = (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none');
+      ael('#buttonnmm', () => { let R = getRulesObj(); R._n = Math.max(0, -1 + parseInt(R._n ?? 2)); setText(R); update(); });
+      ael('#buttonnpp', () => { let R = getRulesObj(); R._n = Math.min(9, +1 + parseInt(R._n ?? 0)); setText(R); update(); });
+      ael('#buttonjs', () => linkToSvg(getRulesObj()));
+      ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
+      ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
+      ael('#helpModal', (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
     }
 
     async function help() {
@@ -741,12 +733,12 @@ x = i + round sqrt i ; A000037
     }
 
     async function update(rules) {
-      state.cnt++;
+      state.cntUpdate++;
       if (rules) { setText(rules); }
       showError();
       try {
         const svg = createSvg(createR(getRulesObj()));
-        console.log({ 'er/updts': `${state.cnt - ++state.cnt2} ${state.cnt}` });
+        console.log({ 'er/updts': `${state.cntUpdate - ++state.cntSuccess} ${state.cntUpdate}` });
         addSvgZoom(svg, '#right');
         el.right.replaceChildren(svg);
       } catch (err) {
@@ -763,7 +755,7 @@ x = i + round sqrt i ; A000037
     async function showAllExamples() {
       const container = Object.assign(document.createElement('div'), { className: 'smallsvgs', });
       el.right.replaceChildren(container);
-
+      const t0 = performance.now();
       for (let i = 0; i < state.examples.length; i++) {
         const R = Object.fromEntries(
           Object.entries(state.examples[i]).map(([k, v]) => [
@@ -773,12 +765,11 @@ x = i + round sqrt i ; A000037
         );
         toggleCustomLog(false);
         const svg = createSvg(createR(R));
-        console.log({ [`#${i}`]: state.examples[i]?.[''] || '' });
         toggleCustomLog(true);
         svg.addEventListener('click', (e) => {
           state.currentExampleIndex = i;
           if (e.shiftKey || e.ctrlKey) {
-            buttonjs(state.examples[i]);
+            linkToSvg(state.examples[i]);
           } else {
             showExample(i);
           }
@@ -786,15 +777,16 @@ x = i + round sqrt i ; A000037
         container.appendChild(svg);
         await new Promise((res) => setTimeout(res, 0));
       }
+      console.log(`${((performance.now() - t0) / 1000).toFixed(3)} s ${state.examples.length} exmpls`);
     }
 
-    function buttonjs(o) {
+    function linkToSvg(o) {
       window
         .open(`lsystem.svg#${stringify(createR(o, 1))}`, '_blank')
         .focus();
     }
 
-    async function buttonsvg(svg) {
+    async function downloadsvg(svg) {
       if (!svg) return;
       const serializer = new XMLSerializer();
       const xmlStr = serializer.serializeToString(svg);
@@ -819,7 +811,7 @@ x = i + round sqrt i ; A000037
       }
     }
 
-    async function buttonpng(svg) { showError('no'); }
+    async function downloadpng(svg) { showError('no'); }
 
     function setupDividers() {
       const setDividering = (e) => {
@@ -912,7 +904,7 @@ x = i + round sqrt i ; A000037
     }
 
     function init() {
-      el.log.classList.add('hidden');
+      if (state.isMobile) el.log.classList.add('hidden');
       setupCustomLog();
       setupDividers();
       setupMobileKeyboard();
