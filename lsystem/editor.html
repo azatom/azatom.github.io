@@ -356,33 +356,35 @@
     <div id="butt">
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
-        <object data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_M=3" tabindex="-1" class="a" type="image/svg+xml">run</object>
+        <object data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_P=3" tabindex="-1" class="a" type="image/svg+xml">run</object>
       </button>
       <!--button id="buttonall" title="Show all examples">
-        <object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_M=3" tabindex="-1" class="a" type="image/svg+xml">all</object>
+        <object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object>
       </button-->
       <button id="buttonjs" title="Small, url .svg">
         <div class="a">url</div>
-        <object data="lsystem.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_M=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
+        <object data="lsystem.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_P=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
       </button>
       <button id="buttonsvg" title="Download big, generated .svg">
         <div class="a">SVG</div>
-        <object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_M=2" tabindex="-1" class="b" type="image/svg+xml">svg</object>
+        <object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">svg</object>
       </button>
       <button id="buttonpng" title="TODO">
         <div class="a">png</div>
-        <object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_M=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
+        <object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
+      <button id="buttonlsvg" title="">l.svg?</button>
       <button id="buttondot" title="Show endpoints only">
-        <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=2,_M=1,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
-        <object data="lsystem.svg?S=+++F++++F,_a=20,_b=0000,_l=8,_M=4" tabindex="-1" class="b" type="image/svg+xml">l</object>
+        <object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
+        <object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object>
       </button>
-      <button id="buttonnmm" title="1 less iteration">n--</button>
-      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">n++</button>
-      <button onclick="document.body.classList.toggle('tpbg')" title="use _b=0000">tpbg</button>
-      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_M=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
+      <button id="buttonnmm" title="1 less iteration">_n--</button>
+      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">_n++</button>
+      <button id="buttontpbg" title="transparent">_b=<br>0000</button>
+      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
       <button id="buttonnext" title="Next example">next<br>e.g.</button>
       <button id="buttonlog" title="Toggle log">log</button>
+      <button id="buttonlsclear">clear<br>data</button>
       <div id="log"></div>
     </div>
     <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Saved in localstorage."></div>
@@ -448,7 +450,7 @@ Keys starting with `_` have numeric values:
 - `_x`, `_y`, `_w`, `_h`: viewBox
 - `_d`: 1: dots instead of lines, use `_l` for size
 - `_b`: Background without `#`, eg. transparent:fff0 
-- `_M`: Padding
+- `_P`: Padding
 
 ### Syntax
 - Plaintext and url:
@@ -499,7 +501,7 @@ x = i + round sqrt i ; A000037
         _a: 60,
         _n: 3,
         '': 'tilesgLizard',
-      },]).map((s) => (typeof s === 'string' ? parseRules(s) : s)),
+      },]).map(s => (typeof s === 'string' ? parseRules(s) : s)).filter(s=>s),
       egsi: 0,
       isDividerActive: false,
       activeDivider: null,
@@ -538,7 +540,7 @@ x = i + round sqrt i ; A000037
     }
 
     function setupEventListeners() {
-      el.textarea.addEventListener('keydown', (e) => e.ctrlKey && e.key === 'Enter' && update());
+      el.textarea.addEventListener('keydown', (e) => e.ctrlKey && e.key === 'Enter' && el.buttSubmit.click());
       el.textarea.addEventListener('input', () => update());
       el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
       el.textarea.addEventListener('paste', (e) => {
@@ -546,8 +548,15 @@ x = i + round sqrt i ; A000037
         let plainText = e.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, plainText);
       });
+      el.textarea.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'c' && !window.getSelection().toString().length) {
+          e.preventDefault();
+          navigator.clipboard.writeText(stringify(getRulesObj()));
+          console.log('copied');
+        }
+      });
       ael('#buttonhelp', help);
-      ael('#buttonsubmit', () => { setText(getRulesObj()); update(); });
+      ael(el.buttSubmit, () => { setText(getRulesObj()); update(); });
       ael(el.buttNext, (e) => {
         showExample(((state.egsi + (e.shiftKey ? -1 : 1)) % state.egs.length + state.egs.length) % + state.egs.length);
         el.textarea.style.height = '100%';
@@ -563,7 +572,25 @@ x = i + round sqrt i ; A000037
       ael('#buttonall', () => showAllExamples());
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
+      ael('#buttonlsvg', () => downloadsvg(createSvg('')));
+      ael('#buttontpbg', () => toggleTpbg());
+      ael('#buttonlsclear', () => lsClear());
+
       ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
+    }
+
+    function toggleTpbg() {
+      let R = getRulesObj();
+      if (R?.b === '0000') {
+        delete R._b;
+        el.right.classList.remove('tpbg');
+        setText(R);
+      } else if (R?.b === undefined) {
+        R._b = '0000';
+        el.right.classList.add('tpbg');
+        setText(R);
+      }
+      update();
     }
 
     async function help() {
@@ -581,7 +608,7 @@ x = i + round sqrt i ; A000037
       renderMd();
     };
 
-    function stringify(o) {
+    function stringify(o = getRulesObj()) {
       return Object.entries(o)
         .map(([k, v]) => `${k}=${v}`)
         .join(',');
@@ -591,12 +618,16 @@ x = i + round sqrt i ; A000037
       return el.textarea.innerText;
     }
 
-    function setText(rules) { //typeof rules === 'string' ? parseRules(rules) : rules
+    function setText(rules) {
       if ('string' == typeof rules) {
         rules = parseRules(rules);
       }
-      el.textarea.innerHTML = Object.entries(rules)
-        .map(([k, v]) => `<p>${k}=${v}</p>`)
+      el.textarea.innerHTML = Object.keys(rules)
+        .sort((a, b) => {
+          const getPriority = (s) => s.split('').map(c => c === '=' ? 0 : c === 'S' ? 1 : (c >= 'A' ? 2 : (c >= 'a' ? 3 : (c === '_' ? 4 : 5)))).join('');
+          return getPriority(a).localeCompare(getPriority(b));
+        })
+        .map(k => `<p>${k}=${rules[k]}</p>`)
         .join('');
     }
 
@@ -729,23 +760,33 @@ x = i + round sqrt i ; A000037
       return svg;
     }
 
-    function save(R) {
-      localStorage.setItem('log', !el.log.classList.contains('hidden'));
-      localStorage.setItem('egsi', state.egsi);
-      localStorage.setItem('tpbg', document.body.classList.contains('tpbg'));
-      localStorage.setItem('R', JSON.stringify(R));
+    const ls = 'lsystemeditor_';
+    function lsSave(R) {
+      localStorage.setItem(ls + 'log', !el.log.classList.contains('hidden'));
+      localStorage.setItem(ls + 'egsi', state.egsi);
+      localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
+      localStorage.setItem(ls + 'R', JSON.stringify(R));
     }
-    function load() {
-      document.body.classList.toggle('tpbg', localStorage.getItem('tpbg') === 'true');
-      toggleLog(localStorage.getItem('log') === 'true');
-      const egsi = localStorage.getItem('egsi');
-      if (egsi) { state.egsi = Number(egsi); el.buttNext.innerHTML = `${state.egsi + 1}<br>/${state.egs.length}`; }
-      const r = localStorage.getItem('R');
+    function lsClear() {
+      localStorage.removeItem(ls + 'log');
+      localStorage.removeItem(ls + 'egsi');
+      localStorage.removeItem(ls + 'tpbg');
+      localStorage.removeItem(ls + 'R');
+    }
+    function lsLoad() {
+      document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
+      toggleLog(localStorage.getItem(ls + 'log') === 'true');
+      const egsi = localStorage.getItem(ls + 'egsi');
+      if (egsi) {
+        state.egsi = Number(egsi);
+        el.buttNext.innerHTML = `${state.egsi + 1}<br>/${state.egs.length}`;
+      }
+      const r = localStorage.getItem(ls + 'R');
       const isR = r && r !== '' && r !== '{}';
-      if (isR) update(JSON.parse(r));
-      else if (egsi) showExample();
+      if (isR) update(JSON.parse(r)); else if (egsi) showExample();
       return isR || egsi;
     }
+
 
     async function update(rules) {
       state.cntUpdate++;
@@ -755,9 +796,7 @@ x = i + round sqrt i ; A000037
         const r = getRulesObj();
         const R = createR(r);
         const svg = createSvg(R);
-        //setText(R);
-        save(r);
-        // console.log({ 'er/updts': `${state.cntUpdate - ++state.cntSuccess} ${state.cntUpdate}` });
+        lsSave(r);
         addSvgZoom(svg, '#right');
         el.right.replaceChildren(svg);
       } catch (err) {
@@ -934,7 +973,7 @@ x = i + round sqrt i ; A000037
       setupMobileKeyboard();
       setupEventListeners();
       el.textarea.setAttribute('contenteditable', true);
-      load() || showAllExamples();;
+      lsLoad() || showAllExamples();;
     }
 
     init();

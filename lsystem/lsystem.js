@@ -81,7 +81,7 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
             '[' === i ? z.push([x, y, a, b, q]) :
               ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0
   );
-  [x, y, a, b] = D.vb(R._M ?? 2).map(o);
+  [x, y, a, b] = D.vb(R._P ?? 2).map(o);
   try { console.log(D.stat()); } catch (e) { }
   svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
