@@ -32,9 +32,9 @@
       width: 16rem;
       min-width: 100px;
       max-width: 90vw;
-      background-color: #eee7;
       z-index: 1;
       gap: 0.5rem;
+      background-color: #fff;
     }
 
     .tpbg {
@@ -730,12 +730,14 @@ x = i + round sqrt i ; A000037
     }
 
     function save(R) {
+      localStorage.setItem('log', !el.log.classList.contains('hidden'));
       localStorage.setItem('egsi', state.egsi);
       localStorage.setItem('tpbg', document.body.classList.contains('tpbg'));
       localStorage.setItem('R', JSON.stringify(R));
     }
     function load() {
       document.body.classList.toggle('tpbg', localStorage.getItem('tpbg') === 'true');
+      toggleLog(localStorage.getItem('log') === 'true');
       const egsi = localStorage.getItem('egsi');
       if (egsi) { state.egsi = Number(egsi); el.buttNext.innerHTML = `${state.egsi + 1}<br>/${state.egs.length}`; }
       const r = localStorage.getItem('R');
@@ -920,8 +922,8 @@ x = i + round sqrt i ; A000037
       ) ?? console.oldLog(...args));
     }
     function toggleLog(showLog = !el.log.classList.toggle('hidden')) {
-      el.log.classList.toggle('hidden', showLog);
-      el.buttLog.toggleAttribute('data-checked', !el.log.classList.toggle('hidden'));
+      el.log.classList.toggle('hidden', !showLog);
+      el.buttLog.toggleAttribute('data-checked', showLog);
       toggleCustomLog(showLog);
     }
 
