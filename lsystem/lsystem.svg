@@ -33,15 +33,9 @@ const b=(e)=>{const svg=e.target;(onhashchange=()=>{
         const grids = Object.keys(grid).length;
         const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
         return {
-            ms: performance.now() - T|0,
-            bytes: O,
-          min: _min.toExponential(3),
-          max: _max.toExponential(3),
-          Mpm: `${(_max / _min).toExponential(3)}`,
-          comp: `${_cmp} ${_cmp / points * 100 | 0}%`,
-          keys: `${grids} +${points - grids} ${((points - grids) / points * 100).toFixed(0)}%`,
-          pnts: `${points} +${_all - points} ${((_all - points) / points * 100).toFixed(0)}%`,
-          line: `${lines.size} +${lall - lines.size} ${((lall - lines.size) / lines.size * 100).toFixed(0)}%`,
+            err: (points - grids) + ' ms ' + (performance.now() | 0) + ' MB ' + (O / 1e6).toFixed(6),
+            sml: _max.toExponential(3) + ' big ' + _min.toFixed(3),
+            dot: points + ' line ' + lines.size,
         };
       },
       vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },

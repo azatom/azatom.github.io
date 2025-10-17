@@ -9,6 +9,10 @@
   <script src="lsystem.examples.js"></script>
   <script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
   <style>
+    :root{
+      --g: #dddddd;
+      --w: #f5f5f5;
+    }
     html {
       overflow: hidden;
       height: 100%;
@@ -40,7 +44,7 @@
     .tpbg {
       background-image:
         repeating-linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff),
-        repeating-linear-gradient(45deg, #fff 25%, #eee 25%, #eee 75%, #fff 75%, #fff);
+        repeating-linear-gradient(45deg, #fff 25%, var(--w) 25%, var(--w) 75%, #fff 75%, #fff);
       background-position: 0 0, 2rem 2rem;
       background-size: 4rem 4rem;
     }
@@ -63,7 +67,7 @@
       color: #000;
       border-radius: 0.3125rem;
       border: none;
-      background-color: #ddd;
+      background-color: var(--w);
       line-height: 1;
       padding: 0;
       font-family: sans-serif;
@@ -74,12 +78,8 @@
       overflow: hidden;
     }
 
-    button[disabled] {
-      /*background-color: #fff7;*/
-    }
-
-    button:not([disabled]):hover {
-      background-color: #acf;
+    button:hover {
+      background-color: var(--g);
     }
 
     button:not([disabled]) {
@@ -124,16 +124,16 @@
       overflow: auto;
       border: none;
       min-height: 4rem;
-      font-size: 1rem;
+      font-size: 1.2rem;
       word-break: break-all;
       width: 100%;
     }
 
     hr {
       border: none;
-      border-top: .2rem solid #ccc;
+      border-top: .2rem solid var(--g);
       max-width: 9rem;
-      margin: 0 0.5rem;
+      margin: 0.1rem 0.5rem;
     }
 
     .hidden {
@@ -142,16 +142,22 @@
 
     #log {
       grid-column: 1 / -1;
-      height: 14rem;
-      padding: 0.5rem;
+      height: 3.4rem;
       white-space: pre-wrap;
-      overflow: auto;
       flex-basis: auto;
-      font-size: 0.9rem;
-      background-color: #ddd;
-      padding: 0.5rem;
+      font-size: 1rem;
+      background-color: var(--w);
+      padding: 0.2rem;
       border-radius: 0.3125rem;
       font-family: monospace;
+      transition: height 0.1s ease;
+      overflow: hidden;
+    }
+    
+    
+    #log:focus {
+      height: 10rem;
+      overflow: auto;
     }
 
     #textarea>p {
@@ -210,7 +216,7 @@
 
     .dividerv {
       width: 0;
-      background: linear-gradient(to right, #f5f5f5 0, #f5f5f5 50%, #fff 50%, #fff 100%);
+      background: linear-gradient(to left, var(--w) 0, var(--w) 50%, #fff 50%, #fff 100%);
     }
 
     .dividerv:hover {
@@ -237,7 +243,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: #000a;
       justify-content: center;
       align-items: center;
       z-index: 2;
@@ -247,7 +253,7 @@
       background: #fff;
       padding: 1em;
       border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 10px #000a;
       overflow: hidden;
     }
 
@@ -269,7 +275,7 @@
       font-family: sans-serif;
       font-size: 1rem;
       content: attr(data-placeholder);
-      color: #555;
+      color: #000;
     }
 
     @media only screen and (max-width: 600px) {
@@ -308,10 +314,6 @@
         height: 30vh;
       }
 
-      #log {
-        max-height: 9rem;
-      }
-
       #right {
         flex: 1;
       }
@@ -333,7 +335,7 @@
       }
 
       body.keyboard-active #textarea {
-        background: rgba(255, 255, 255, 0.9);
+        background: #ffffffe6;
         position: relative;
         z-index: 3;
       }
@@ -364,18 +366,16 @@
       <button id="buttonpng" title="TODO">
         <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
-      <button id="buttonlsvg" title="">l.svg?</button>
       <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
       <button id="buttonnmm" title="1 less iteration">_n--</button>
       <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">_n++</button>
       <button id="buttontpbg" title="transparent">_b=<br>0000</button>
       <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
-      <button id="buttonnext" title="Next example">next<br>e.g.</button>
-      <button id="buttonlog" title="Toggle log">log</button>
-      <button id="buttonlsclear">clear<br>data</button>
-      <div id="log"></div>
+      <button id="buttonnext" title="Next, Shift:Previous example">next<br>e.g.</button>
+      <button id="buttonlsclear">clear<br>saved</button>
+      <div tabindex="0" id="log"></div>
     </div>
-    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Saved in localstorage."></div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here..&#xa;&#xa;L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Saved in localstorage."></div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -480,16 +480,7 @@ x = i + round sqrt i ; A000037
     const state = {
       cntUpdate: 0,
       cntSuccess: 0,
-      egs: (typeof examples !== 'undefined' ? examples : [{
-        S: 'AX',
-        A: '[+AX-AX-AX]-AX+AX+AX-',
-        F: '',
-        X: 'F+F+F+FFF-F-F-F',
-        _l: 2,
-        _a: 60,
-        _n: 3,
-        '': 'tilesgLizard',
-      },]).map(s => (typeof s === 'string' ? parseRules(s) : s)).filter(s => s),
+      egs: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s => (typeof s === 'string' ? parseRules(s) : s)).filter(s => s),
       egsi: 0,
       isDividerActive: false,
       activeDivider: null,
@@ -514,7 +505,6 @@ x = i + round sqrt i ; A000037
       right: document.querySelector('#right'),
       buttDot: document.querySelector('#buttondot'),
       buttSubmit: document.querySelector('#buttonsubmit'),
-      buttLog: document.querySelector('#buttonlog'),
       buttNext: document.querySelector('#buttonnext'),
       helpModal: document.querySelector('#helpModal'),
       message: Object.assign(document.createElement('div'), {
@@ -539,7 +529,8 @@ x = i + round sqrt i ; A000037
       el.textarea.addEventListener('keydown', (e) =>
         e.ctrlKey && e.key === 'c' && !window.getSelection().toString().length && (
           e.preventDefault(),
-          navigator.clipboard.writeText(stringify())
+          navigator.clipboard.writeText(stringify()),
+          console.log('copied')
         )
       );
       ael('#buttonhelp', help);
@@ -552,14 +543,12 @@ x = i + round sqrt i ; A000037
         setDot(!getDot());
         getText() ? update() : showAllExamples();
       });
-      ael(el.buttLog, e => toggleLog());
       ael('#buttonnmm', () => { let R = getRulesObj(); R._n = Math.max(0, -1 + parseInt(R._n ?? 2)); setText(R); update(); });
       ael('#buttonnpp', () => { let R = getRulesObj(); R._n = Math.min(9, +1 + parseInt(R._n ?? 0)); setText(R); update(); });
       ael('#buttonjs', () => linkToSvg(createR(getRulesObj())));
       ael('#buttonall', () => showAllExamples());
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
-      ael('#buttonlsvg', () => downloadsvg(createSvg('')));
       ael('#buttontpbg', () => toggleTpbg());
       ael('#buttonlsclear', () => lsClear());
 
@@ -611,7 +600,7 @@ x = i + round sqrt i ; A000037
       }
       el.textarea.innerHTML = Object.keys(rules)
         .sort((a, b) => {
-          const getPriority = (s) => s.split('').map(c => c === '=' ? 0 : c === 'S' ? 1 : (c >= 'A' ? 2 : (c >= 'a' ? 3 : (c === '_' ? 4 : 5)))).join('');
+          const getPriority = (s) => s.split('').map(c => c === '=' ? 0 : c === 'S' ? 1 : (c >= 'A' ? 2 : (c >= 'a' ? 3 : (c !== '_' ? 4 : 5)))).join('');
           return getPriority(a).localeCompare(getPriority(b));
         })
         .map(k => `<p>${k}=${rules[k]}</p>`)
@@ -657,7 +646,6 @@ x = i + round sqrt i ; A000037
     function showError(msg) {
       el.message.innerText = msg || '...';
       el.buttSubmit.classList.toggle('error', !!msg);
-      //msg &&
       el.right.replaceChildren(el.message);
     }
 
@@ -748,20 +736,17 @@ x = i + round sqrt i ; A000037
 
     const ls = 'lsystemeditor_';
     function lsSave(R) {
-      localStorage.setItem(ls + 'log', !el.log.classList.contains('hidden'));
       localStorage.setItem(ls + 'egsi', state.egsi);
       localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
       localStorage.setItem(ls + 'R', JSON.stringify(R));
     }
     function lsClear() {
-      localStorage.removeItem(ls + 'log');
       localStorage.removeItem(ls + 'egsi');
       localStorage.removeItem(ls + 'tpbg');
       localStorage.removeItem(ls + 'R');
     }
     function lsLoad() {
       document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
-      toggleLog(localStorage.getItem(ls + 'log') === 'true');
       const egsi = localStorage.getItem(ls + 'egsi');
       if (egsi) {
         state.egsi = Number(egsi);
@@ -855,7 +840,7 @@ x = i + round sqrt i ; A000037
       }
     }
 
-    async function downloadpng(svg) { showError('no'); }
+    async function downloadpng(svg) { console.log('png:TBD'); }
 
     function setupDividers() {
       const setDividering = (e) => {
@@ -946,15 +931,9 @@ x = i + round sqrt i ; A000037
         document.createElement('hr')
       ) ?? console.oldLog(...args));
     }
-    function toggleLog(showLog = !el.log.classList.toggle('hidden')) {
-      el.log.classList.toggle('hidden', !showLog);
-      el.buttLog.toggleAttribute('data-checked', showLog);
-      toggleCustomLog(showLog);
-    }
 
     function init() {
       setupCustomLog();
-      toggleLog(false);//!state.isMobile);
       setupDividers();
       setupMobileKeyboard();
       setupEventListeners();
