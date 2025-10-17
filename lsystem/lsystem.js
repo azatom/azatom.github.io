@@ -31,9 +31,8 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
           const grids = Object.keys(grid).length;
           const points = Object.values(grid).reduce((p, c) => p + c.length, 0);
           return {
-            err: (points - grids) + ' ms ' + (performance.now() - T| 0) + ' MB ' + (O / 1e6).toFixed(6) +
-              ' sml ' + (_max.toExponential(3) + ' big ' + _min.toFixed(3)).replace(/Infinity/g, '∞') +
-              ' dot ' + points + ' line ' + lines.size,
+            err: points - grids, ms: (performance.now() - T | 0), B: O>=1e6?(O / 1e6).toFixed(6):O,
+            lg: Math.log(_max)|0, len: _min.toExponential(2), dot: points, line: lines.size
           };
         },
         vb: function (m) { return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m]; },
@@ -59,24 +58,22 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
     }
     , Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith('2')).map(([k, v]) => [k[0], v]))
     , z = [], u = n => Z && n === R._n ? Z : R, B = R._a / 90
-    , D = createStep()
+    , D = createStep(1e-3)
     , C = (t, a, ...b) => {
       t = document.createElementNS('http://www.w3.org/2000/svg', t);
       for (i in a) t.setAttribute(i, a[i]);
       b?.map(b => t.prepend(b));
       return t;
     }, f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b));
-  for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n))
-    (O++,
-      'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
-      '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
-      '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
-      '!' === i ? p = -p :
-      '[' === i ? z.push([x, y, a, b, q]) :
-      ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0
-    );
+  for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n)) ++O &&
+    'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
+    '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
+    '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
+    '!' === i ? p = -p :
+    '[' === i ? z.push([x, y, a, b, q]) :
+    ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   [x, y, a, b] = D.vb(R._P ?? 2).map(o);
-  try { console.log(D.stat()); } catch (e) { }
+  try { console.log(Object.entries(D.stat()).map(([k,v])=>v+' '+k).join(' ')); } catch (e) { }
   svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
@@ -85,8 +82,8 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
     C('rect', { fill: `#${R._b ?? 'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {
-      stroke: R._d ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-      ...R._d && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
+      stroke: R._d == '1' ? 'none' : '#000', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      ...R._d  == '1' && ['start', 'mid', 'end'].reduce((p, c) => (p['marker-' + c] = 'url(#m)', p), {}), d
     }),
   );
   return svg;
