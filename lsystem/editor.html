@@ -171,6 +171,28 @@
       font-style: italic;
     }
 
+    .divider {
+      padding: 0.3rem;
+      background-clip: content-box;
+    }
+
+    .dividerv {
+      width: 0;
+      background: linear-gradient(to left, var(--w) 0, var(--w) 50%, #fff 50%, #fff 100%);
+    }
+
+    .dividerv:hover {
+      cursor: col-resize;
+    }
+
+    .dividerh {
+      height: 0;
+    }
+
+    .dividerh:hover {
+      cursor: row-resize;
+    }
+
     #right {
       display: flex;
       flex: 1;
@@ -205,28 +227,6 @@
     #helpText {
       overflow: auto;
       font-size: 0.9rem;
-    }
-
-    .divider {
-      padding: 0.3rem;
-      background-clip: content-box;
-    }
-
-    .dividerv {
-      width: 0;
-      background: linear-gradient(to left, var(--w) 0, var(--w) 50%, #fff 50%, #fff 100%);
-    }
-
-    .dividerv:hover {
-      cursor: col-resize;
-    }
-
-    .dividerh {
-      height: 0;
-    }
-
-    .dividerh:hover {
-      cursor: row-resize;
     }
 
     svg {
@@ -275,6 +275,22 @@
       content: attr(data-placeholder);
       font-style: italic;
       color: #000;
+    }
+
+    .long-tap-progress {
+      background: linear-gradient(90deg, #00f 50%, var(--w) 50%);
+      background-size: 400% 100%;
+      animation: fillProgress 500ms linear forwards;
+    }
+
+    @keyframes fillProgress {
+      0% {
+        background-position: 100% 0%
+      }
+
+      100% {
+        background-position: 0% 0%
+      }
     }
 
     @media only screen and (max-width: 600px) {
@@ -366,11 +382,10 @@
         <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
       <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
-      <button id="buttonnmm" title="1 less iteration">_n--</button>
-      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">_n++</button>
+      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">-n+</button>
       <button id="buttontpbg" title="transparent">_b=<br>0000</button>
       <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
-      <button id="buttonnext" title="Next, Shift:Previous example">next<br>exmpl</button>
+      <button id="buttonnext" title="Next, Shift:Previous example">-e.g.+</button>
       <button id="buttonlsclear"></button>
       <div tabindex="0" id="log"></div>
     </div>
@@ -494,7 +509,6 @@ x = i + round sqrt i ; A000037
       lastViewportHeight: window.visualViewport
         ? window.visualViewport.height
         : window.innerHeight,
-      longTapTimer: 0,
     };
 
     const el = {
@@ -513,8 +527,38 @@ x = i + round sqrt i ; A000037
     };
 
     function ael(elOrQs, lstnr, typ = 'click') {
-      ('string' == typeof elOrQs ? document.querySelector(elOrQs) : elOrQs)
-        .addEventListener(typ, lstnr);
+      const el = typeof elOrQs === 'string' ? document.querySelector(elOrQs) : elOrQs;
+      const alternative = (e, i) => {
+        lstnr(e, i || e.shiftKey || e.type === 'pointerdown');
+      };
+      if (typ === 'click') {
+        el.addEventListener('click', alternative, { passive: true });
+        let isLongTap = false;
+        const suppressPostLongClick = (e) => { if (isLongTap) { isLongTap = false; e.stopPropagation(); e.preventDefault(); } };
+        el.addEventListener('click', suppressPostLongClick, { capture: true, passive: false });
+        let longTapTimer = null;
+        const startLongTap = (e) => {
+          if (e.button && e.button !== 0) return;
+          isLongTap = false;
+          el.classList.add('long-tap-progress');
+          longTapTimer = setTimeout(() => {
+            isLongTap = true;
+            alternative(e, -1);
+            el.classList.remove('long-tap-progress');
+          }, 500);
+        };
+        const cancelLongTap = (e) => {
+          if (longTapTimer) { clearTimeout(longTapTimer); longTapTimer = null; }
+          el.classList.remove('long-tap-progress');
+        };
+        el.addEventListener('pointerdown', startLongTap, { passive: true });
+        el.addEventListener('pointerup', cancelLongTap, { passive: true });
+        el.addEventListener('pointermove', cancelLongTap, { passive: true });
+        el.addEventListener('pointerl', cancelLongTap, { passive: true });
+        el.addEventListener('pointerleave', cancelLongTap, { passive: true });
+      } else {
+        el.addEventListener(typ, alternative, { passive: true });
+      }
     }
 
     function setupEventListeners() {
@@ -536,14 +580,11 @@ x = i + round sqrt i ; A000037
       ael('#buttonhelp', help);
       ael(el.buttSubmit, () => { setText(getRulesObj()); update(); });
       ael(el.buttNext, clickNext);
-      ael(el.buttNext, e => state.longTapTimer = setTimeout(clickNext, 500, e), 'touchstart');
-      ael(el.buttNext, e => state.longTapTimer && clearTimeout(state.longTapTimer), 'touchend');
+      ael('#buttonnpp', clickNpp);
       ael(el.buttDot, () => {
         setDot(!getDot());
         getText() ? update() : showAllExamples();
       });
-      ael('#buttonnmm', () => { let R = getRulesObj(); R._n = Math.max(0, -1 + parseInt(R._n ?? 2)); setText(R); update(); });
-      ael('#buttonnpp', () => { let R = getRulesObj(); R._n = Math.min(9, +1 + parseInt(R._n ?? 0)); setText(R); update(); });
       ael('#buttonjs', () => linkToSvg(createR(getRulesObj())));
       ael('#buttonall', () => showAllExamples());
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
@@ -552,12 +593,17 @@ x = i + round sqrt i ; A000037
       ael('#buttonlsclear', () => lsClear());
       ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
     }
-    function clickNext(e, i = 1) {
-      if (e.shiftKey || e.type === 'touchstart') i *= -1;
+    function clickNpp(e, i) {
+      let R = getRulesObj();
+      R._n = Math.min(9, (i ? -1 : 1) + parseInt(R._n ?? 0));
+      setText(R);
+      update();
+    }
+    function clickNext(e, i) {
+      i = i ? -1 : 1;
       i = (state.egsi + i) % state.egs.length;
       i = (i + state.egs.length) % state.egs.length;
       showExample(i);
-      console.log(`[example ${state.egsi + 1} of ${state.egs.length}]`);
     }
 
     function toggleTpbg() {
@@ -740,15 +786,18 @@ x = i + round sqrt i ; A000037
         isDown = false;
         $rect.style.display = 'none';
       };
-      ['mousedown', 'touchstart'].forEach((e) => svg.addEventListener(e, start));
-      ['mousemove', 'touchmove'].forEach((e) => svg.addEventListener(e, move));
-      ['mouseup', 'touchend', 'touchcancel'].forEach((e) => svg.addEventListener(e, end));
+      ['mousedown', 'touchstart'].forEach((e) => svg.addEventListener(e, start), { passive: true });
+      ['mousemove', 'touchmove'].forEach((e) => svg.addEventListener(e, move), { passive: true });
+      ['mouseup', 'touchend', 'touchcancel'].forEach((e) => svg.addEventListener(e, end), { passive: true });
+      // ['pointerdown'].forEach((e) => svg.addEventListener(e, start), { passive: true });
+      // ['pointermove'].forEach((e) => svg.addEventListener(e, move), { passive: true });
+      // ['pointerup', 'pointercancel'].forEach((e) => svg.addEventListener(e, end), { passive: true });
       return svg;
     }
 
     const ls = 'lsystemeditor_';
     function lsSave(R) {
-      localStorage.setItem(ls + 'egsi', state.egsi);
+      localStorage.setItem(ls + 'egsi', state.egsi || 0);
       localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
       localStorage.setItem(ls + 'R', JSON.stringify(R));
     }
@@ -759,7 +808,7 @@ x = i + round sqrt i ; A000037
     }
     function lsLoad() {
       document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
-      const egsi = localStorage.getItem(ls + 'egsi');
+      const egsi = localStorage.getItem(ls + 'egsi') || 0;
       if (egsi) { state.egsi = Number(egsi); }
       const r = localStorage.getItem(ls + 'R');
       const isR = r && r !== '' && r !== '{}';
@@ -852,23 +901,20 @@ x = i + round sqrt i ; A000037
     async function downloadpng(svg) { }
 
     function setupDividers() {
-      const setDividering = (e) => {
+      el.divider1.addEventListener('pointerdown', e => {
         if (state.isMobile && e.target === el.divider1) return;
-        e.preventDefault();
         state.isDividerActive = true;
         state.activeDivider = e.target;
         state.startX = e.clientX;
         state.startY = e.clientY;
         state.startWidth = el.left.offsetWidth;
         state.startHeight = el.textarea.offsetHeight;
-      };
+      }, { passive: true });
 
-      el.divider1.addEventListener('pointerdown', setDividering);
-
-      window.addEventListener('pointerup', () => {
+      window.addEventListener('pointerup', e => {
         state.isDividerActive = false;
         state.activeDivider = null;
-      });
+      }, { passive: true });
 
       window.addEventListener('pointermove', (e) => {
         if (!state.isDividerActive || !state.activeDivider) return;
@@ -880,7 +926,7 @@ x = i + round sqrt i ; A000037
             window.innerWidth - 50
           )}px`;
         }
-      });
+      }, { passive: true });
     }
 
     function setupMobileKeyboard() {
