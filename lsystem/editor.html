@@ -133,7 +133,7 @@
       border: none;
       border-top: .2rem solid var(--g);
       max-width: 9rem;
-      margin: 0.1rem 0.5rem;
+      margin: 0.2rem 0.5rem 0 0.5rem;
     }
 
     .hidden {
@@ -142,14 +142,12 @@
 
     #log {
       grid-column: 1 / -1;
-      height: 3.4rem;
+      height: 2.6rem;
       white-space: pre-wrap;
       flex-basis: auto;
-      font-size: 1rem;
       background-color: var(--w);
       padding: 0.2rem;
       border-radius: 0.3125rem;
-      font-family: monospace;
       transition: height 0.1s ease;
       overflow: hidden;
     }
@@ -372,7 +370,7 @@
       <button id="buttontpbg" title="transparent">_b=<br>0000</button>
       <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
       <button id="buttonnext" title="Next, Shift:Previous example">next<br>e.g.</button>
-      <button id="buttonlsclear">clear<br>saved</button>
+      <button id="buttonlsclear">del local<br>storage</button>
       <div tabindex="0" id="log"></div>
     </div>
     <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here..&#xa;&#xa;L-System Fractals&#xa;&#xa; Important:&#xa; - If this area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Saved in localstorage."></div>
@@ -750,7 +748,7 @@ x = i + round sqrt i ; A000037
       const egsi = localStorage.getItem(ls + 'egsi');
       if (egsi) {
         state.egsi = Number(egsi);
-        el.buttNext.innerHTML = `${state.egsi + 1}<br>/${state.egs.length}`;
+        el.buttNext.innerHTML = `eg ${state.egsi + 1}<br>of ${state.egs.length}`;
       }
       const r = localStorage.getItem(ls + 'R');
       const isR = r && r !== '' && r !== '{}';
@@ -777,7 +775,7 @@ x = i + round sqrt i ; A000037
 
     async function showExample(index = state.egsi) {
       state.egsi = (index + state.egs.length) % state.egs.length;
-      el.buttNext.innerHTML = `${state.egsi + 1}<br>/${state.egs.length}`;
+      el.buttNext.innerHTML = `eg ${state.egsi + 1}<br>of ${state.egs.length}`;
       await update(state.egs[state.egsi]);
     }
 
