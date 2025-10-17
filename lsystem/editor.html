@@ -494,6 +494,7 @@ x = i + round sqrt i ; A000037
       lastViewportHeight: window.visualViewport
         ? window.visualViewport.height
         : window.innerHeight,
+      longTapTimer: 0,
     };
 
     const el = {
@@ -534,11 +535,9 @@ x = i + round sqrt i ; A000037
       );
       ael('#buttonhelp', help);
       ael(el.buttSubmit, () => { setText(getRulesObj()); update(); });
-      ael(el.buttNext, (e) => {
-        showExample(((state.egsi + (e.shiftKey ? -1 : 1)) % state.egs.length + state.egs.length) % + state.egs.length);
-        console.log(`[example ${state.egsi + 1} of ${state.egs.length}]`);
-        el.textarea.style.height = '100%';
-      });
+      ael(el.buttNext, clickNext);
+      ael(el.buttNext, e => state.longTapTimer = setTimeout(clickNext, 500, e), 'touchstart');
+      ael(el.buttNext, e => state.longTapTimer && clearTimeout(state.longTapTimer), 'touchend');
       ael(el.buttDot, () => {
         setDot(!getDot());
         getText() ? update() : showAllExamples();
@@ -551,8 +550,14 @@ x = i + round sqrt i ; A000037
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
       ael('#buttontpbg', () => toggleTpbg());
       ael('#buttonlsclear', () => lsClear());
-
       ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
+    }
+    function clickNext(e, i = 1) {
+      if (e.shiftKey || e.type === 'touchstart') i *= -1;
+      i = (state.egsi + i) % state.egs.length;
+      i = (i + state.egs.length) % state.egs.length;
+      showExample(i);
+      console.log(`[example ${state.egsi + 1} of ${state.egs.length}]`);
     }
 
     function toggleTpbg() {
@@ -930,7 +935,7 @@ x = i + round sqrt i ; A000037
     function setupCustomLog() {
       toggleCustomLog(true, (...args) => el.log?.prepend(args
         .flatMap((a) => typeof a === 'object' ? Object.entries(a) : [['', a]])
-        .map(([k, v]) => `${k}${k&&' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '∞')}`)
+        .map(([k, v]) => `${k}${k && ' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '∞')}`)
         .join('\n')
         , document.createElement('br')
       ) ?? console.oldLog(...args));
@@ -942,7 +947,6 @@ x = i + round sqrt i ; A000037
       setupMobileKeyboard();
       setupEventListeners();
       el.textarea.setAttribute('contenteditable', true);
-      // el.right.classList.add('tpbg');
       lsLoad() || showAllExamples();;
     }
 
