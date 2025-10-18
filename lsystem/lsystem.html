@@ -61,10 +61,6 @@
       padding: 0.5rem 0.3rem 0.5rem 0.5rem;
     }
 
-    button>object {
-      pointer-events: none;
-    }
-
     button {
       flex: 1;
       color: var(--o);
@@ -97,6 +93,10 @@
       max-width: 5rem;
     }
 
+    button>object {
+      pointer-events: none;
+    }
+
     button:hover>.a,
     button>.b,
     button[data-checked]:hover>.b,
@@ -123,10 +123,6 @@
       border-top: .2rem solid var(--d);
       max-width: 9rem;
       margin: 0.2rem 0.5rem 0 0.5rem;
-    }
-
-    .hidden {
-      display: none;
     }
 
     #log {
@@ -278,13 +274,17 @@
     .long-tap-progress {
       background: linear-gradient(90deg, var(--oa) 50%, var(--e) 50%);
       background-size: 400%;
-      animation: fillProgress 0.5s linear forwards;
+      animation: slide 0.5s linear forwards;
     }
 
-    @keyframes fillProgress {
+    @keyframes slide {
       to {
         background-position: 100%;
       }
+    }
+
+    .hidden {
+      display: none;
     }
 
     .error {
@@ -385,10 +385,10 @@
       <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object><div class="b">all eg.</div></button>
       <button id="buttonnext" title="Next, Shift:Previous example">eg++<br>--eg</button>
       <button id="buttonlsclear">clr local<br>storage</button>
-      <button id="">do not<br>press</button>
+      <button id="" onclick="this.remove()">do not<br>press</button>
       <div tabindex="0" id="log"></div>
     </div>
-    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder="  Important:&#xa; - If *this* input textarea area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Autosaved."></div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here: S=S+F,_n=3&#xa;&#xa; Press Update/Ctrl+Enter to reformat&#xa;&#xa; Export: Use 'url' button for oneline &#xa;&#xa; Autosave"></div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -436,7 +436,7 @@ Keys starting with `_` have numeric values:
 - `_m`: Line length multiplier
 - `_a`: Angle in degrees
 - Single char: A rule
-- Single char + `2`: Rule for n+1 iteration
+- Single char + `2`: One more iteration
 - Empty key: Title
 
 ### Rule Value Characters:
