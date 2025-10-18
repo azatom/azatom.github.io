@@ -380,15 +380,15 @@
         <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
       <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
-      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">n++<br>--n</button>
-      <button id="buttontpbg" title="transparent">oma<br>town</button>
-      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object><div class="b">all eg.</div></button>
-      <button id="buttonnext" title="Next, Shift:Previous example">eg++<br>--eg</button>
+      <button id="buttonnpp" title="Shift: Previous, CAREFUL! Above 9: type it">n++</button>
+      <button id="buttontpbg" title="transparent">trans<br>parent</button>
+      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object><div class="b">all<br>exmpls</div></button>
+      <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
       <button id="buttonlsclear">clr local<br>storage</button>
-      <button id="" onclick="this.remove()">do not<br>press</button>
+      <button id="" onclick="this.remove()">don't<br>press</button>
       <div tabindex="0" id="log"></div>
     </div>
-    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here: S=S+F,_n=3&#xa;&#xa; Press Update/Ctrl+Enter to reformat&#xa;&#xa; Export: Use 'url' button for oneline &#xa;&#xa; Autosave"></div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here: S=S+F,_n=3&#xa;&#xa; Reformat: Ctrl+Enter or Update button (sorry this textarea is very hectic)&#xa;&#xa; Export: Use ctrl+c without selection&#xa;&#xa; Autosave to localstorage"></div>
   </div>
   <div class="divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -668,7 +668,7 @@ x = i + round sqrt i ; A000037
         .split(',')
         .filter(a => a !== '')
         .map(a => a.split(/[=:]/))
-        .map(a => { if (a.length != 2) throw new Error('Invalid format'); return a; })
+        .map(a => { if (a.length != 2) throw new Error('Format is (inaccurately):\nrules : (rule [\\n,&])*\nrule : key=value\nkey : (c | _c | c2)\nvalue : c*\nc : a char except eg.:   "&,=:"\nwhitespace ignored'); return a; })
         .map(a => a.map(a => a.replace(/(^"|"$)/g, '')))
         .map(([k, v]) => { if (!/^(|[^"]|_[^"]|[^"]2)$/.test(k) && /[^"]*/.test(v)) throw new Error('Invalid format2'); return [k, v]; })
       );
@@ -809,7 +809,7 @@ x = i + round sqrt i ; A000037
     async function showExample(index = state.egsi) {
       state.egsi = (index + state.egs.length) % state.egs.length;
       await update(state.egs[state.egsi]);
-      console.log(`[e.g. ${state.egsi + 1} of ${state.egs.length}]`);
+      console.log(`[example: ${state.egsi + 1} / ${state.egs.length}]`);
     }
 
     async function showAllExamples() {
