@@ -380,11 +380,12 @@
         <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
       <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
-      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">-n+</button>
-      <button id="buttontpbg" title="transparent">_b=<br>0000</button>
-      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
-      <button id="buttonnext" title="Next, Shift:Previous example">-e.g.+</button>
-      <button id="buttonlsclear"></button>
+      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">n++<br>--n</button>
+      <button id="buttontpbg" title="transparent">oma<br>town</button>
+      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object><div class="b">all eg.</div></button>
+      <button id="buttonnext" title="Next, Shift:Previous example">eg++<br>--eg</button>
+      <button id="buttonlsclear">clr local<br>storage</button>
+      <button id="">do not<br>press</button>
       <div tabindex="0" id="log"></div>
     </div>
     <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder="  Important:&#xa; - If *this* input textarea area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Autosaved."></div>
@@ -526,7 +527,7 @@ x = i + round sqrt i ; A000037
 
     function ael(elOrQs, lstnr, typ = 'click') {
       const el = typeof elOrQs === 'string' ? document.querySelector(elOrQs) : elOrQs;
-      if (typ === 'asdf') {
+      if (typ === 'altclick') {
         const alternative = (e, i) => {lstnr(e, i || e.shiftKey || e.type === 'pointerdown');};
         el.addEventListener('click', alternative, { passive: true });
         let isLongTap = false;
@@ -575,8 +576,8 @@ x = i + round sqrt i ; A000037
       );
       ael('#buttonhelp', help);
       ael(el.buttSubmit, () => { setText(getRules()); update(); });
-      ael(el.buttNext, clickNext, 'asdf');
-      ael('#buttonnpp', clickNpp, 'asdf');
+      ael(el.buttNext, clickNext, 'altclick');
+      ael('#buttonnpp', clickNpp, 'altclick');
       ael(el.buttDot, () => {
         setDot(!getDot());
         getText() ? update() : showAllExamples();
@@ -807,8 +808,8 @@ x = i + round sqrt i ; A000037
 
     async function showExample(index = state.egsi) {
       state.egsi = (index + state.egs.length) % state.egs.length;
-      el.buttNext.innerHTML = `eg ${state.egsi + 1}<br>of ${state.egs.length}`;
       await update(state.egs[state.egsi]);
+      console.log(`[e.g. ${state.egsi + 1} of ${state.egs.length}]`);
     }
 
     async function showAllExamples() {
