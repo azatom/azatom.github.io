@@ -380,9 +380,11 @@
         <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
       <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
-      <button id="buttonnpp" title="Shift: Previous, CAREFUL! Above 9: type it">n++</button>
+      <button id="buttonnpp" title="Shift or longTap: Previous, CAREFUL! Above 9: type it">n--<br>shift++</button>
       <button id="buttontpbg" title="transparent">trans<br>parent</button>
-      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object><div class="b">all<br>exmpls</div></button>
+      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object>
+        <div class="b">all<br>exmpls</div>
+      </button>
       <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
       <button id="buttonlsclear">clr local<br>storage</button>
       <button id="" onclick="this.remove()">don't<br>press</button>
@@ -528,7 +530,7 @@ x = i + round sqrt i ; A000037
     function ael(elOrQs, lstnr, typ = 'click') {
       const el = typeof elOrQs === 'string' ? document.querySelector(elOrQs) : elOrQs;
       if (typ === 'altclick') {
-        const alternative = (e, i) => {lstnr(e, i || e.shiftKey || e.type === 'pointerdown');};
+        const alternative = (e, i) => { lstnr(e, i || e.shiftKey || e.type === 'pointerdown'); };
         el.addEventListener('click', alternative, { passive: true });
         let isLongTap = false;
         const suppressPostLongClick = (e) => { if (isLongTap) { isLongTap = false; e.stopPropagation(); e.preventDefault(); } };
@@ -587,12 +589,12 @@ x = i + round sqrt i ; A000037
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
       ael('#buttontpbg', () => toggleTpbg());
-      ael('#buttonlsclear', () => lsClear());
+      ael('#buttonlsclear', () => {lsClear();console.log('cleareed');});
       ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
     }
     function clickNpp(e, i) {
       let R = getRules();
-      R._n = Math.min(9, (i ? -1 : 1) + parseInt(R._n ?? 0));
+      R._n = Math.min(9, (i ? 1 : -1) + parseInt(R._n ?? 0));
       setText(R);
       update();
     }
@@ -772,7 +774,7 @@ x = i + round sqrt i ; A000037
     function lsSave(R) {
       localStorage.setItem(ls + 'egsi', state.egsi || 0);
       localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
-      localStorage.setItem(ls + 'R', JSON.stringify(R));
+      localStorage.setItem(ls + 'R', stringify(R));
     }
     function lsClear() {
       localStorage.removeItem(ls + 'egsi');
@@ -785,19 +787,24 @@ x = i + round sqrt i ; A000037
       if (egsi) { state.egsi = Number(egsi); }
       const r = localStorage.getItem(ls + 'R');
       const isR = r && r !== '' && r !== '{}';
-      if (isR) update(JSON.parse(r)); else if (egsi) showExample();
-      return isR || egsi;
+      if (isR)
+        update(r);
+      else if (egsi)
+        showExample();
+      else
+        showAllExamples();
     }
 
 
     async function update(rules) {
       state.cntUpdate++;
       if (rules) { setText(rules); }
-      showError();
+      showError("working...");
+      await new Promise(resolve => setTimeout(resolve, 0));
       try {
         const r = getRules();
         const R = createR(r);
-        const svg = createSvg(R);
+        const svg = await createSvg(R);
         lsSave(r);
         addSvgZoom(svg, '#right');
         el.right.replaceChildren(svg);
@@ -824,7 +831,7 @@ x = i + round sqrt i ; A000037
           ])
         );
         toggleCustomLog(false);
-        const svg = createSvg(createR({ ...R, _i: i }));
+        const svg = await createSvg(createR({ ...R, _i: i }));
         toggleCustomLog(true);
         svg.addEventListener('click', (e) => {
           state.egsi = i;
@@ -966,7 +973,7 @@ x = i + round sqrt i ; A000037
       setupMobileKeyboard();
       setupEventListeners();
       el.textarea.setAttribute('contenteditable', true);
-      lsLoad() || showAllExamples();;
+      lsLoad();
     }
 
     init();
