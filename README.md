@@ -1,6 +1,6 @@
 move along
 
-[lsystem](lsystem/editor.html) - [readme](lsystem)
+[lsystem](lsystem/lsystem.html) - [doc](lsystem)
 
 [pattern](pattern.html)
 
