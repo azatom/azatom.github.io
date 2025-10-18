@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>L-System Fractals</title>
+  <script src="lsystem.js"></script>
+  <script src="lsystem.examples.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
+  <style>
+    html {
+      --o: #000;
+      --f: #fff;
+      --oa: #000000aa;
+      --fd: #ffffffdd;
+      --d: #dddddd;
+      --e: #f5f5f5;
+      --err: #d22;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background-color: var(--f);
+      display: flex;
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      flex-direction: row;
+      height: 100%;
+    }
+
+    #left {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      width: 19rem;
+      min-width: 100px;
+      max-width: 90vw;
+      z-index: 1;
+      gap: 0.5rem;
+      background-color: var(--f);
+    }
+
+    .tpbg {
+      background-image:
+        repeating-linear-gradient(45deg, var(--f) 25%, transparent 25%, transparent 75%, var(--f) 75%, var(--f)),
+        repeating-linear-gradient(45deg, var(--f) 25%, var(--e) 25%, var(--e) 75%, var(--f) 75%, var(--f));
+      background-position: 0 0, 2rem 2rem;
+      background-size: 4rem 4rem;
+    }
+
+    #butt {
+      display: grid;
+      align-items: center;
+      grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
+      gap: 0.5rem;
+      user-select: none;
+      padding: 0.5rem 0.3rem 0.5rem 0.5rem;
+    }
+
+    button>object {
+      pointer-events: none;
+    }
+
+    button {
+      flex: 1;
+      color: var(--o);
+      border-radius: 0.3125rem;
+      border: none;
+      background-color: var(--e);
+      line-height: 1;
+      padding: 0;
+      font-family: sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background-color: var(--d);
+    }
+
+    button:not([disabled]) {
+      cursor: pointer;
+    }
+
+    button,
+    button>object {
+      min-height: 2.5rem;
+      min-width: 3.6rem;
+      max-height: 3rem;
+      max-width: 5rem;
+    }
+
+    button:hover>.a,
+    button>.b,
+    button[data-checked]:hover>.b,
+    button[data-checked]>.a {
+      opacity: .2;
+      position: absolute;
+    }
+
+    button:hover>.b,
+    button>.a,
+    button[data-checked]:hover>.a,
+    button[data-checked]>.b {
+      display: block;
+      opacity: 1;
+      position: absolute;
+    }
+
+    button[data-checked] {
+      color: var(--f);
+    }
+
+    hr {
+      border: none;
+      border-top: .2rem solid var(--d);
+      max-width: 9rem;
+      margin: 0.2rem 0.5rem 0 0.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #log {
+      grid-column: 1 / -1;
+      height: 2.6rem;
+      white-space: pre-wrap;
+      flex-basis: auto;
+      background-color: var(--e);
+      padding: 0.2rem;
+      border-radius: 0.3125rem;
+      transition: height 0.1s ease;
+      overflow: hidden;
+    }
+
+    #log:focus {
+      height: 10rem;
+      overflow: auto;
+    }
+
+    #textarea {
+      height: 100%;
+      font-family: monospace;
+      box-sizing: border-box;
+      padding: 0.5rem;
+      white-space: pre-wrap;
+      overflow: auto;
+      border: none;
+      min-height: 4rem;
+      font-size: 1.2rem;
+      word-break: break-all;
+      width: 100%;
+    }
+
+    #textarea>p {
+      text-indent: -2.2ch;
+      padding-left: 2.2ch;
+      margin: 0.4rem 0;
+      letter-spacing: 0.1ch;
+      line-height: 1rem;
+    }
+
+    #textarea>p::first-letter {
+      font-weight: 900;
+      font-style: italic;
+    }
+
+    .divider {
+      padding: 0.3rem;
+      background-clip: content-box;
+    }
+
+    .dividerv {
+      width: 0;
+      background: linear-gradient(to left, var(--e) 0, var(--e) 50%, var(--f) 50%, var(--f) 100%);
+    }
+
+    .dividerv:hover {
+      cursor: col-resize;
+    }
+
+    .dividerh {
+      height: 0;
+    }
+
+    .dividerh:hover {
+      cursor: row-resize;
+    }
+
+    #right {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: auto;
+      padding: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .smallsvgs {
+      width: 100%;
+      height: 100%;
+      align-items: flex-start;
+      justify-content: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      align-content: flex-start;
+    }
+
+    .smallsvgs>svg {
+      width: calc(min(12.2vh, 12.2vw) - 2px);
+      height: calc(min(12.2vh, 12.2vw) - 2px);
+      cursor: pointer;
+    }
+
+    #helpText {
+      overflow: auto;
+      font-size: 0.9rem;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    #helpModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--oa);
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
+
+    #helpWindow {
+      background: var(--f);
+      padding: 1em;
+      border-radius: 6px;
+      box-shadow: 0 0 10px var(--oa);
+      overflow: hidden;
+    }
+
+    #helpText {
+      max-height: 80vh;
+      max-width: 84ch;
+    }
+
+    .preasdiv {
+      white-space: normal;
+      font-family: sans-serif;
+    }
+
+    div[contenteditable="true"]:empty:not(:focus):before {
+      font-family: sans-serif;
+      font-size: 1rem;
+      content: attr(data-placeholder);
+      font-style: italic;
+      color: var(--o);
+    }
+
+    .long-tap-progress {
+      background: linear-gradient(90deg, var(--oa) 50%, var(--e) 50%);
+      background-size: 400%;
+      animation: fillProgress 0.5s linear forwards;
+    }
+
+    @keyframes fillProgress {
+      to {
+        background-position: 100%;
+      }
+    }
+
+    .error {
+      background: var(--e);
+    }
+
+    @media only screen and (max-width: 600px) {
+
+      body,
+      html {
+        flex-direction: column;
+      }
+
+      #left,
+      #right {
+        width: 100%;
+        height: auto;
+      }
+
+      #left {
+        max-width: 100%;
+        padding: 0;
+        gap: 0;
+      }
+
+      #butt,
+      #log,
+      #textarea {
+        padding: 0.2rem;
+      }
+
+      #butt {
+        margin: 0;
+        gap: 0.2rem;
+      }
+
+      #textarea {
+        resize: vertical;
+        background: linear-gradient(135deg, var(--f) 98%, var(--d) 0);
+        height: 30vh;
+      }
+
+      #right {
+        flex: 1;
+      }
+
+      #divider1,
+      body.keyboard-active #butt,
+      body.keyboard-active #log {
+        display: none;
+      }
+
+      body.keyboard-active #left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 0 0;
+        z-index: 2;
+      }
+
+      body.keyboard-active #textarea {
+        background: var(--fd);
+        position: relative;
+        z-index: 3;
+      }
+
+      body.keyboard-active #right {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="left">
+    <div id="butt">
+      <button id="buttonhelp" title="Help">?</button>
+      <button id="buttonsubmit" title="Update (Ctrl+Enter)"><object data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_P=3" tabindex="-1" class="a" type="image/svg+xml">run</object></button>
+      <button id="buttonjs" title="Small, url .svg">
+        <div class="a">url</div><object data="lsystem.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_P=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
+      </button>
+      <button id="buttonsvg" title="Download big, generated .svg">
+        <div class="a">SVG</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">svg</object>
+      </button>
+      <button id="buttonpng" title="TODO">
+        <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
+      </button>
+      <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
+      <button id="buttonnpp" title="CAREFUL! above 9 edit rule by hand">-n+</button>
+      <button id="buttontpbg" title="transparent">_b=<br>0000</button>
+      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all</object></button>
+      <button id="buttonnext" title="Next, Shift:Previous example">-e.g.+</button>
+      <button id="buttonlsclear"></button>
+      <div tabindex="0" id="log"></div>
+    </div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder="  Important:&#xa; - If *this* input textarea area weirdly behaves (eg., pasted), use the Update (triangle) button.&#xa; - Export: Use 'url' button for oneline ruleset. &#xa; - Autosaved."></div>
+  </div>
+  <div class="divider dividerv" id="divider1"></div>
+  <div id="right"></div>
+
+  <div id="helpModal">
+    <div id="helpWindow">
+      <span onclick="document.querySelector('#helpModal').style.display='none'" style="float: right; cursor: pointer">X</span>
+      <div id="helpText">
+        <pre class="md">
+# L-System Fractals
+## Logo Turtle with Context-Free Grammar
+
+### Important: If textarea weirdly behaves (eg., pasted), use the Update (triangle) button.
+  - No save! Use 'url' button for copy oneline ruleset or bookmark.
+  - Buttons:
+    - `?`  - doc
+    - `&gt;` - ResetZoom,Cleanup,..
+    - `dots` - endpoints of lines
+    - `next`, `*`  - next/all examples
+    - `url`  - EXPORT rules
+    - `svg`  - generated large svg
+    - `png`  - TBD
+    - `log`  - just dragons
+    - `n--`,`n++` : CAREFUL!
+  - Generated svg:
+    - retains zoom
+    - contains rules+stat in its desc
+
+### How it Works:
+Start with a sentence 'S'. Each iteration replaces
+characters in the sentence using key-value rules.
+The resulting sentence instructs a Logo turtle in
+which direction, ho much go and draw or not its path.
+
+### Syntax:
+As ruleset can be in url fragment, queryparam, json
+or plaintext:
+- Rules separated by `,` or `&` or `\n`
+- Rule's key-value separated by `=` or `:`
+
+### Rule's key-value pairs:
+Keys starting with `_` have numeric values:
+- `_n`: Number of iterations
+- `_l`: Initial line length (width=1)
+- `_m`: Line length multiplier
+- `_a`: Angle in degrees
+- Single char: A rule
+- Single char + `2`: Rule for n+1 iteration
+- Empty key: Title
+
+### Rule Value Characters:
+- `S`: Starting sentence
+- `F`, `f`: Move forward with/without drawing
+- `+`, `-`, `^`, `|`: Rotate +a, -a, +90, 180
+- `!`: Toggle rotation parity
+- `*`, `/`: Multiply/divide line length by _m
+- `[`, `]`: Push/pop position, length, direction
+
+### Additional parameters for svg:
+- `_x`, `_y`, `_w`, `_h`: viewBox
+- `_d`: 1: dots instead of lines, use `_l` for size
+- `_b`: Background without `#`, eg. transparent:fff0 
+- `_P`: Padding
+
+### Syntax
+- Plaintext and url:
+  - Rule separators: `,` or `&`. Plaintext: `\n` works too.
+  - Key-value separator: `=`
+- Url: preceed with `#` or `?` (fragment/queryparams)
+- JSON: straightforward key-values
+
+### Files
+- `editor.html` - the "app" 
+- `lsystem.svg`
+  - embedable with `&lt;object>` or `&lt;embed>`, not with `&lt;img>`.
+  - browser opens as standalone image with parameters
+  - editable svg in urlbar
+- `lsystem.js`
+  - generates img capable plain svg
+  - use in app
+- `lsystem.examples.js`
+
+### Some fibonacci:
+```
+f(0) = 0
+f(n) = a*f(n-1)+b*f(n-2)
+ x  a  b f(1)
+ 2  2 +1    2 
+ 3  4 -1    4 
+ 5  4 +1    4 
+ 6 10 -1    2 
+ 7 16 -1    3 
+ 8  6 -1    6 
+10
+x = i + round sqrt i ; A000037
+```</pre>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    const state = {
+      cntUpdate: 0,
+      cntSuccess: 0,
+      egs: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s => getRules(typeof s === 'string' ? s : stringify(s))).filter(s => s),
+      egsi: 0,
+      isDividerActive: false,
+      activeDivider: null,
+      startX: 0,
+      startY: 0,
+      startWidth: 0,
+      startHeight: 0,
+      isMobile:
+        /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        typeof window.orientation !== 'undefined' ||
+        (navigator.maxTouchPoints && navigator.maxTouchPoints > 1),
+      lastViewportHeight: window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight,
+    };
+
+    const el = {
+      left: document.querySelector('#left'),
+      textarea: document.querySelector('#textarea'),
+      log: document.querySelector('#log'),
+      divider1: document.querySelector('#divider1'),
+      right: document.querySelector('#right'),
+      buttDot: document.querySelector('#buttondot'),
+      buttSubmit: document.querySelector('#buttonsubmit'),
+      buttNext: document.querySelector('#buttonnext'),
+      helpModal: document.querySelector('#helpModal'),
+      message: Object.assign(document.createElement('div'), {
+        style: 'font-size:2rem',
+      }),
+    };
+
+    function ael(elOrQs, lstnr, typ = 'click') {
+      const el = typeof elOrQs === 'string' ? document.querySelector(elOrQs) : elOrQs;
+      if (typ === 'asdf') {
+        const alternative = (e, i) => {lstnr(e, i || e.shiftKey || e.type === 'pointerdown');};
+        el.addEventListener('click', alternative, { passive: true });
+        let isLongTap = false;
+        const suppressPostLongClick = (e) => { if (isLongTap) { isLongTap = false; e.stopPropagation(); e.preventDefault(); } };
+        el.addEventListener('click', suppressPostLongClick, { capture: true, passive: false });
+        let longTapTimer = null;
+        const startLongTap = (e) => {
+          if (e.button && e.button !== 0) return;
+          isLongTap = false;
+          el.classList.add('long-tap-progress');
+          longTapTimer = setTimeout(() => {
+            isLongTap = true;
+            alternative(e, -1);
+            el.classList.remove('long-tap-progress');
+          }, 500);
+        };
+        const cancelLongTap = (e) => {
+          if (longTapTimer) { clearTimeout(longTapTimer); longTapTimer = null; }
+          el.classList.remove('long-tap-progress');
+        };
+        el.addEventListener('pointerdown', startLongTap, { passive: true });
+        el.addEventListener('pointerup', cancelLongTap, { passive: true });
+        el.addEventListener('pointermove', cancelLongTap, { passive: true });
+        el.addEventListener('pointerl', cancelLongTap, { passive: true });
+        el.addEventListener('pointerleave', cancelLongTap, { passive: true });
+      } else {
+        el.addEventListener(typ, lstnr, { passive: true });
+      }
+    }
+
+    function setupEventListeners() {
+      el.textarea.addEventListener('keydown', (e) => e.ctrlKey && e.key === 'Enter' && el.buttSubmit.click());
+      el.textarea.addEventListener('input', () => update());
+      el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
+      el.textarea.addEventListener('paste', (e) => {
+        e.preventDefault();
+        let plainText = e.clipboardData.getData('text/plain');
+        document.execCommand('insertText', false, plainText);
+      });
+      el.textarea.addEventListener('keydown', (e) =>
+        e.ctrlKey && e.key === 'c' && !window.getSelection().toString().length && (
+          e.preventDefault(),
+          navigator.clipboard.writeText(stringify()),
+          console.log('copied')
+        )
+      );
+      ael('#buttonhelp', help);
+      ael(el.buttSubmit, () => { setText(getRules()); update(); });
+      ael(el.buttNext, clickNext, 'asdf');
+      ael('#buttonnpp', clickNpp, 'asdf');
+      ael(el.buttDot, () => {
+        setDot(!getDot());
+        getText() ? update() : showAllExamples();
+      });
+      ael('#buttonjs', () => linkToSvg(createR(getRules())));
+      ael('#buttonall', () => showAllExamples());
+      ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
+      ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
+      ael('#buttontpbg', () => toggleTpbg());
+      ael('#buttonlsclear', () => lsClear());
+      ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
+    }
+    function clickNpp(e, i) {
+      let R = getRules();
+      R._n = Math.min(9, (i ? -1 : 1) + parseInt(R._n ?? 0));
+      setText(R);
+      update();
+    }
+    function clickNext(e, i) {
+      i = i ? -1 : 1;
+      i = (state.egsi + i) % state.egs.length;
+      i = (i + state.egs.length) % state.egs.length;
+      showExample(i);
+    }
+
+    function toggleTpbg() {
+      let R = getRules(), t;
+      if (R?._b === '0000') {
+        delete R._b;
+        setText(R);
+        t = 0;
+      } else if (R?.b === undefined) {
+        R._b = '0000';
+        el.right.classList.add('tpbg');
+        setText(R);
+        t = 1;
+      }
+      update();
+      el.right.classList.toggle('tpbg', t);
+    }
+
+    async function help() {
+      const $md = document.querySelector('.md');
+      el.helpModal.style.display = 'flex';
+      const renderMd = (t = 0) => {
+        try {
+          if (typeof marked !== 'undefined' && $md) {
+            $md.innerHTML = marked.parse($md.innerText);
+            $md.classList.remove('md');
+            $md.classList.add('preasdiv');
+          } else if (t < 1e4) setTimeout(() => renderMd(t * 1.5 + 100), t);
+        } catch (e) { }
+      };
+      renderMd();
+    };
+
+    function stringify(R = getRules()) {
+      return Object.entries(R)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(',');
+    }
+
+    function getText() {
+      return el.textarea.innerText;
+    }
+
+    function setText(rR) {
+      if ('string' == typeof rR) { rR = getRules(rR); }
+      let p = p => p.replace(/^S/, ' S').replace(/^_/, 'zz');
+      el.textarea.innerHTML = Object.keys(rR)
+        .sort((a, b) => p(a).localeCompare(p(b)))
+        .map(k => `<p>${k}=${rR[k]}</p>`)
+        .join('');
+    }
+
+    function getDot() {
+      return el.buttDot.hasAttribute('data-checked');
+    }
+
+    function setDot(enabled) {
+      el.buttDot.toggleAttribute('data-checked', enabled);
+    }
+
+    function getRules(s = getText()) {
+      return Object.fromEntries(s
+        .replace(/[\n&]+/g, ',')
+        .replace(/(^[?#{}]|[}]$|[\r \t\s\u00A0]+)/g, '')
+        .split(',')
+        .filter(a => a !== '')
+        .map(a => a.split(/[=:]/))
+        .map(a => { if (a.length != 2) throw new Error('Invalid format'); return a; })
+        .map(a => a.map(a => a.replace(/(^"|"$)/g, '')))
+        .map(([k, v]) => { if (!/^(|[^"]|_[^"]|[^"]2)$/.test(k) && /[^"]*/.test(v)) throw new Error('Invalid format2'); return [k, v]; })
+      );
+    }
+
+    function showError(msg) {
+      el.message.innerText = msg || '...';
+      el.buttSubmit.classList.toggle('error', !!msg);
+      el.right.replaceChildren(el.message);
+    }
+
+    function createR(o, preserveViewBox) {
+      const R = typeof o === 'string' ? getRules(o) : o;
+      const dot = getDot() ? { _d: 1 } : {};
+      if (!preserveViewBox) return { ...R, ...dot };
+      const vb = el.right.querySelector('svg');
+      if (!vb) return { ...R, ...dot };
+      const v = vb.getAttribute('viewBox')?.split(' ') || [];
+      const rect = ['x', 'y', 'width', 'height'].map((attr) =>
+        vb.querySelector('rect')?.getAttribute(attr)
+      );
+      const vbObj =
+        v.length && rect.join(' ') !== v.join(' ')
+          ? { _x: v[0], _y: v[1], _w: v[2], _h: v[3] }
+          : {};
+      return { ...R, ...dot, ...vbObj };
+    }
+
+    function createIfAbsent(t, id) {
+      return (
+        document.getElementById(id) ||
+        document.body.appendChild(
+          Object.assign(document.createElement(t), { id })
+        )
+      );
+    }
+
+    function addSvgZoom(svg, parentSelector) {
+      let isDown = false;
+      let startX, startY, scrollStartX = 0, scrollStartY = 0;
+      const rip = 'svgzoomr9fg34gs6h', $rect = createIfAbsent('div', `${rip}rect`);
+      $rect.style = 'position:absolute;pointer-events:none;display:none;';
+      createIfAbsent('style', `${rip}css`).sheet.insertRule(`${parentSelector}>svg{cursor:zoom-out}`);
+      const getXY = (e) => {
+        const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+        return { x: t.pageX, y: t.pageY };
+      };
+      const start = (e) => {
+        if (e.button) return;
+        const p = getXY(e);
+        startX = p.x;
+        startY = p.y;
+        scrollStartX = window.scrollX;
+        scrollStartY = window.scrollY;
+        isDown = true;
+      };
+      const move = (e) => {
+        if (!isDown || e.button) return;
+        const p = getXY(e);
+        const out = p.x + window.scrollX - 2 < startX;
+        $rect.style.cssText = `
+          left:${Math.min(startX, p.x)}px;
+          top:${Math.min(startY, p.y)}px;
+          width:${Math.abs(p.x - startX)}px;
+          height:${Math.abs(p.y - startY)}px;
+          cursor:${out ? 'zoom-out' : 'zoom-in'};
+          display:block;
+          position:absolute;
+          pointer-events:none;
+          border:.2rem solid ${out ? '#e82' : '#17d'};
+          background-color:${out ? '#e823' : '#17d3'};
+        `;
+      };
+      const end = (e) => {
+        if (!isDown) return;
+        const p = getXY(e);
+        const r = svg.getBoundingClientRect();
+        const v = svg.getAttribute('viewBox').split(' ').map(parseFloat);
+        const x1 = v[0] + (v[2] * (startX + scrollStartX - r.left)) / r.width;
+        const y1 = v[1] + (v[3] * (startY + scrollStartY - r.top)) / r.height;
+        const x2 = v[0] + (v[2] * (p.x + window.scrollX - r.left)) / r.width;
+        const y2 = v[1] + (v[3] * (p.y + window.scrollY - r.top)) / r.height;
+        svg.setAttribute('viewBox',
+          p.x + window.scrollX - 2 < startX + scrollStartX
+            ? `${v[0] - v[2]} ${v[1] - v[3]} ${3 * v[2]} ${3 * v[3]}`
+            : `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`
+        );
+        isDown = false;
+        $rect.style.display = 'none';
+      };
+      ['mousedown', 'touchstart'].forEach((e) => svg.addEventListener(e, start), { passive: true });
+      ['mousemove', 'touchmove'].forEach((e) => svg.addEventListener(e, move), { passive: true });
+      ['mouseup', 'touchend', 'touchcancel'].forEach((e) => svg.addEventListener(e, end), { passive: true });
+      // ['pointerdown'].forEach((e) => svg.addEventListener(e, start), { passive: true });
+      // ['pointermove'].forEach((e) => svg.addEventListener(e, move), { passive: true });
+      // ['pointerup', 'pointercancel'].forEach((e) => svg.addEventListener(e, end), { passive: true });
+      return svg;
+    }
+
+    const ls = 'lsystemeditor_';
+    function lsSave(R) {
+      localStorage.setItem(ls + 'egsi', state.egsi || 0);
+      localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
+      localStorage.setItem(ls + 'R', JSON.stringify(R));
+    }
+    function lsClear() {
+      localStorage.removeItem(ls + 'egsi');
+      localStorage.removeItem(ls + 'tpbg');
+      localStorage.removeItem(ls + 'R');
+    }
+    function lsLoad() {
+      document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
+      const egsi = localStorage.getItem(ls + 'egsi') || 0;
+      if (egsi) { state.egsi = Number(egsi); }
+      const r = localStorage.getItem(ls + 'R');
+      const isR = r && r !== '' && r !== '{}';
+      if (isR) update(JSON.parse(r)); else if (egsi) showExample();
+      return isR || egsi;
+    }
+
+
+    async function update(rules) {
+      state.cntUpdate++;
+      if (rules) { setText(rules); }
+      showError();
+      try {
+        const r = getRules();
+        const R = createR(r);
+        const svg = createSvg(R);
+        lsSave(r);
+        addSvgZoom(svg, '#right');
+        el.right.replaceChildren(svg);
+      } catch (err) {
+        showError(err.message);
+      }
+    }
+
+    async function showExample(index = state.egsi) {
+      state.egsi = (index + state.egs.length) % state.egs.length;
+      el.buttNext.innerHTML = `eg ${state.egsi + 1}<br>of ${state.egs.length}`;
+      await update(state.egs[state.egsi]);
+    }
+
+    async function showAllExamples() {
+      const container = Object.assign(document.createElement('div'), { className: 'smallsvgs', });
+      el.right.replaceChildren(container);
+      const t0 = performance.now();
+      for (let i = 0; i < state.egs.length; i++) {
+        const R = Object.fromEntries(
+          Object.entries(state.egs[i]).map(([k, v]) => [
+            k,
+            k === '_n' ? Math.max(2, v - 1) : v,
+          ])
+        );
+        toggleCustomLog(false);
+        const svg = createSvg(createR({ ...R, _i: i }));
+        toggleCustomLog(true);
+        svg.addEventListener('click', (e) => {
+          state.egsi = i;
+          if (e.shiftKey || e.ctrlKey) {
+            linkToSvg(state.egs[i]);
+          } else {
+            showExample(i);
+          }
+        });
+        container.appendChild(svg);
+        await new Promise((res) => setTimeout(res, 0));
+      }
+      console.log(`${((performance.now() - t0) / 1000).toFixed(3)} s ${state.egs.length} exmpls`);
+    }
+
+    function linkToSvg(o) {
+      window
+        .open(`lsystem.svg#${stringify(createR(o, 1))}`, '_blank')
+        .focus();
+    }
+
+    async function downloadsvg(svg) {
+      if (!svg) return;
+      const serializer = new XMLSerializer();
+      const xmlStr = serializer.serializeToString(svg);
+      const uint8Array = new TextEncoder().encode(xmlStr);
+      const blob = new Blob([uint8Array], { type: 'image/svg+xml' });
+      const filename = `${svg.querySelector('title')?.textContent ?? 'untitled'
+        }.svg`;
+      await downloadBlob(blob, filename);
+    }
+
+    async function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      try {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      }
+    }
+
+    async function downloadpng(svg) { }
+
+    function setupDividers() {
+      el.divider1.addEventListener('pointerdown', e => {
+        if (state.isMobile && e.target === el.divider1) return;
+        state.isDividerActive = true;
+        state.activeDivider = e.target;
+        state.startX = e.clientX;
+        state.startY = e.clientY;
+        state.startWidth = el.left.offsetWidth;
+        state.startHeight = el.textarea.offsetHeight;
+      }, { passive: true });
+
+      window.addEventListener('pointerup', e => {
+        state.isDividerActive = false;
+        state.activeDivider = null;
+      }, { passive: true });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!state.isDividerActive || !state.activeDivider) return;
+        if (state.activeDivider === el.divider1 && !state.isMobile) {
+          const deltaX = e.clientX - state.startX;
+          const newWidth = state.startWidth + deltaX;
+          el.left.style.width = `${Math.min(
+            Math.max(newWidth, 50),
+            window.innerWidth - 50
+          )}px`;
+        }
+      }, { passive: true });
+    }
+
+    function setupMobileKeyboard() {
+      if (!state.isMobile) return;
+
+      const updateRightSize = () => {
+        if (
+          document.body.classList.contains('keyboard-active') &&
+          window.visualViewport
+        ) {
+          el.right.style.height = `${window.visualViewport.height}px`;
+        } else {
+          el.right.style.height = 'auto';
+        }
+      };
+
+      el.textarea.addEventListener('focus', () => {
+        document.body.classList.add('keyboard-active');
+        updateRightSize();
+      });
+
+      el.textarea.addEventListener('blur', () => {
+        document.body.classList.remove('keyboard-active');
+        el.right.style.height = 'auto';
+        el.left.style.background = 'transparent';
+      });
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          if (Math.abs(window.visualViewport.height - state.lastViewportHeight) > 50) {
+            document.body.classList.toggle(
+              'keyboard-active',
+              window.visualViewport.height < state.lastViewportHeight
+            );
+            updateRightSize();
+            state.lastViewportHeight = window.visualViewport.height;
+          }
+        });
+      }
+    }
+
+    function toggleCustomLog(enable, customLog, _ = console) {
+      if ('function' == typeof customLog) {
+        _.oldLog ??= _.log;
+        _.customLog = customLog;
+      }
+      if (_.oldLog && _.customLog) {
+        _.log = enable ? _.customLog : _.oldLog;
+      };
+    }
+
+    function setupCustomLog() {
+      toggleCustomLog(true, (...args) => el.log?.prepend(args
+        .flatMap((a) => typeof a === 'object' ? Object.entries(a) : [['', a]])
+        .map(([k, v]) => `${k}${k && ' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '-')}`)
+        .join('\n')
+        , document.createElement('br')
+      ) ?? console.oldLog(...args));
+    }
+
+    function init() {
+      setupCustomLog();
+      setupDividers();
+      setupMobileKeyboard();
+      setupEventListeners();
+      el.textarea.setAttribute('contenteditable', true);
+      lsLoad() || showAllExamples();;
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
