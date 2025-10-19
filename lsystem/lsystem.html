@@ -229,8 +229,8 @@
     }
 
     .smallsvgs>svg {
-      width: 10%;
-      height: 10%;
+      width:  14.2%;
+      height: 14.2%;
       cursor: pointer;
     }
 
@@ -276,10 +276,12 @@
     }
 
     div[contenteditable="true"]:empty:not(:focus):before {
+      display: block;
       font-family: var(--font);
-      font-size: 1rem;
       content: attr(data-placeholder);
       color: var(--oa);
+      word-break: normal;
+      line-height: 1.2;
     }
 
     .long-tap-progress {
