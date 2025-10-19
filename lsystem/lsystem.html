@@ -406,8 +406,8 @@
       <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
       <button id="buttonlsclear">reset</button>
       <button id="buttondont">don't<br>press</button>
-      <button id="buttondont">don't<br>press</button>
-      <button id="buttondont">don't<br>press</button>
+      <button id="buttondont2">don't<br>press</button>
+      <button id="buttondont3">don't<br>press</button>
       <button id="buttonexport">export</button>
       <div tabindex="0" id="log" class="noise"></div>
     </div>
@@ -624,7 +624,9 @@ x = i + round sqrt i ; A000037
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
       ael('#buttontpbg', () => toggleTpbg());
-      ael('#buttondont', e => state.isMobile ? e.target.textContent == '' ? e.target.remove() : e.target.textContent = '' : [...document.querySelectorAll('.noise')].map(e => e.classList.add('denoise')));
+      ael('#buttondont', dontpress);
+      ael('#buttondont2', dontpress);
+      ael('#buttondont3', dontpress);
       ael('#buttonjson', e => (navigator.clipboard.writeText(JSON.stringify(getRules())), console.log('copied')));
       ael('#buttonline', e => (navigator.clipboard.writeText(stringify()), console.log('copied')));
       ael('#buttonlines', e => (navigator.clipboard.writeText(stringify().replace(/,/g, '\n')), console.log('copied')));
@@ -645,6 +647,7 @@ x = i + round sqrt i ; A000037
       showExample(i);
     }
 
+    function dontpress(e) { state.isMobile ? e.target.textContent == '' ? e.target.remove() : e.target.textContent = '' : [...document.querySelectorAll('.noise')].map(e => e.classList.add('denoise')); }
     function toggleTpbg() {
       let R = getRules(), t;
       if (R?._b === '0000') {
