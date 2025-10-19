@@ -12,26 +12,19 @@ async function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF
       for (i in a) t.setAttribute(i, a[i]);
       b?.map(b => t.prepend(b));
       return t;
-    }, D = ((E = 1, F = 2 * E) => {
-      let lp = '0,0', LL, lines = new Set(), grid = {};
-      let _min = 1 / 0, _max = -1 / 0, _all = 0, _cmp = 0, mx = _min, Mx = _max, my = _min, My = _max,
-        [lx, ly] = align(0, 0);
+    }, D = ((E = 1, F = 9 * E) => {
+      let lp = '0,0', LL, lines = new Set(), grid = {}, [lx, ly] = align(0, 0), mx = 1 / 0, Mx = -1 / 0, my = mx, My = Mx;
+      let _min = mx, _max = Mx, _cmp = 0;
       function oo(s) { return s.split(',').map(o).join(','); }
       function align(X, Y) {
-        let ps, p, d, i, j, k,
-          D = Infinity, P = null,
-          x = Math.floor(X / F),
-          y = Math.floor(Y / F),
-          e = Math.ceil(E / F);
+        let D = Infinity, P, ps, p, d, i, j, k, x = Math.floor(X / F), y = Math.floor(Y / F), e = Math.ceil(E / F);
         for (j = -e; j <= e; j++) for (i = -e; i <= e; i++) {
           ps = grid[`${x + i},${y + j}`];
           if (ps) for (k = 0; k < ps.length; k++) {
-            p = ps[k];
-            d = Math.hypot(p[0] - X, p[1] - Y);
-            if (d < D) { D = d; P = p; }
+            p = ps[k]; d = Math.hypot(p[0] - X, p[1] - Y); if (d < D) { D = d; P = p; }
             _cmp++; _max < d && d < E && (_max = d); E < d && d < _min && (_min = d);
           }
-        } _all++;
+        }
         if (D >= E) (grid[`${x},${y}`] ??= []).push(P = [X, Y]);
         return P;
       }
@@ -58,21 +51,20 @@ async function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF
           return XY;
         },
       };
-    })(1e-3);
+    })(1e-4);
   for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* u(n)?.[j] ?? j; else yield* R.S; }(R._n)) ++O &&
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
     '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 2) % 4 :
-    '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
-    '!' === i ? p = -p :
-    '[' === i ? z.push([x, y, a, b, q]) :
-    ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+      '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
+        '!' === i ? p = -p :
+          '[' === i ? z.push([x, y, a, b, q]) :
+            ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   [x, y, a, b] = D.vb(R._P ?? 2).map(o);
-  try { console.log(Object.entries(D.stat()).map(([k, v]) => v + ' ' + k).join(' ')); } catch (e) { }
   svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.replaceChildren(
     (t => (t.textContent = R?.[''] ?? 'a', t))(C('title')),
-    (t => (t.textContent = JSON.stringify({ ...D.stat(), R: Object.keys(R).sort().map(k => `${k}=${R[k]}`).join(',') }), t))(C('desc')),
+    (t => (t.textContent = JSON.stringify({ stat: D.stat(), R: Object.keys(R).sort().map(k => `${k}=${R[k]}`).join(',') }), t))(C('desc')),
     C('rect', { fill: `#${R._b ?? 'fff'}`, x, y, width: a, height: b }),
     C('defs', 0, C('marker', { id: 'm', viewBox: '-3 -3 6 6' }, C('circle', { r: 1, fill: '#000' }))),
     C('path', {

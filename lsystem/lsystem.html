@@ -9,23 +9,15 @@
   <script src="lsystem.examples.js"></script>
   <script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
   <style>
-    @font-face {
-      font-family: "NormalizedSans";
-      src: local('sans-serif');
-      ascent-override: 72%;
-      descent-override: 25%;
-      line-gap-override: 3%;
-    }
-
     html {
       --o: #000;
-      --f: #fff;
       --oa: #000a;
-      --fd: #fffd;
       --d: #ddd;
       --e: #f5f5f5;
+      --f: #fff;
+      --fd: #fffd;
       --err: #d22;
-      --font: "NormalizedSans", system-ui, Arial, Helvetica, sans-serif;
+      --font: system-ui, Arial, Helvetica, sans-serif;
       overflow: hidden;
       height: 100%;
     }
@@ -849,6 +841,7 @@ x = i + round sqrt i ; A000037
         const R = createR(r);
         const svg = await createSvg(R);
         lsSave(r);
+        console.log(Object.entries(JSON.parse(svg.querySelector('desc').textContent).stat).map(([k, v]) => v + ' ' + k).join(' '));
         addSvgZoom(svg, '#right');
         el.right.replaceChildren(svg);
       } catch (err) {
