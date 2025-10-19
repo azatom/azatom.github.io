@@ -3,20 +3,29 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <title>L-System Fractals</title>
   <script src="lsystem.js"></script>
   <script src="lsystem.examples.js"></script>
   <script async src="https://cdn.jsdelivr.net/npm/marked@16.4/lib/marked.umd.js"></script>
   <style>
+    @font-face {
+      font-family: "NormalizedSans";
+      src: local('sans-serif');
+      ascent-override: 72%;
+      descent-override: 25%;
+      line-gap-override: 3%;
+    }
+
     html {
       --o: #000;
       --f: #fff;
-      --oa: #000000aa;
-      --fd: #ffffffdd;
-      --d: #dddddd;
+      --oa: #000a;
+      --fd: #fffd;
+      --d: #ddd;
       --e: #f5f5f5;
       --err: #d22;
+      --font: "NormalizedSans", system-ui, Arial, Helvetica, sans-serif;
       overflow: hidden;
       height: 100%;
     }
@@ -26,9 +35,10 @@
       background-color: var(--f);
       display: flex;
       margin: 0;
-      font-family: system-ui, sans-serif;
       flex-direction: row;
       height: 100%;
+      font-family: var(--font);
+      line-height: 2;
     }
 
     #left {
@@ -40,7 +50,7 @@
       min-width: 100px;
       max-width: 90vw;
       z-index: 1;
-      gap: 0.5rem;
+      gap: .5rem;
       background-color: var(--f);
     }
 
@@ -52,24 +62,24 @@
       background-size: 4rem 4rem;
     }
 
-    #butt {
+    .buttons {
       display: grid;
       align-items: center;
       grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
-      gap: 0.5rem;
+      gap: .5rem;
       user-select: none;
-      padding: 0.5rem 0.3rem 0.5rem 0.5rem;
+      padding: .5rem .3rem 0 .5rem;
     }
+    .buttons#export{padding-top:0}
 
     button {
       flex: 1;
       color: var(--o);
-      border-radius: 0.3125rem;
+      border-radius: .3125rem;
       border: none;
       background-color: var(--e);
       line-height: 1;
       padding: 0;
-      font-family: sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -122,19 +132,21 @@
       border: none;
       border-top: .2rem solid var(--d);
       max-width: 9rem;
-      margin: 0.2rem 0.5rem 0 0.5rem;
+      margin: .2rem .5rem 0 .5rem;
     }
 
     #log {
       grid-column: 1 / -1;
-      height: 2.6rem;
       white-space: pre-wrap;
       flex-basis: auto;
       background-color: var(--e);
-      padding: 0.2rem;
-      border-radius: 0.3125rem;
-      transition: height 0.1s ease;
+      transition: height .1s ease;
       overflow: hidden;
+      font-size: 1.0rem;
+      height: 2.0rem;
+      padding: .2rem;
+      border-radius: .3125rem;
+      line-height: 1.0rem;
     }
 
     #log:focus {
@@ -146,12 +158,12 @@
       height: 100%;
       font-family: monospace;
       box-sizing: border-box;
-      padding: 0.5rem;
+      padding: .5rem;
       white-space: pre-wrap;
       overflow: auto;
       border: none;
       min-height: 4rem;
-      font-size: 1.2rem;
+      font-size: 1rem;
       word-break: break-all;
       width: 100%;
     }
@@ -159,8 +171,8 @@
     #textarea>p {
       text-indent: -2.2ch;
       padding-left: 2.2ch;
-      margin: 0.4rem 0;
-      letter-spacing: 0.1ch;
+      margin: .4rem 0;
+      letter-spacing: .1ch;
       line-height: 1rem;
     }
 
@@ -170,7 +182,7 @@
     }
 
     .divider {
-      padding: 0.3rem;
+      padding: .3rem;
       background-clip: content-box;
     }
 
@@ -217,14 +229,9 @@
     }
 
     .smallsvgs>svg {
-      width: calc(min(12.2vh, 12.2vw) - 2px);
-      height: calc(min(12.2vh, 12.2vw) - 2px);
+      width: 10%;
+      height: 10%;
       cursor: pointer;
-    }
-
-    #helpText {
-      overflow: auto;
-      font-size: 0.9rem;
     }
 
     svg {
@@ -233,6 +240,11 @@
       object-fit: contain;
       max-width: 100%;
       max-height: 100%;
+    }
+
+    #helpText {
+      overflow: auto;
+      font-size: .9rem;
     }
 
     #helpModal {
@@ -260,21 +272,20 @@
 
     .preasdiv {
       white-space: normal;
-      font-family: sans-serif;
+      font-family: var(--font);
     }
 
     div[contenteditable="true"]:empty:not(:focus):before {
-      font-family: sans-serif;
+      font-family: var(--font);
       font-size: 1rem;
       content: attr(data-placeholder);
-      font-style: italic;
-      color: var(--o);
+      color: var(--oa);
     }
 
     .long-tap-progress {
       background: linear-gradient(90deg, var(--oa) 50%, var(--e) 50%);
       background-size: 400%;
-      animation: slide 0.5s linear forwards;
+      animation: slide .5s linear forwards;
     }
 
     @keyframes slide {
@@ -284,11 +295,26 @@
     }
 
     .hidden {
-      display: none;
+      display: none !important;
     }
 
     .error {
       background: var(--e);
+    }
+
+    .denoise {
+      visibility: hidden;
+      min-width: 0 !important;
+      width: 0 !important;
+    }
+
+    #textarea.denoise {
+      visibility: visible;
+      display: block !important;
+      position: fixed;
+      width: auto !important;
+      height: initial;
+      background-color: var(--fd);
     }
 
     @media only screen and (max-width: 600px) {
@@ -298,33 +324,29 @@
         flex-direction: column;
       }
 
-      #left,
       #right {
         width: 100%;
         height: auto;
       }
 
       #left {
+        width: 100%;
+        height: auto;
         max-width: 100%;
         padding: 0;
         gap: 0;
       }
 
-      #butt,
-      #log,
-      #textarea {
-        padding: 0.2rem;
-      }
-
-      #butt {
+      .buttons {
+        padding: .2rem;
         margin: 0;
-        gap: 0.2rem;
+        gap: .2rem;
       }
 
       #textarea {
+        padding: .2rem;
         resize: vertical;
         background: linear-gradient(135deg, var(--f) 98%, var(--d) 0);
-        height: 30vh;
       }
 
       #right {
@@ -332,7 +354,7 @@
       }
 
       #divider1,
-      body.keyboard-active #butt,
+      body.keyboard-active .buttons,
       body.keyboard-active #log {
         display: none;
       }
@@ -366,10 +388,23 @@
 </head>
 
 <body>
-  <div id="left">
-    <div id="butt">
+  <div id="left" class="noise">
+    <div class="buttons noise">
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)"><object data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_P=3" tabindex="-1" class="a" type="image/svg+xml">run</object></button>
+      <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
+      <button id="buttonnpp" title="CAREFUL! Above 9: type it">n--</button>
+      <button id="buttontpbg" title="transparent">trans<br>parent</button>
+      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object>
+        <div class="b">all<br>exmpls</div>
+      </button>
+      <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
+      <button id="buttonlsclear">reset</button>
+      <button id="buttondont">don't<br>press</button>
+      <button id="buttonexport">export</button>
+      <div tabindex="0" id="log" class="noise"></div>
+    </div>
+    <div id="export" class="buttons noise hidden">
       <button id="buttonjs" title="Small, url .svg">
         <div class="a">url</div><object data="lsystem.svg?S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_P=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
       </button>
@@ -379,20 +414,13 @@
       <button id="buttonpng" title="TODO">
         <div class="a">png</div><object data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
-      <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1" class="b" type="image/svg+xml">l</object></button>
-      <button id="buttonnpp" title="Shift or longTap: Previous, CAREFUL! Above 9: type it">n--<br>shift++</button>
-      <button id="buttontpbg" title="transparent">trans<br>parent</button>
-      <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object>
-        <div class="b">all<br>exmpls</div>
-      </button>
-      <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
-      <button id="buttonlsclear">clr local<br>storage</button>
-      <button id="" onclick="this.remove()">don't<br>press</button>
-      <div tabindex="0" id="log"></div>
+      <button id="buttonjson">copy<br>json</button>
+      <button id="buttonline">copy<br>1line</button>
+      <button id="buttonlines">copy<br>lineS</button>
     </div>
-    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here: S=S+F,_n=3&#xa;&#xa; Reformat: Ctrl+Enter or Update button (sorry this textarea is very hectic)&#xa;&#xa; Export: Use ctrl+c without selection&#xa;&#xa; Autosave to localstorage"></div>
+    <div class="noise" id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-placeholder=" Type here: S=S+F,_n=3 or click 'next'.&#xa; Reformat: Ctrl+Enter or Triangle (sorry edit is hectic).&#xa; Shift or LongTap reverses '++/--', 'next/prev'.&#xa; Autosave: localstorage."></div>
   </div>
-  <div class="divider dividerv" id="divider1"></div>
+  <div class="noise divider dividerv" id="divider1"></div>
   <div id="right"></div>
 
   <div id="helpModal">
@@ -589,7 +617,12 @@ x = i + round sqrt i ; A000037
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
       ael('#buttontpbg', () => toggleTpbg());
-      ael('#buttonlsclear', () => {lsClear();console.log('cleareed');});
+      ael('#buttondont', e => state.isMobile ? e.target.remove() : [...document.querySelectorAll('.noise')].map(e => e.classList.add('denoise')));
+      ael('#buttonjson', e => (navigator.clipboard.writeText(JSON.stringify(getRules())), console.log('copied')));
+      ael('#buttonline', e => (navigator.clipboard.writeText(stringify()), console.log('copied')));
+      ael('#buttonlines', e => (navigator.clipboard.writeText(stringify().replace(/,/g,'\n')), console.log('copied')));
+      ael('#buttonlsclear', () => { lsClear(); console.log('cleareed'); location=location;});
+      ael('#buttonexport', () => { document.querySelector('#export').classList.toggle('hidden', !document.querySelector('#buttonexport').toggleAttribute('data-checked')); });
       ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
     }
     function clickNpp(e, i) {
