@@ -5,7 +5,7 @@ let examples = [
     //{S:'F'},
     '=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5',
     {
-        '': 'AperiodicQuasiMonoTile-Hat',
+        '': 'AperiodicMirrorMonoTile-Hat',
         S: 'U+V+W+V+R',
         R: 'V+R+U+V+W+V+R-W',
         U: 'V+R+U+V+W+V+R-U+V+W+V+R+U-V',
@@ -21,7 +21,7 @@ let examples = [
         _n: 3
     },
     {
-        '': 'AperiodicQuasiMonoTile-Spectre',
+        '': 'AperiodicMirrorMonoTile-Spectre',
         S: 'U+V+W+V+R',
         R: 'V+R+U+V+W+V+R-W',
         U: 'V+R+U+V+W+V+R-U+V+W+V+R+U-V',
