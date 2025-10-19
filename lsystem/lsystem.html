@@ -70,7 +70,10 @@
       user-select: none;
       padding: .5rem .3rem 0 .5rem;
     }
-    .buttons#export{padding-top:0}
+
+    .buttons#export {
+      padding-top: 0
+    }
 
     button {
       flex: 1;
@@ -229,7 +232,7 @@
     }
 
     .smallsvgs>svg {
-      width:  16.6%;
+      width: 16.6%;
       height: 16.6%;
       cursor: pointer;
     }
@@ -402,6 +405,8 @@
       </button>
       <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
       <button id="buttonlsclear">reset</button>
+      <button id="buttondont">don't<br>press</button>
+      <button id="buttondont">don't<br>press</button>
       <button id="buttondont">don't<br>press</button>
       <button id="buttonexport">export</button>
       <div tabindex="0" id="log" class="noise"></div>
@@ -619,11 +624,11 @@ x = i + round sqrt i ; A000037
       ael('#buttonsvg', () => downloadsvg(el.right.querySelector(':scope>svg')));
       ael('#buttonpng', () => downloadpng(el.right.querySelector(':scope>svg')));
       ael('#buttontpbg', () => toggleTpbg());
-      ael('#buttondont', e => state.isMobile ? e.target.remove() : [...document.querySelectorAll('.noise')].map(e => e.classList.add('denoise')));
+      ael('#buttondont', e => state.isMobile ? e.target.textContent == '' ? e.target.remove() : e.target.textContent = '' : [...document.querySelectorAll('.noise')].map(e => e.classList.add('denoise')));
       ael('#buttonjson', e => (navigator.clipboard.writeText(JSON.stringify(getRules())), console.log('copied')));
       ael('#buttonline', e => (navigator.clipboard.writeText(stringify()), console.log('copied')));
-      ael('#buttonlines', e => (navigator.clipboard.writeText(stringify().replace(/,/g,'\n')), console.log('copied')));
-      ael('#buttonlsclear', () => { lsClear(); console.log('cleareed'); location=location;});
+      ael('#buttonlines', e => (navigator.clipboard.writeText(stringify().replace(/,/g, '\n')), console.log('copied')));
+      ael('#buttonlsclear', () => { lsClear(); console.log('cleareed'); location = location; });
       ael('#buttonexport', () => { document.querySelector('#export').classList.toggle('hidden', !document.querySelector('#buttonexport').toggleAttribute('data-checked')); });
       ael(helpModal, (e) => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
     }
