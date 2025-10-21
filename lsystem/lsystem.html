@@ -223,7 +223,7 @@
 
     /*OR NOT?*/
 
-    .smallsvgs>svg {
+    .smallsvgs svg {
       cursor: pointer;
     }
 
@@ -231,6 +231,7 @@
       height: auto;
       object-fit: contain;
       max-width: 100%;
+      max-height: 100%;
     }
 
     #helpText {
@@ -607,7 +608,7 @@ x = i + round sqrt i ; A000037
       ael('#helpModal', e => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
     }
 
-    function getSvg() { return el.right.querySelector(':scope>svg'); }
+    function getSvg() { return el.right.querySelector(':scope svg'); }
     function openStandaloneSvg(e) {
       Object.assign(
         document.createElement('a'), {
@@ -766,7 +767,7 @@ x = i + round sqrt i ; A000037
       let startX, startY, scrollStartX = 0, scrollStartY = 0;
       const rip = 'svgzoomr9fg34gs6h', $rect = createIfAbsent('div', `${rip}rect`);
       $rect.style = 'position:absolute;pointer-events:none;display:none;';
-      createIfAbsent('style', `${rip}css`).sheet.insertRule(`${parentSelector}>svg{cursor:zoom-out}`);
+      createIfAbsent('style', `${rip}css`).sheet.insertRule(`${parentSelector} svg{cursor:zoom-out}`);
       const getXY = e => {
         const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
         return { x: t.pageX, y: t.pageY };
@@ -865,10 +866,8 @@ x = i + round sqrt i ; A000037
         const stat = JSON.parse(svg.querySelector('desc').textContent).stat;
         console.log(Object.entries(stat).map(([k, v]) => v + ' ' + k).join(' '));
         addSvgZoom(svg, '#right');
-        const con = document.createElement('div');
-        con.appendChild(svg);
         el.right.classList.add('col');
-        el.right.replaceChildren(con);
+        el.right.replaceChildren(svg);
       } catch (err) {
         showError(err.message);
       }
