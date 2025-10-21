@@ -93,8 +93,7 @@
 
     button,
     button>object {
-      min-height: 2.5rem;
-      max-height: 3rem;
+      height: 2.5rem;
     }
 
     button>object {
@@ -106,7 +105,6 @@
     button[data-checked]:hover>.b,
     button[data-checked]>.a {
       opacity: .2;
-      position: absolute;
     }
 
     button:hover>.b,
@@ -207,10 +205,14 @@
       height: 100%;
     }
 
+    .col {
+      justify-content: center;
+    }
+
     /* FLEX!!!! */
     .smallsvgs {
       display: grid;
-      grid-template-columns: repeat( auto-fit, minmax(16%, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(16%, 1fr));
       width: 100%;
     }
 
@@ -260,7 +262,10 @@
       max-width: 84ch;
     }
 
-    pre{white-space: pre-wrap;}
+    pre {
+      white-space: pre-wrap;
+    }
+
     .preasdiv {
       white-space: normal;
       font-family: var(--font);
@@ -394,11 +399,11 @@
           class="b" type="image/svg+xml">l</object></button>
       <button id="buttonnpp" title="CAREFUL! Above 9: type it">n--</button>
       <button id="buttontpbg" title="transparent">trans<br>parent</button>
+      <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
       <button id="buttonall"><object data="lsystem.svg?S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a"
           type="image/svg+xml">all<br>exmpl</object>
         <div class="b">all<br>exmpls</div>
       </button>
-      <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
       <button id="buttonlsclear">reset</button>
       <button id="buttondont">don't<br>press</button>
       <button id="buttonexport">export</button>
@@ -419,12 +424,22 @@
           data="lsystem.svg?S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b"
           type="image/svg+xml">png</object>
       </button>
-      <button id="buttonjson">copy<br>json</button>
-      <button id="buttonline">copy<br>1line</button>
-      <button id="buttonlines">copy<br>lineS</button>
+      <button id="buttonjson">
+        <div class="a">copy<br>json</div>
+        <div class="b" style="font-size:2.2rem">{&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+      </button>
+      <button id="buttonline">
+        <div class="a">copy<br>1-line</div>
+        <div class="b" style="font-size:2.2rem">-----</div>
+      </button>
+      <button id="buttonlines">
+        <div class="a">copy<br>lineS</div>
+        <div class="b" style="font-size:2.2rem;text-align:left;line-height:.3">---<br>--<br>-----<br></div>
+      </button>
     </div>
     <div class="noise" id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      data-placeholder=" Type here: S=S+F,_n=3 or click 'next'.&#xa; Reformat: Ctrl+Enter or Triangle (sorry edit is hectic).&#xa; Shift or LongTap reverses '++/--', 'next/prev'.&#xa; Autosave: localstorage."></div>
+      data-placeholder=" Type here: S=S+F,_n=3 or click 'next'.&#xa; Reformat: Ctrl+Enter or Triangle (sorry edit is hectic).&#xa; Shift or LongTap reverses '++/--', 'next/prev'.&#xa; Autosave: localstorage.">
+    </div>
   </div>
   <div class="noise divider dividerv" id="divider1"></div>
   <div id="right"></div>
@@ -850,7 +865,10 @@ x = i + round sqrt i ; A000037
         const stat = JSON.parse(svg.querySelector('desc').textContent).stat;
         console.log(Object.entries(stat).map(([k, v]) => v + ' ' + k).join(' '));
         addSvgZoom(svg, '#right');
-        el.right.replaceChildren(svg);
+        const con = document.createElement('div');
+        con.appendChild(svg);
+        el.right.classList.add('col');
+        el.right.replaceChildren(con);
       } catch (err) {
         showError(err.message);
       }
@@ -887,6 +905,7 @@ x = i + round sqrt i ; A000037
                 showExample(i);
               }
             });
+            el.right.classList.remove('col');
             const con = document.createElement('div');
             con.appendChild(svg);
             return con;
@@ -895,6 +914,7 @@ x = i + round sqrt i ; A000037
         el.smallsvgs.append(...svgs);
         console.log(`${((performance.now() - t0) / 1000).toFixed(3)} s ${state.egs.length} exmpls`);
       }
+      setText('');
       el.right.replaceChildren(el.smallsvgs);
     }
 
