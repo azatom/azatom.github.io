@@ -31,7 +31,7 @@ async function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF
       return {
         stat: function (ts = a => a >= 1e6 ? (a / 1e6).toFixed(6) : a, d = Object.values(grid).reduce((p, c) => p + c.length, 0)) {
           return {
-            err: d - Object.keys(grid).length, ms: (performance.now() - T | 0), B: ts(O),
+            err: d - Object.keys(grid).length, ms: (performance.now() - T /*| 0*/), B: ts(O),
             lg: Math.log(_max) | 0, len: _min.toExponential(2), dot: ts(d), line: ts(lines.size)
           };
         },

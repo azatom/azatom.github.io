@@ -138,6 +138,7 @@
       padding: .2rem;
       border-radius: .3125rem;
       line-height: 1.1;
+      user-select: text;
     }
 
     #log:focus {
@@ -216,7 +217,7 @@
       width: 100%;
     }
 
-    .smallsvgs>div {
+    .smallsvgs svg {
       display: flex;
       overflow: hidden;
     }
@@ -318,6 +319,18 @@
       background-color: var(--fd);
     }
 
+    .svg-placeholder {
+      width: 16.6%;
+      height: 16.6%;
+      background: var(--e);
+      display: inline-block;
+    }
+
+    /********************************************************************************************/
+    /********************************************************************************************/
+    /********************************************************************************************/
+    /********************************************************************************************/
+    /********************************************************************************************/
     @media only screen and (max-width: 600px) {
 
       body,
@@ -395,11 +408,11 @@
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)"><object
           data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_P=3" tabindex="-1" class="a"
-          type="image/svg+xml">run</object></button>
+          type="image/svg+xml">Update</object><div class="b">Update</div></button>
       <button id="buttondot" title="Show endpoints only"><object
           data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a"
           type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1"
-          class="b" type="image/svg+xml">l</object></button>
+          class="b" type="image/svg+xml">dots</object></button>
       <button id="buttonnpp" title="CAREFUL! Above 9: type it">n--</button>
       <button id="buttontpbg" title="transparent">trans<br>parent</button>
       <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
@@ -548,7 +561,9 @@ x = i + round sqrt i ; A000037
     const state = {
       cntUpdate: 0,
       cntSuccess: 0,
-      egs: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s => getRules(typeof s === 'string' ? s : stringify(s))).filter(s => s),
+      egs: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s =>
+        getRules(typeof s === 'string' ? s : stringify(s))
+      ).filter(s => s),
       egsi: 0,
       isDividerActive: false,
       activeDivider: null,
@@ -595,7 +610,7 @@ x = i + round sqrt i ; A000037
       ael('#buttonsubmit', e => update());
       ael('#buttonnext', clickNext, 'altclick');
       ael('#buttonnpp', clickNpp, 'altclick');
-      ael('#buttonjs', openStandaloneSvg);
+      ael('#buttonjs', e => openStandaloneSvg());
       ael('#buttonsvg', e => downloadSvg(getSvg()));
       ael('#buttonpng', e => downloadPng(getSvg()));
       ael('#buttondot', toggleDot);
@@ -611,11 +626,11 @@ x = i + round sqrt i ; A000037
     }
 
     function getSvg() { return el.right.querySelector(':scope svg'); }
-    function openStandaloneSvg(e) {
+    function openStandaloneSvg(o = getRules()) {
       Object.assign(
         document.createElement('a'), {
         target: '_blank',
-        href: `lsystem.svg#${stringify(createR(getRules(), 1))}`
+        href: `lsystem.svg#${stringify(createR(getRules(), 1))}`,
       }).click();
     }
 
@@ -887,36 +902,36 @@ x = i + round sqrt i ; A000037
     }
 
     async function showAllExamples() {
-      if (!el.smallsvgs) {
-        const t0 = performance.now();
-        el.smallsvgs = Object.assign(document.createElement('div'), { className: 'smallsvgs' });
-        const svgs = await Promise.all(
-          state.egs.map(async (eg, i) => {
-            const R = Object.fromEntries(
-              Object.entries(eg).map(([k, v]) => [k, k === '_n' ? Math.max(2, v - 1) : v])
-            );
-            toggleCustomLog(false);
-            const svg = await createSvg(createR({ ...R, _i: i }));
-            toggleCustomLog(true);
-            svg.addEventListener('click', e => {
-              state.egsi = i;
-              if (e.shiftKey || e.ctrlKey) {
-                linkToSvg(state.egs[i]);
-              } else {
-                showExample(i);
-              }
-            });
-            const con = document.createElement('div');
-            con.appendChild(svg);
-            return con;
-          })
-        );
-        el.smallsvgs.append(...svgs);
-        console.log(`${((performance.now() - t0) / 1000).toFixed(3)} s ${state.egs.length} exmpls`);
-      }
-      el.right.classList.remove('col');
       setText('');
+      el.smallsvgs ||= await generateAllExamples();
+      el.right.classList.remove('col');
       el.right.replaceChildren(el.smallsvgs);
+    }
+
+    async function generateAllExamples() {
+      const t0 = performance.now();
+      const all = Object.assign(document.createElement('div'), { className: 'smallsvgs' });
+      const BATCH_SIZE = 8;//Math.max(2, Math.min(8, Math.ceil(state.egs.length * 0.25)));
+      const eg2R = eg => Object.fromEntries(Object.entries(eg)
+        .map(([k, v]) => [k, k === '_n' ? Math.max(2, parseInt(v) - 1, 1) : v])
+      );
+      const ael = r => (r.svg.addEventListener('click', e => e.ctrlKey
+        ? openStandaloneSvg(state.egs[state.egsi = r.i])
+        : showExample(state.egsi = r.i)
+      ), r.svg);
+      const res = await Promise.all(state.egs.map(async (eg, i) =>
+        ({ svg: await createSvg(createR(eg2R(eg))), i })
+      ));
+      // res.sort((a, b) => a.i - b.i);
+      for (let i = 0; i < res.length; i += BATCH_SIZE) {
+        const batch = res.slice(i, i + BATCH_SIZE);
+        all.append(...batch.map(ael));
+      }
+      const overall = ((performance.now() - t0)).toFixed(0);
+      const ms = res.map(a => JSON.parse(a.svg.querySelector('desc').textContent).stat.ms)
+        .reduce((p, c) => p + parseFloat(c), 0) | 0;
+      console.log(`[overall: ${overall}ms cumlative: +${overall - ms}ms ${state.egs.length} exmpls ${BATCH_SIZE} BS]`);
+      return all;
     }
 
     async function downloadSvg(svg) {
