@@ -230,6 +230,8 @@
     svg {
       height: auto;
       object-fit: contain;
+      width: 100%;
+      height: 100%;
       max-width: 100%;
       max-height: 100%;
     }
@@ -755,7 +757,7 @@ x = i + round sqrt i ; A000037
       return { ...R, ...dot, ...vbObj };
     }
 
-    function createIfAbsent(t, id) {
+    function createIfAbsent(t, id, css) {
       return document.getElementById(id) ||
         document.body.appendChild(
           Object.assign(document.createElement(t), { id })
@@ -904,7 +906,6 @@ x = i + round sqrt i ; A000037
                 showExample(i);
               }
             });
-            el.right.classList.remove('col');
             const con = document.createElement('div');
             con.appendChild(svg);
             return con;
@@ -913,6 +914,7 @@ x = i + round sqrt i ; A000037
         el.smallsvgs.append(...svgs);
         console.log(`${((performance.now() - t0) / 1000).toFixed(3)} s ${state.egs.length} exmpls`);
       }
+      el.right.classList.remove('col');
       setText('');
       el.right.replaceChildren(el.smallsvgs);
     }
