@@ -408,7 +408,9 @@
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)"><object
           data="lsystem.svg?S=+F++++F++++F,_a=30,_l=4,_b=0000,_P=3" tabindex="-1" class="a"
-          type="image/svg+xml">Update</object><div class="b">Update</div></button>
+          type="image/svg+xml">Update</object>
+        <div class="b">Update</div>
+      </button>
       <button id="buttondot" title="Show endpoints only"><object
           data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a"
           type="image/svg+xml">:</object><object data="lsystem.svg?S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1"
@@ -852,7 +854,7 @@ x = i + round sqrt i ; A000037
       localStorage.removeItem(ls + 'tpbg');
       localStorage.removeItem(ls + 'R');
     }
-    function lsLoad() {
+    async function lsLoad() {
       document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
       const egsi = localStorage.getItem(ls + 'egsi');
       if (egsi) { state.egsi = Number(egsi); }
@@ -862,7 +864,7 @@ x = i + round sqrt i ; A000037
       } else if (egsi) {
         showExample();
       } else {
-        showAllExamples();
+        await showAllExamples();
       }
     }
 
@@ -901,38 +903,42 @@ x = i + round sqrt i ; A000037
       getText() ? (setText({ ...getRules(), _d: getDot() ? 1 : 0 }), update()) : showAllExamples();
     }
 
-    async function showAllExamples() {
+    function showAllExamples() {
       setText('');
-      el.smallsvgs ||= await generateAllExamples();
+      el.smallsvgs ||= Object.assign(document.createElement('div'), { className: 'smallsvgs' });
       el.right.classList.remove('col');
       el.right.replaceChildren(el.smallsvgs);
+      return generateAllExamples(el.smallsvgs);
     }
 
-    async function generateAllExamples() {
+    async function generateAllExamples(all) {
       const t0 = performance.now();
-      const all = Object.assign(document.createElement('div'), { className: 'smallsvgs' });
-      const BATCH_SIZE = 8;//Math.max(2, Math.min(8, Math.ceil(state.egs.length * 0.25)));
+      const BATCH_SIZE = 8;
+
       const eg2R = eg => Object.fromEntries(Object.entries(eg)
         .map(([k, v]) => [k, k === '_n' ? Math.max(2, parseInt(v) - 1, 1) : v])
       );
-      const ael = r => (r.svg.addEventListener('click', e => e.ctrlKey
-        ? openStandaloneSvg(state.egs[state.egsi = r.i])
-        : showExample(state.egsi = r.i)
-      ), r.svg);
-      const res = await Promise.all(state.egs.map(async (eg, i) =>
-        ({ svg: await createSvg(createR(eg2R(eg))), i })
-      ));
-      // res.sort((a, b) => a.i - b.i);
-      for (let i = 0; i < res.length; i += BATCH_SIZE) {
-        const batch = res.slice(i, i + BATCH_SIZE);
-        all.append(...batch.map(ael));
+
+      const ael = r => {
+        r.svg.addEventListener('click', e => e.ctrlKey
+          ? openStandaloneSvg(state.egs[state.egsi = r.i])
+          : showExample(state.egsi = r.i)
+        );
+        return r.svg;
+      };
+
+      const promises = state.egs.map(async (eg, i) => ({ svg: await createSvg(createR(eg2R(eg))), i }));
+
+      for (let i = 0; i < promises.length; i++) {
+        all.append(ael(await promises[i]));
       }
+
       const overall = ((performance.now() - t0)).toFixed(0);
-      const ms = res.map(a => JSON.parse(a.svg.querySelector('desc').textContent).stat.ms)
+      const ms = [...all.querySelectorAll('svg')].map(a => JSON.parse(a.querySelector('desc').textContent).stat.ms)
         .reduce((p, c) => p + parseFloat(c), 0) | 0;
-      console.log(`[overall: ${overall}ms cumlative: +${overall - ms}ms ${state.egs.length} exmpls ${BATCH_SIZE} BS]`);
-      return all;
+      console.log(`[overall: ${overall}ms cumulative: +${overall - ms}ms ${state.egs.length} examples]`);
     }
+
 
     async function downloadSvg(svg) {
       if (!svg) return;
@@ -1080,7 +1086,7 @@ x = i + round sqrt i ; A000037
       lsLoad();
     }
 
-    init();
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 
