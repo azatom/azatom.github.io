@@ -35,7 +35,7 @@ let examples = [
         _l: 6,
         _n: 3
     },
-    '=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4',
+    '=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_P=1.5',
     '=Penrose,S=X                      ,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=5',
     //'=Penrose2,S=++ZF----XF-YF----WF    ,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
     //'=Penrose3,S=[Y]++[Y]++[Y]++[Y]++[Y],F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
