@@ -4,6 +4,7 @@ let examples = [
     //{},
     //{S:'F'},
     '=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5',
+    'S=FFFF',
     {
         '': 'AperiodicMirrorMonoTile-Hat',
         S: 'U+V+W+V+R',
@@ -61,6 +62,7 @@ let examples = [
     '=Sierpinski3,S=YF,X=YF+XF+Y,Y=XF-YF-X,_a=60,_n=5',
     '=sierpin,S=--X,F=FF,X=++FXF++FXF++FXF,_a=60,_n=5',
     '=CircularTile,S=X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X,X=[F+F+F+F[---X-Y]+++++F++++++++F-F-F-F],Y=[F+F+F+F[---Y]+++++F++++++++F-F-F-F],_a=15,_n=3',
+    'S=+FFFFF',
     '=ColorTriangGasket,S=--X,F=FF,X=++FXF++FXF++FXF>1,_a=60,_n=4',
     '=curve3,S=F-F-F-F-,F=FF-F+F-F-FF,_a=90,_l=6,_n=4',
     '=curve4,S=F-F-F-F-,F=FF-F-F-F-F-F+F,_a=90,_l=6,_n=4',

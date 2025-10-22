@@ -210,19 +210,17 @@
       justify-content: center;
     }
 
-    /* FLEX!!!! */
     .smallsvgs {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(16%, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(max(4rem, 15%), 1fr));
       width: 100%;
     }
 
     .smallsvgs svg {
       display: flex;
       overflow: hidden;
+      aspect-ratio: 1;
     }
-
-    /*OR NOT?*/
 
     .smallsvgs svg {
       cursor: pointer;
@@ -913,12 +911,9 @@ x = i + round sqrt i ; A000037
 
     async function generateAllExamples(all) {
       const t0 = performance.now();
-      const BATCH_SIZE = 8;
-
       const eg2R = eg => Object.fromEntries(Object.entries(eg)
         .map(([k, v]) => [k, k === '_n' ? Math.max(2, parseInt(v) - 1, 1) : v])
       );
-
       const ael = r => {
         r.svg.addEventListener('click', e => e.ctrlKey
           ? openStandaloneSvg(state.egs[state.egsi = r.i])
@@ -926,7 +921,6 @@ x = i + round sqrt i ; A000037
         );
         return r.svg;
       };
-
       const promises = state.egs.map(async (eg, i) => ({ svg: await createSvg(createR(eg2R(eg))), i }));
 
       for (let i = 0; i < promises.length; i++) {
