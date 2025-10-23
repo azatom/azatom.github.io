@@ -1,4 +1,4 @@
-function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3', svg)
+function createSvg(R = 'S=F+F+F+F', svg)
 {
   R = 'string' === typeof R ? Object.fromEntries(R.replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2').split(',').map(a => a.split('='))) : R;
   let T = performance.now(), [x, y, a, b, q, O] = Array(9).fill(0), d = '', p = 1, i, j, Q = Math.PI / 2;
@@ -6,7 +6,7 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
   const z = [], B = R._a / 90
     , Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith('2')).map(([k, v]) => [k[0], v]))
     , u = n => Z && n === R._n ? Z : R
-    , o = (a,b) => +parseFloat(a,b=12).toPrecision(b)
+    , o = a => +parseFloat(a).toPrecision(12)
     , f = f => R._l * Math.pow(R._m, q) * f(Q * (a * B + b))
     , C = (t, a, ...b) => {
       t = document.createElementNS('http://www.w3.org/2000/svg', t);
@@ -32,7 +32,7 @@ function createSvg(R = 'S=AX,=title,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F
       return {
         stat: function (ts = a => a >= 1e6 ? (a / 1e6).toFixed(6) : a, d = Object.values(grid).reduce((p, c) => p + c.length, 0)) {
           return {
-            err: d - Object.keys(grid).length, ms: o(performance.now() - T,3), B: ts(O),
+            err: d - Object.keys(grid).length, ms: +(performance.now() - T).toFixed(3), B: ts(O),
             lg: Math.log(_max) | 0, len: _min.toExponential(2), dot: ts(d), line: ts(lines.size)
           };
         },
