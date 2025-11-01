@@ -34,6 +34,7 @@ Keys starting with `_` have numeric values:
 - `!`: Toggle rotation parity
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
+  note: empty stack pop leaves as is
 
 ### Syntax
 - Plaintext and url:

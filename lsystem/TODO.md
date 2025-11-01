@@ -1,10 +1,10 @@
-- auto check if textarea is messed up
-- do not let large n, show progress, make it breakable
-- add button --n++
-- add fill feature
-- SegmentSet instead of string of 4floats
-- "EmptyStack:]" add warning (it is feature, not error)
-- warn mixing alternative separators
+- handle "large n": show progress, interruptable
+- feature: fill, color
+- reconsider sizes: dot, line, width, blur
+- reconsider dot/point draw
+- webkit blur bug/feGaussianBlur?
+- SegmentSet
+- UI: [+-] buttons
 - Generating system.js.svg from lsystem.js:
   - optional: strip consolelog/stat, minimize
   - use wrappers in svg-vs-js.txt for CDATA

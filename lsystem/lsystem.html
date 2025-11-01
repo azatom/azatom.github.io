@@ -7,8 +7,33 @@
   <title>L-System Fractals</title>
   <script src="lsystem.js"></script>
   <script src="lsystem.examples.js"></script>
-  <script async src="https://cdn.jsdelivr.net/npm/marked@16/lib/marked.umd.js"></script>
+  <!--script async src="https://cdn.jsdelivr.net/npm/marked@16/lib/marked.umd.js"></script-->
   <style>
+    .dont object,
+    .dont svg,
+    /*.dont button,
+    .dont .dividerv,
+    .dont #log,*/
+    .dont img {
+      filter: url('data:image/svg+xml,\
+    <svg xmlns="http://www.w3.org/2000/svg">\
+      <filter id="waves" x="-20%" y="-20%" width="140%" height="140%" \
+      filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" \
+      color-interpolation-filters="linearRGB">\
+        <feTurbulence type="turbulence" baseFrequency="0.03 0.03" numOctaves="3" \
+        seed="1" stitchTiles="noStitch" result="turbulence" />\
+        <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="5" \
+        xChannelSelector="G" yChannelSelector="A" result="displacementMap" />\
+        <feGaussianBlur stdDeviation=".15" />\
+      </filter>\
+    </svg>#waves');
+    }
+
+    .dont .a,
+    .dont .b {
+      filter: none;
+    }
+
     html {
       --o: #000;
       --oa: #000a;
@@ -24,27 +49,27 @@
     }
 
     body {
+      display: flex;
+      flex-direction: row;
       overflow: hidden;
       background-color: var(--f);
-      display: flex;
       margin: 0;
-      flex-direction: row;
       height: 100%;
       font-family: var(--font);
       line-height: 2;
     }
 
     #left {
-      position: relative;
+      background-color: var(--f);
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      box-sizing: border-box;
-      width: 22.4rem;
-      min-width: 100px;
+      width: 24.5rem;
       max-width: 90vw;
+      min-width: 3rem;
+      position: relative;
       z-index: 1;
-      gap: .5rem;
-      background-color: var(--f);
+      height: auto;
     }
 
     .tpbg {
@@ -58,10 +83,10 @@
     .buttons {
       display: grid;
       align-items: center;
-      grid-template-columns: repeat(auto-fill, minmax(3.9rem, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr));
       gap: .5rem;
       user-select: none;
-      padding: .5rem .3rem 0 .5rem;
+      padding: .5rem;
     }
 
     .buttons#export {
@@ -69,7 +94,6 @@
     }
 
     button {
-      font-size: 1rem;
       flex: 1;
       color: var(--o);
       border-radius: .3125rem;
@@ -83,8 +107,10 @@
       overflow: hidden;
     }
 
-    button:hover {
-      background-color: var(--d);
+    .cursive button,
+    .cursive #log {
+      border: 1px solid var(--d);
+      background-color: initial;
     }
 
     button:not([disabled]) {
@@ -117,7 +143,7 @@
     }
 
     button[data-checked] {
-      color: var(--f);
+      color: var(--d);
     }
 
     hr {
@@ -134,11 +160,12 @@
       background-color: var(--e);
       transition: height .1s ease;
       overflow: hidden;
-      height: 2.0rem;
+      height: 2.3rem;
       padding: .2rem;
       border-radius: .3125rem;
       line-height: 1.1;
       user-select: text;
+      box-sizing: border-box;
     }
 
     #log:focus {
@@ -157,7 +184,6 @@
       min-height: 4rem;
       word-break: break-all;
       width: 100%;
-      font-size: 1.2rem;
     }
 
     #textarea>p {
@@ -173,13 +199,14 @@
     }
 
     .divider {
-      padding: .3rem;
-      background-clip: content-box;
+      height: initial;
+      width: 0;
     }
 
     .dividerv {
-      width: 0;
-      background: linear-gradient(to left, var(--e) 0, var(--e) 50%, var(--f) 50%, var(--f) 100%);
+      max-width: 0;
+      margin: 0.5rem 0;
+      padding: 0.25rem;
     }
 
     .dividerv:hover {
@@ -302,21 +329,6 @@
       background: var(--e);
     }
 
-    .denoise {
-      visibility: hidden;
-      min-width: 0 !important;
-      width: 0 !important;
-    }
-
-    #textarea.denoise {
-      visibility: visible;
-      display: block !important;
-      position: fixed;
-      width: auto !important;
-      height: initial;
-      background-color: var(--fd);
-    }
-
     .svg-placeholder {
       width: 16.6%;
       height: 16.6%;
@@ -324,34 +336,19 @@
       display: inline-block;
     }
 
-    /********************************************************************************************/
-    /********************************************************************************************/
-    /********************************************************************************************/
-    /********************************************************************************************/
-    /********************************************************************************************/
-    @media only screen and (max-width: 600px) {
-
-      body,
-      html {
+    @media only screen and (max-width: 900px) {
+      body {
         flex-direction: column;
       }
 
-      #right {
-        width: 100%;
-        height: auto;
-      }
-
       #left {
-        width: 100%;
-        height: auto;
         max-width: 100%;
-        padding: 0;
-        gap: 0;
+        width: 100%;
       }
 
       .buttons {
         padding: .2rem;
-        margin: 0;
+        grid-template-columns: repeat(auto-fill, minmax(3.7rem, 1fr));
         gap: .2rem;
       }
 
@@ -359,11 +356,10 @@
         padding: .2rem;
         resize: vertical;
         background: linear-gradient(135deg, var(--f) 98%, var(--d) 0);
-        font-size: 1rem;
       }
 
       #right {
-        flex: 1;
+        height: auto;
       }
 
       #divider1,
@@ -401,69 +397,87 @@
 </head>
 
 <body>
-  <div id="left" class="noise">
-    <div class="buttons noise">
+  <div id="left">
+    <div class="buttons">
       <button id="buttonhelp" title="Help">?</button>
-      <button id="buttonsubmit" title="Update (Ctrl+Enter)"><object
-          data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_b=0000,_P=3" tabindex="-1" class="a"
-          type="image/svg+xml">Update</object>
+      <button id="buttonsubmit" title="Update (Ctrl+Enter)">
+        <object data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cs=000f,_cb=0000,_p=3" tabindex="-1" class="a" type="image/svg+xml">Update</object>
         <div class="b">Update</div>
       </button>
-      <button id="buttondot" title="Show endpoints only"><object
-          data="lsystem.svg#S=++++++F++++F,_a=20,_b=0000,_l=3,_P=2,_d=1" tabindex="-1" class="a"
-          type="image/svg+xml">:</object><object data="lsystem.svg#S=++++++F++++F,_a=20,_b=0000,_l=9,_P=6" tabindex="-1"
-          class="b" type="image/svg+xml">dots</object></button>
+      <button id="buttondot" title="Show endpoints only">
+        <object data="lsystem.svg#S=++++++F++++F,_a=20,_cs=0000,_cb=0000,_l=3,_p=2,_d=1" tabindex="-1" class="a" type="image/svg+xml">:</object>
+        <object data="lsystem.svg#S=++++++F++++F,_a=20,_cs=000f,_cb=0000,_l=9,_p=6" tabindex="-1" class="b" type="image/svg+xml">dots</object>
+      </button>
       <button id="buttonnpp" title="CAREFUL! Above 9: type it">n--</button>
       <button id="buttontpbg" title="transparent">trans<br>parent</button>
       <button id="buttonnext" title="Shift: Previous example">next<br>exmpl</button>
-      <button id="buttonall"><object data="lsystem.svg#S=[F]+S,_a=72,_b=0000,_n=5,_l=2,_P=3" tabindex="-1" class="a"
-          type="image/svg+xml">all<br>exmpl</object>
+      <button id="buttonall">
+        <object data="lsystem.svg#S=[F]+S,_a=72,_cs=000f,_cb=0000,_n=5,_l=2,_p=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object>
         <div class="b">all<br>exmpls</div>
       </button>
       <button id="buttonlsclear">reset</button>
-      <button id="buttondont">don't<br>press</button>
+      <button id="buttondont" style="font-size:1.5rem">
+        <div class="a">A</div>
+        <div class="b cursive">S</div>
+      </button>
+      <button></button>
+      <button></button>
       <button id="buttonexport">export</button>
-      <div tabindex="0" id="log" class="noise"></div>
-    </div>
-    <div id="export" class="buttons noise hidden">
-      <button id="buttonjs" title="Small, url .svg">
-        <div class="a">url</div><object data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_b=0000,_l=6,_P=4"
-          tabindex="-1" class="b" type="image/svg+xml">url</object>
+      <div tabindex="0" id="log"></div>
+      <button id="buttonjs" class="export hidden" title="Small, url .svg">
+        <div class="a">url</div>
+        <object data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_cs=000f,_cb=0000,_l=6,_p=4" tabindex="-1" class="b" type="image/svg+xml">url</object>
       </button>
-      <button id="buttonsvg" title="Download big, generated .svg">
-        <div class="a">SVG</div><object
-          data="lsystem.svg#S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b"
-          type="image/svg+xml">svg</object>
+      <button id="buttonsvg" class="export hidden" title="Download big, generated .svg">
+        <div class="a">SVG</div>
+        <object data="lsystem.svg#S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_cs=000f,_cb=0000,_l=3,_p=2" tabindex="-1" class="b" type="image/svg+xml">svg</object>
       </button>
-      <button id="buttonpng" title="Download as PNG">
-        <div class="a">png</div><object
-          data="lsystem.svg#S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_b=0000,_l=3,_P=2" tabindex="-1" class="b"
-          type="image/svg+xml">png</object>
+      <button id="buttonpng" class="export hidden" title="Download as PNG">
+        <div class="a">png</div>
+        <object data="lsystem.svg#S=[A]!++++A,A=F++FF--F+++***F,_n=2,_m=1.4,_a=45,_cs=000f,_cb=0000,_l=3,_p=2" tabindex="-1" class="b" type="image/svg+xml">png</object>
       </button>
-      <button id="buttonjson">
+      <button id="buttonjson" class="export hidden">
         <div class="a">copy<br>json</div>
         <div class="b" style="font-size:2.2rem">{&nbsp;&nbsp;&nbsp;&nbsp;}</div>
       </button>
-      <button id="buttonline">
+      <button id="buttonline" class="export hidden">
         <div class="a">copy<br>1-line</div>
-        <div class="b" style="font-size:2.2rem">-----</div>
+        <div class="b" style="font-size:2.2rem">----</div>
       </button>
-      <button id="buttonlines">
+      <button id="buttonlines" class="export hidden">
         <div class="a">copy<br>lineS</div>
-        <div class="b" style="font-size:2.2rem;text-align:left;line-height:.3">---<br>--<br>-----<br></div>
+        <div class="b" style="font-size:2.2rem;text-align:left;line-height:.3">---<br>--<br>----<br></div>
       </button>
     </div>
-    <div class="noise" id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
       data-placeholder=" Type here: S=S+F,_n=3 or click 'next'.&#xa; Reformat: Ctrl+Enter or Triangle (sorry edit is hectic).&#xa; Shift or LongTap reverses '++/--', 'next/prev'.&#xa; Autosave: localstorage.">
     </div>
   </div>
-  <div class="noise divider dividerv" id="divider1"></div>
+  <button class="divider dividerv" id="divider1"></button>
   <div id="right"></div>
 
-  <div id="helpModal">
+  <div id="helpModal" onclick="event.target === this && helpClose()">
     <div id="helpWindow">
-      <span onclick="document.querySelector('#helpModal').style.display='none'"
-        style="float: right; cursor: pointer">X</span>
+      <script>
+        document.querySelector('#buttonhelp').addEventListener('click', help);
+        async function help() {
+          const $md = document.querySelector('.md');
+          document.querySelector('#helpModal').style.display = 'flex';
+          const renderMd = (t = 0) => {
+            try {
+              if (typeof marked !== 'undefined' && $md) {
+                $md.innerHTML = marked.parse($md.innerText);
+                $md.classList.remove('md');
+                $md.classList.add('preasdiv');
+              } else if (t < 1e4) setTimeout(() => renderMd(t * 1.5 + 100), t);
+            } catch (e) { }
+          };
+          renderMd();
+        };
+        function helpClose() { document.querySelector('#helpModal').style.display = 'none'; }
+        document.addEventListener('keydown', e => e.key === 'Escape' && helpClose());
+      </script>
+      <span onclick="helpClose()" style="float: right; cursor: pointer">X</span>
       <div id="helpText">
         <pre class="md">
 # L-System Fractals
@@ -498,7 +512,7 @@ Rules can be in plaintext, URL fragment, query params, or JSON:
 - Rule's key-value separated by `=` or `:`
 
 ### Rule's key-value pairs:
-Keys starting with `_` have numeric values:
+Keys starting with `_` are "string" rather then "chars", eg: number
 - `_n`: Number of iterations
 - `_l`: Initial line length (width=1)
 - `_m`: Line length multiplier
@@ -514,12 +528,17 @@ Keys starting with `_` have numeric values:
 - `!`: Toggle rotation parity
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
+  note: empty stack pop leaves as is
 
 ### Additional parameters for svg:
-- `_x`, `_y`, `_w`, `_h`: viewBox
-- `_d`: 1 for dots instead of lines, use `_l` for size
-- `_b`: Background without `#`, eg. transparent:fff0 
-- `_P`: Padding
+- `_c...`: colors `none` or [0-9a-f]{3,8} w/o leading `#`
+- `_x`, `_y`, `_w`, `_h`, `_p`: viewBox, padding
+- `_d`: dot size
+- `_cb`: rect fill, background
+- `_cd`: circle fill, dot color
+- `_cs`: path stroke, line color
+- `_o`: stroke-opacity
+- `_r`: blur
 
 ### Syntax
 - Plaintext and url:
@@ -557,6 +576,7 @@ x = i + round sqrt i ; A000037
     </div>
   </div>
 
+  <!--script type="module"-->
   <script type="module">
     const state = {
       cntUpdate: 0,
@@ -571,7 +591,9 @@ x = i + round sqrt i ; A000037
       startY: 0,
       startWidth: 0,
       startHeight: 0,
-      isMobile: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      isMobileForce: 0,
+      isMobile: function () { return state.isMobileForce === 0 ? state.isMobile0 : state.isMobileForce === 1; },
+      isMobile0: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
         typeof window.orientation !== 'undefined' ||
         (navigator.maxTouchPoints && navigator.maxTouchPoints > 1),
       lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
@@ -584,9 +606,9 @@ x = i + round sqrt i ; A000037
       divider1: document.querySelector('#divider1'),
       right: document.querySelector('#right'),
       buttDot: document.querySelector('#buttondot'),
+      buttDont: document.querySelector('#buttondont'),
       buttSubmit: document.querySelector('#buttonsubmit'),
       buttNext: document.querySelector('#buttonnext'),
-      helpModal: document.querySelector('#helpModal'),
       message: Object.assign(document.createElement('div'), { style: 'font-size:2rem' }),
     };
 
@@ -606,23 +628,21 @@ x = i + round sqrt i ; A000037
           console.log('copied')
         )
       );
-      ael('#buttonhelp', help);
-      ael('#buttonsubmit', e => update());
+      ael('#buttonsubmit', e => update(getRules()));
       ael('#buttonnext', clickNext, 'altclick');
       ael('#buttonnpp', clickNpp, 'altclick');
+      ael('#buttondot', toggleDot);
+      ael('#buttondont', toggleDont);
+      ael('#buttontpbg', toggleTpbg);
+      ael('#buttonall', showAllExamples);
       ael('#buttonjs', e => openStandaloneSvg());
       ael('#buttonsvg', e => downloadSvg(getSvg()));
-      ael('#buttonpng', e => downloadPng(getSvg()));
-      ael('#buttondot', toggleDot);
-      ael('#buttonall', showAllExamples);
-      ael('#buttontpbg', toggleTpbg);
-      ael('#buttondont', dontPress);
+      ael('#buttonpng', async e => await downloadPng(getSvg()));
       ael('#buttonjson', e => (navigator.clipboard.writeText(JSON.stringify(getRules())), console.log('copied')));
       ael('#buttonline', e => (navigator.clipboard.writeText(stringify()), console.log('copied')));
       ael('#buttonlines', e => (navigator.clipboard.writeText(stringify().replace(/,/g, '\n')), console.log('copied')));
-      ael('#buttonlsclear', e => { lsClear(); console.log('cleareed'); /*location = location;*/ location.reload(); });
-      ael('#buttonexport', e => document.querySelector('#export').classList.toggle('hidden', !document.querySelector('#buttonexport').toggleAttribute('data-checked')));
-      ael('#helpModal', e => e.target === el.helpModal && (el.helpModal.style.display = 'none'));
+      ael('#buttonlsclear', e => { lsClear(); console.log('cleared'); location.reload(); });
+      ael('#buttonexport', (e, s = !document.querySelector('#buttonexport').toggleAttribute('data-checked')) => document.querySelectorAll('.export').forEach(e => e.classList.toggle('hidden', s)));
     }
 
     function getSvg() { return el.right.querySelector(':scope svg'); }
@@ -681,52 +701,24 @@ x = i + round sqrt i ; A000037
       showExample(i);
     }
 
-    function dontPress(e) {
-      state.isMobile
-        ? e.target.textContent == '' ? e.target.remove()
-          : e.target.textContent = '' : [...document.querySelectorAll('.noise')].map(e => e.classList.add('denoise'));
-    }
-
-    function toggleTpbg() {
-      const R = getRules();
-      const t = R._b === '0000' ? (delete R._b, 0) : (R._b = '0000', 1);
-      setText(R);
-      update();
-      el.right.classList.toggle('tpbg', t);
-    }
-
-    async function help() {
-      const $md = document.querySelector('.md');
-      el.helpModal.style.display = 'flex';
-      const renderMd = (t = 0) => {
-        try {
-          if (typeof marked !== 'undefined' && $md) {
-            $md.innerHTML = marked.parse($md.innerText);
-            $md.classList.remove('md');
-            $md.classList.add('preasdiv');
-          } else if (t < 1e4) setTimeout(() => renderMd(t * 1.5 + 100), t);
-        } catch (e) { }
-      };
-      renderMd();
-    };
-
-    function stringify(R = getRules()) {
-      return Object.entries(R)
-        .map(([k, v]) => `${k}=${v}`)
-        .join(',');
-    }
-
     function getText() {
       return el.textarea.innerText;
     }
 
+    function sortKeys(a, b) {
+      const p = p => p.replace(/^S/, ' S').replace(/^_/, 'zz');
+      return a.length < b.length ? -1 : a.length > b.length ? 1 : p(a).localeCompare(p(b));
+    }
+
+    function stringify(rR = getRules(), isHtml) {
+      return Object.keys(rR = 'string' == typeof rR ? getRules(rR) : rR)
+        .sort(sortKeys)
+        .map(k => isHtml ? `<p>${k}=${rR[k]}</p>` : `${k}=${rR[k]}`)
+        .join(isHtml ? '' : ',');
+    }
+
     function setText(rR) {
-      if ('string' == typeof rR) { rR = getRules(rR); }
-      let p = p => p.replace(/^S/, ' S').replace(/^_/, 'zz');
-      el.textarea.innerHTML = Object.keys(rR)
-        .sort((a, b) => p(a).localeCompare(p(b)))
-        .map(k => `<p>${k}=${rR[k]}</p>`)
-        .join('');
+      el.textarea.innerHTML = stringify(rR, 1);
     }
 
     function getDot() {
@@ -744,9 +736,9 @@ x = i + round sqrt i ; A000037
         .split(',')
         .filter(a => a !== '')
         .map(a => a.split(/[=:]/))
-        .map(a => { if (a.length != 2) throw new Error('Format is (inaccurately):\nrules : (rule [\\n,&])*\nrule : key=value\nkey : (c | _c | c2)\nvalue : c*\nc : a char except eg.:   "&,=:"\nwhitespace ignored'); return a; })
+        .map(a => { if (a.length != 2) throw new Error('Format vaguelly:\nrules : (rule [\\n,&])*\nrule : key=value\nkey : (c | _c | c2)\nvalue : c*\nc : a char except eg.:   "&,=:"\nwhitespace ignored'); return a; })
         .map(a => a.map(a => a.replace(/(^"|"$)/g, '')))
-        .map(([k, v]) => { if (!/^(|[^"]|_[^"]|[^"]2)$/.test(k) && /[^"]*/.test(v)) throw new Error('Invalid format2'); return [k, v]; })
+        .map(([k, v]) => { if (!/^(|[^"]|_[^"]+|[^"]2)$/.test(k) && /[^"]*/.test(v)) throw new Error('Invalid format2'); return [k, v]; })
       );
     }
 
@@ -758,7 +750,7 @@ x = i + round sqrt i ; A000037
 
     function createR(o, preserveViewBox) {
       const R = typeof o === 'string' ? getRules(o) : o;
-      const dot = getDot() ? { _d: 1 } : {};
+      const dot = getDot() ? { _cs: 'none', _d: 1 } : {};
       if (!preserveViewBox) return { ...R, ...dot };
       const vb = el.right.querySelector('svg');
       if (!vb) return { ...R, ...dot };
@@ -843,24 +835,21 @@ x = i + round sqrt i ; A000037
 
     const ls = 'lsystem_';
     function lsSave(R) {
-      localStorage.setItem(ls + 'egsi', state.egsi || 0);
-      localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
+      //localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
+      //localStorage.setItem(ls + 'egsi', state.egsi || 0);
       localStorage.setItem(ls + 'R', stringify(R));
     }
     function lsClear() {
-      localStorage.removeItem(ls + 'egsi');
-      localStorage.removeItem(ls + 'tpbg');
+      //localStorage.removeItem(ls + 'tpbg');
+      //localStorage.removeItem(ls + 'egsi');
       localStorage.removeItem(ls + 'R');
     }
-    async function lsLoad() {
-      document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
-      const egsi = localStorage.getItem(ls + 'egsi');
-      if (egsi) { state.egsi = Number(egsi); }
+    async function localstorageLoad() {
+      //document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
+      //const egsi = localStorage.getItem(ls + 'egsi'); if (egsi) { state.egsi = Number(egsi); showExample(); }
       const r = localStorage.getItem(ls + 'R');
       if (r && r !== '' && r !== '{}') {
-        update(r);
-      } else if (egsi) {
-        showExample();
+        await update(r);
       } else {
         await showAllExamples();
       }
@@ -868,17 +857,18 @@ x = i + round sqrt i ; A000037
 
     async function update(rules) {
       state.cntUpdate++;
-      if (rules) {
-        rules = typeof rules === 'string' ? getRules(rules) : rules;
-        setText(rules);
-      } else {
-        rules = getRules();
-      }
-      showError('Processing...');
+      let t = setTimeout(() => showError('Processing...'), 100);
       await new Promise(resolve => setTimeout(resolve, 0));
       try {
+        if (rules) {
+          rules = typeof rules === 'string' ? getRules(rules) : rules;
+          setText(rules);
+        } else {
+          rules = getRules();
+        }
         const R = createR(rules);
         const svg = await createSvg(R);
+        clearTimeout(t);
         lsSave(rules);
         const stat = JSON.parse(svg.querySelector('desc').textContent).stat;
         console.log(Object.entries(stat).map(([k, v]) => v + ' ' + k).join(' '));
@@ -886,6 +876,7 @@ x = i + round sqrt i ; A000037
         el.right.classList.add('col');
         el.right.replaceChildren(svg);
       } catch (err) {
+        clearTimeout(t);
         showError(err.message);
       }
     }
@@ -896,14 +887,35 @@ x = i + round sqrt i ; A000037
       console.log(`[example: ${state.egsi + 1} / ${state.egs.length}]`);
     }
 
+    function toggleTpbg() {
+      const s = document.querySelector('#buttontpbg').toggleAttribute('data-checked');
+      el.right.classList.toggle('tpbg', s);
+      const R = getRules();
+      s ? (R._cb = '0000') : (delete R._cb, 0);
+      setText(R);
+      update();
+    }
+
     function toggleDot() {
       setDot(!getDot());
-      getText() ? (setText({ ...getRules(), _d: getDot() ? 1 : 0 }), update()) : showAllExamples();
+      getText() ? (setText({ ...getRules(), _d: getDot() ? 1 : 0, _cs: getDot() ? 'none' : '' }), update()) : showAllExamples();
+    }
+
+    function toggleDont(e) {
+      const s = document.body.classList.toggle('dont');
+      document.body.classList.toggle('cursive', s)
+      e.target.toggleAttribute('data-checked', s);
+    }
+    function toggleMobile(e) {
+      state.isMobileForce = state.isMobileForce ? 3 - state.isMobileForce : state.isMobile() ? 2 : 1;
+      el.buttDont.textContent = state.isMobile() ? 'mobile' : 'desktop';
+      document.body.classList.toggle('keyboard-active', !state.isMobile());
+      init();
     }
 
     function showAllExamples() {
       setText('');
-      if (!el.smallsvgs) {
+      if (1 || !el.smallsvgs) { // force because of dot
         el.smallsvgs = Object.assign(document.createElement('div'), { className: 'smallsvgs' });
         generateAllExamples(el.smallsvgs);
       }
@@ -917,15 +929,31 @@ x = i + round sqrt i ; A000037
         .map(([k, v]) => [k, k === '_n' ? Math.max(2, parseInt(v) - 1, 1) : v])
       );
       const ael = r => {
-        r.svg.addEventListener('click', e => e.ctrlKey
+        (r.svg).addEventListener('click', e => e.ctrlKey
           ? openStandaloneSvg(state.egs[state.egsi = r.i])
           : showExample(state.egsi = r.i)
         );
         return r.svg;
       };
+
+      function svg2object(svg) {
+        return Object.assign(Object.createElement('object'), { data: URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' })) });
+      }
+
+      /**/
+      //slowfirst
       const promises = state.egs
         .map(async (eg, i) => ({ svg: await createSvg(createR(eg2R(eg))), i }));
       container.replaceChildren(...(await Promise.all(promises)).map(ael));
+      /*/
+      //slowlast
+      for (const [i, eg] of state.egs.entries()) {
+        const svg = await createSvg(createR(eg2R(eg)));
+        const element = await ael({ svg, i });
+        container.appendChild(element);
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      /**/
 
       const overall = ((performance.now() - t0)).toFixed(0);
       const arr = [...container.querySelectorAll('svg')].map(a => JSON.parse(a.querySelector('desc').textContent).stat.ms);
@@ -945,42 +973,31 @@ x = i + round sqrt i ; A000037
       await downloadBlob(blob, filename);
     }
 
-    async function downloadPng0(svg) {
-      if (!svg) return;
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      img.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg));
-      await new Promise(resolve => img.onload = resolve);
-      let [x, y, w, h] = svg.getAttribute('viewBox').split(' ').map(parseFloat);
-      let m = Number(prompt('Larger size [px]? max. 16384') || 16384);
-      [w, h] = w < h ? [Math.ceil(m * w / h), m] : [m, Math.ceil(m * h / w)];
-      canvas.width = w;
-      canvas.height = h;
-      ctx.drawImage(img, 0, 0, w, h);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      const filename = `${svg.querySelector('title')?.textContent ?? 'untitled'}.png`;
-      await downloadBlob(blob, filename);
-    }
+    function ts(a) { return a >= 1e6 ? (a / 1e6).toFixed(6) : a; }
 
     async function downloadPng(svg) {
-      if (!svg) return;
-      let [x, y, w, h] = svg.getAttribute('viewBox').split(' ').map(parseFloat);
-      let m = Number(prompt('Larger size [px]? max. 16384') || 16384);
+      let [x, y, w, h] = svg.getAttribute('viewBox').split(' ').map(parseFloat)
+        , m = prompt('Larger size [px]? max safe 16384, def 3840');
+      if (!svg || m === null) return;
+      m = Number(m) || 3840;
       [w, h] = w < h ? [Math.ceil(m * w / h), m] : [m, Math.ceil(m * h / w)];
-      svg.setAttribute('width', w);
-      svg.setAttribute('height', h);
-      const serialized = new XMLSerializer().serializeToString(svg);
-      const img = new Image();
-      img.src = 'data:image/svg+xml;base64,' + btoa(serialized);
-      await new Promise(resolve => img.onload = resolve);
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      const filename = `${svg.querySelector('title')?.textContent ?? 'untitled'}.png`;
-      await downloadBlob(blob, filename);
+      try {
+        const img = new Image()
+          , canvas = document.createElement('canvas')
+          , ctx = canvas.getContext('2d');
+        img.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg));
+        await new Promise(resolve => img.onload = resolve);
+        ctx.drawImage(img, 0, 0, canvas.width = w, canvas.height = h);
+        ctx.getImageData(0, 0, 1, 1);
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Blob creation failed')), 'image/png');
+        });
+        const filename = `${svg.querySelector('title')?.textContent ?? 'untitled'}.png`;
+        await downloadBlob(blob, filename);
+        console.log(`saved: ${w}x${h} ${ts(blob.size)} bytes ${filename}`);
+      } catch (e) {
+        showError(e + '\n' + w + "x" + h);
+      }
     }
 
     async function downloadBlob(blob, filename) {
@@ -1002,7 +1019,7 @@ x = i + round sqrt i ; A000037
 
     function setupDividers() {
       el.divider1.addEventListener('pointerdown', e => {
-        if (state.isMobile && e.target === el.divider1) return;
+        if (state.isMobile() && e.target === el.divider1) return;
         state.isDividerActive = true;
         state.activeDivider = e.target;
         state.startX = e.clientX;
@@ -1016,7 +1033,7 @@ x = i + round sqrt i ; A000037
       }, { passive: true });
       window.addEventListener('pointermove', e => {
         if (!state.isDividerActive || !state.activeDivider) return;
-        if (state.activeDivider === el.divider1 && !state.isMobile) {
+        if (state.activeDivider === el.divider1 && !state.isMobile()) {
           const deltaX = e.clientX - state.startX;
           const newWidth = state.startWidth + deltaX;
           el.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
@@ -1025,7 +1042,7 @@ x = i + round sqrt i ; A000037
     }
 
     function setupMobileKeyboard() {
-      if (!state.isMobile) return;
+      if (!state.isMobile()) return;
       const updateRightSize = () => {
         if (document.body.classList.contains('keyboard-active') && window.visualViewport) {
           el.right.style.height = `${window.visualViewport.height}px`;
@@ -1064,19 +1081,27 @@ x = i + round sqrt i ; A000037
     }
 
     function setupCustomLog() {
-      toggleCustomLog(true, (...args) => el.log?.prepend(args
-        .flatMap(a => a && 'object' == typeof a ? Object.entries(a) : [['', a]])
-        .map(([k, v]) => `${k}${k && ' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '-')}`)
-        .join('\n')
-        , document.createElement('br')
-      ) ?? console.oldLog(...args));
+      toggleCustomLog(true, (...args) => {
+        if (el.log) {
+          el.log.replaceChildren(
+            args.flatMap(a => a && 'object' == typeof a ? Object.entries(a) : [['', a]])
+              .map(([k, v]) => `${k}${k && ' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '-')}`)
+              .join('\n')
+            , document.createElement('br')
+            , ...[...el.log.childNodes].slice(0, 9)
+          );
+        } else { console.oldLog(...args); }
+      });
     }
 
     function setupDataurls() {
       [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
     }
-    function fromLocation() {
-      update(location.href.split(/[?#]/)[1]);
+    function fromLocation(a = location.href.split(/[?#]/)[1]) {
+      return a && (update(a), 1);
+    }
+    function load() {
+      fromLocation() || localstorageLoad();
     }
 
     function init() {
@@ -1085,9 +1110,8 @@ x = i + round sqrt i ; A000037
       setupDividers();
       setupMobileKeyboard();
       setupEventListeners();
+      load();
       el.textarea.setAttribute('contenteditable', true);
-      lsLoad();
-      if (location.href.split(/[?#]/)[1]) fromLocation();
     }
 
     window.addEventListener('hashchange', fromLocation);
