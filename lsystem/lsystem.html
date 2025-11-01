@@ -11,9 +11,7 @@
   <style>
     .dont object,
     .dont svg,
-    /*.dont button,
-    .dont .dividerv,
-    .dont #log,*/
+    /*/.dont button, .dont .dividerv, .dont #log,/**/
     .dont img {
       filter: url('data:image/svg+xml,\
     <svg xmlns="http://www.w3.org/2000/svg">\
@@ -415,7 +413,7 @@
         <object data="lsystem.svg#S=[F]+S,_a=72,_cs=000f,_cb=0000,_n=5,_l=2,_p=3" tabindex="-1" class="a" type="image/svg+xml">all<br>exmpl</object>
         <div class="b">all<br>exmpls</div>
       </button>
-      <button id="buttonlsclear">reset</button>
+      <button id="buttonreset">reset</button>
       <button id="buttondont" style="font-size:1.5rem">
         <div class="a">A</div>
         <div class="b cursive">S</div>
@@ -524,7 +522,7 @@ Keys starting with `_` are "string" rather then "chars", eg: number
 ### Rule Value Characters:
 - `S`: Starting sentence
 - `F`, `f`: Move forward with/without drawing
-- `+`, `-`, `^`, `|`: Rotate +a, -a, +90, 180
+- `+`, `-`, `^`, `|`: Rotate +a, -a, +90°, 180°
 - `!`: Toggle rotation parity
 - `*`, `/`: Multiply/divide line length by _m
 - `[`, `]`: Push/pop position, length, direction
@@ -641,7 +639,7 @@ x = i + round sqrt i ; A000037
       ael('#buttonjson', e => (navigator.clipboard.writeText(JSON.stringify(getRules())), console.log('copied')));
       ael('#buttonline', e => (navigator.clipboard.writeText(stringify()), console.log('copied')));
       ael('#buttonlines', e => (navigator.clipboard.writeText(stringify().replace(/,/g, '\n')), console.log('copied')));
-      ael('#buttonlsclear', e => { lsClear(); console.log('cleared'); location.reload(); });
+      ael('#buttonreset', e => { localstorageReset(); console.log('cleared'); location.reload(); });
       ael('#buttonexport', (e, s = !document.querySelector('#buttonexport').toggleAttribute('data-checked')) => document.querySelectorAll('.export').forEach(e => e.classList.toggle('hidden', s)));
     }
 
@@ -654,10 +652,10 @@ x = i + round sqrt i ; A000037
       }).click();
     }
 
-    function ael(elOrQs, lstnr, typ = 'click') {
-      const el = typeof elOrQs === 'string' ? document.querySelector(elOrQs) : elOrQs;
+    function ael(elOrQS, listener, typ = 'click') {
+      const el = typeof elOrQS === 'string' ? document.querySelector(elOrQS) : elOrQS;
       if (typ === 'altclick') {
-        const alternative = (e, i) => lstnr(e, i || e.shiftKey || e.type === 'pointerdown');
+        const alternative = (e, i) => listener(e, i || e.shiftKey || e.type === 'pointerdown');
         el.addEventListener('click', alternative, { passive: true });
         let isLongTap = false;
         const suppressPostLongClick = e => { if (isLongTap) { isLongTap = false; e.stopPropagation(); e.preventDefault(); } };
@@ -683,7 +681,7 @@ x = i + round sqrt i ; A000037
         el.addEventListener('pointercancel', cancelLongTap, { passive: true });
         el.addEventListener('pointerleave', cancelLongTap, { passive: true });
       } else {
-        el.addEventListener(typ, lstnr, { passive: true });
+        el.addEventListener(typ, listener, { passive: true });
       }
     }
 
@@ -705,12 +703,9 @@ x = i + round sqrt i ; A000037
       return el.textarea.innerText;
     }
 
-    function sortKeys(a, b) {
-      const p = p => p.replace(/^S/, ' S').replace(/^_/, 'zz');
-      return a.length < b.length ? -1 : a.length > b.length ? 1 : p(a).localeCompare(p(b));
-    }
-
     function stringify(rR = getRules(), isHtml) {
+      const p = p => p.replace(/^S/, ' S').replace(/^_/, 'zz')
+        , sortKeys = (a, b) => a.length < b.length ? -1 : a.length > b.length ? 1 : p(a).localeCompare(p(b));
       return Object.keys(rR = 'string' == typeof rR ? getRules(rR) : rR)
         .sort(sortKeys)
         .map(k => isHtml ? `<p>${k}=${rR[k]}</p>` : `${k}=${rR[k]}`)
@@ -764,14 +759,14 @@ x = i + round sqrt i ; A000037
       return { ...R, ...dot, ...vbObj };
     }
 
-    function createIfAbsent(t, id, css) {
-      return document.getElementById(id) ||
-        document.body.appendChild(
-          Object.assign(document.createElement(t), { id })
-        );
-    }
 
     function addSvgZoom(svg, parentSelector) {
+      function createIfAbsent(t, id, css) {
+        return document.getElementById(id) ||
+          document.body.appendChild(
+            Object.assign(document.createElement(t), { id })
+          );
+      }
       let isDown = false;
       let startX, startY, scrollStartX = 0, scrollStartY = 0;
       const rip = 'svgzoomr9fg34gs6h', $rect = createIfAbsent('div', `${rip}rect`);
@@ -834,19 +829,13 @@ x = i + round sqrt i ; A000037
     }
 
     const ls = 'lsystem_';
-    function lsSave(R) {
-      //localStorage.setItem(ls + 'tpbg', document.body.classList.contains('tpbg'));
-      //localStorage.setItem(ls + 'egsi', state.egsi || 0);
+    function localstorageSave(R) {
       localStorage.setItem(ls + 'R', stringify(R));
     }
-    function lsClear() {
-      //localStorage.removeItem(ls + 'tpbg');
-      //localStorage.removeItem(ls + 'egsi');
+    function localstorageReset() {
       localStorage.removeItem(ls + 'R');
     }
     async function localstorageLoad() {
-      //document.body.classList.toggle('tpbg', localStorage.getItem(ls + 'tpbg') === 'true');
-      //const egsi = localStorage.getItem(ls + 'egsi'); if (egsi) { state.egsi = Number(egsi); showExample(); }
       const r = localStorage.getItem(ls + 'R');
       if (r && r !== '' && r !== '{}') {
         await update(r);
@@ -869,7 +858,7 @@ x = i + round sqrt i ; A000037
         const R = createR(rules);
         const svg = await createSvg(R);
         clearTimeout(t);
-        lsSave(rules);
+        localstorageSave(rules);
         const stat = JSON.parse(svg.querySelector('desc').textContent).stat;
         console.log(Object.entries(stat).map(([k, v]) => v + ' ' + k).join(' '));
         addSvgZoom(svg, '#right');
@@ -1100,9 +1089,6 @@ x = i + round sqrt i ; A000037
     function fromLocation(a = location.href.split(/[?#]/)[1]) {
       return a && (update(a), 1);
     }
-    function load() {
-      fromLocation() || localstorageLoad();
-    }
 
     function init() {
       setupDataurls();
@@ -1110,7 +1096,7 @@ x = i + round sqrt i ; A000037
       setupDividers();
       setupMobileKeyboard();
       setupEventListeners();
-      load();
+      fromLocation() || localstorageLoad();
       el.textarea.setAttribute('contenteditable', true);
     }
 

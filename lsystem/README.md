@@ -1,7 +1,7 @@
 #  Logo Turtle with Context Free grammar - L-System fractals
 
 
-[Editor](editor.html)
+[Editor](lsystem.html)
 
 Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 

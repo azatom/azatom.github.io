@@ -66,7 +66,7 @@ function createSvg(R = 'S=SF+SF-SF', svg) {
     '[' === i ? z.push([x, y, a, b, q]) :
     ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   [x, y, a, b] = D.vb(R._p ?? 2).map(o);
-  T = Number(R._d ?? 1);
+  let P = Number(R._d ?? 1);
   svg ||= C('svg');
   svg.setAttribute('viewBox', `${R._x ?? x} ${R._y ?? y} ${R._w ?? a} ${R._h ?? b}`);
   svg.setAttribute('stroke-opacity', `${R._o ?? 1}`);
@@ -77,10 +77,10 @@ function createSvg(R = 'S=SF+SF-SF', svg) {
     C('defs', 0, C('marker', {
       id,
       /*markerUnits:'userSpaceOnUse',*/
-      markerWidth: 2 * T,
-      markerHeight: 2 * T,
+      markerWidth: 2 * P,
+      markerHeight: 2 * P,
       //viewBox: '-1 -1 2 2',
-      viewBox: `${-T} ${-T} ${2 * T} ${2 * T}`,
+      viewBox: `${-P} ${-P} ${2 * P} ${2 * P}`,
     }, C('circle', {
       r: 1,
       fill: '#' + (R._cd ? R._cd : '000'),

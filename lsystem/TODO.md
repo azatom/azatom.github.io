@@ -3,8 +3,10 @@
 - reconsider sizes: dot, line, width, blur
 - reconsider dot/point draw
 - webkit blur bug/feGaussianBlur?
+- turbulence in svg?
 - SegmentSet
-- UI: [+-] buttons
+- UI: [+-] buttons more obvious
+- 3D, HigherDImensionalProjections (IFS?)
 - Generating system.js.svg from lsystem.js:
   - optional: strip consolelog/stat, minimize
   - use wrappers in svg-vs-js.txt for CDATA
