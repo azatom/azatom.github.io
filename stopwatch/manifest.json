@@ -1,0 +1,34 @@
+{
+  "background_color": "#fff",
+  "theme_color": "#fff",
+  "navigation_color": "#777",
+  "lang": "en",
+  "name": "Stopwatch",
+  "orientation": "natural",
+  "prefer_related_applications": false,
+  "scope": ".",
+  "short_name": "Stopwatch",
+  "start_url": "./index.html",
+  "description": "Stopwatch lap,pause,export,stat",
+  "dir": "ltr",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "categories": [
+    "tool"
+  ],
+  "features": [
+    "Cross-Platform"
+  ],
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "192x192.png",
+      "type": "image/png"
+    }
+  ]
+}

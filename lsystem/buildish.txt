@@ -1,0 +1,14 @@
+lsystem.js:
+async function createSvg(R = 'S=F', svg)
+{...}
+
+lsystem.svg:
+<svg onload='e(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
+const e=e=>{const svg=e.target;(onhashchange=(e, R = location.href.split(/[?#]/)[1] || 'S=F')=>
+{...}
+)(e)}//]]></script></svg>
+
+lsystem.attr.svg: dontforget [" & < "] -> [' &amp; &lt; &quot;]
+<svg onload="const svg=event.target;(onhashchange=(e, R = location.href.split(/[?#]/)[1] || 'S=F')=>
+{...}
+)()" xmlns="http://www.w3.org/2000/svg"></svg>

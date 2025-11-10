@@ -1,0 +1,19 @@
+- if only dots and gaussianblured: draw once each (aka. path from grid)
+- fix / replace longtap
+- bop it, twist it, STROKE IT!!! firefox clipping blurs eg background
+- performance
+  - compare generator and arrays: Really same?!WTF!
+  - SegmentSet
+- _o vs _cc ? (opacity vs alpha-channel)
+- leave input vals as-is (string) including R._n
+  - set defaults int R
+- add IFS guessing: show first iter rectangles?
+  - add iteration overlay or multi svg?
+- feature: colored fill
+- webkit blur bug/feGaussianBlur?
+- turbulence in svg? (no use if segments have same turb at path joints)
+- UI: [+-] buttons more obvious eg: [<|>]
+- 3D, HigherDImensionalProjections (IFS?)
+- pinchzoom, dragmouse
+- use pointer~ instead of mouse~ and touch~
+- `_m` optionally scale stroke-width too
