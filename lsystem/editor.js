@@ -5,24 +5,17 @@ import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, adddefs, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 
-async function clickDownloadPng() {
-    try {
-        const { w, h, s, filename } = await downloadPng(getSvg());
-        console.log(`saved: ${w}x${h} ${s} bytes ${filename}`);
-    } catch (e) {
-        message(e.message);
-    }
-}
-
-function clickSubmit() { state.ac ? state.ac.abort() : update(getRules(getText())); }
-function getText() { return el.textarea.innerText; }
-function getSvg() { return el.bigsvg.children[0]; }
 function clickReset() { localstorageReset(); location.reload(); }
+function clickSubmit() { state.ac ? state.ac.abort() : update(getRules(getText())); }
+function clickNpp(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
+function getSvg() { return el.bigsvg.children[0]; }
+function getText() { return el.textarea.innerText; }
+function getDot() { return el.buttondot.hasAttribute('data-checked'); }
+function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
+function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
+function updateFromLocation(a = location.href.split(/[?#]/)[1]) { return a && (update(a), 1); }
 function show(e) { [el.message, el.bigsvg, el.smallsvgs].forEach(i => i.classList.toggle('hidden', e !== i)); }
-function setText(rR) {el.textarea.innerHTML = stringify(rR, 1);}
-function getDot() {return el.buttondot.hasAttribute('data-checked');}
-function setDot(enabled) {el.buttondot.toggleAttribute('data-checked', enabled);}
-function updateFromLocation(a = location.href.split(/[?#]/)[1]) {return a && (update(a), 1);}
+function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDesktop]; }
 
 async function message(m, delay = 0, short = '') {
     clearTimeout(state.timer);
@@ -32,6 +25,12 @@ async function message(m, delay = 0, short = '') {
         state.timer = setTimeout(f, delay);
     else
         await f();
+}
+
+async function lsystemSvgWrap(R, isInterruptable) {
+    const acHolder = isInterruptable ? state : undefined;
+    const progress = isInterruptable ? n => message('Processing...', 0, (n / 1e6).toFixed(1) + ' M') : undefined;
+    return wrappedRun(acHolder, progress, lsystemSvg, R);
 }
 
 async function update(rules) {
@@ -64,11 +63,15 @@ async function update(rules) {
     }
 }
 
-async function lsystemSvgWrap(R, isInterruptable) {
-    const acHolder = isInterruptable ? state : undefined;
-    const progress = isInterruptable ? n => message('Processing...', 0, (n / 1e6).toFixed(1) + ' M') : undefined;
-    return wrappedRun(acHolder, progress, lsystemSvg, R);
+async function clickDownloadPng() {
+    try {
+        const { w, h, s, filename } = await downloadPng(getSvg());
+        console.log(`saved: ${w}x${h} ${s} bytes ${filename}`);
+    } catch (e) {
+        message(e.message);
+    }
 }
+
 
 function openStandaloneSvg(R = getRules(getText())) {
     Object.assign(
@@ -121,13 +124,6 @@ function ael(elOrQS, listener) {
     } else {
         el.addEventListener(typ, listener, { passive: true });
     }
-}
-
-function clickNpp(i) {
-    const R = getRules(getText());
-    R._n = Math.max(0, Math.min(9, (i ? 1 : -1) + parseInt(R._n ?? 0)));
-    setText(R);
-    update();
 }
 
 function getViewBox(force = 0) {
@@ -215,7 +211,9 @@ function toggleTpbg() {
 
 function toggleDot() {
     setDot(!getDot());
-    getText() ? (setText({ ...getRules(getText()), _k: getDot() ? 1 : 0, _cc: getDot() ? '#0000' : '' }), update()) : showExamples();
+    getText()
+        ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _cc: getDot() ? '#0000' : '' })
+        : showExamples();
 }
 
 function toggleCursive(alt) {
@@ -260,8 +258,6 @@ function nextExample(i) {
     showExample(i);
 }
 
-function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDesktop]; }
-
 function setupConsts() {
     Object.assign(el, Object.fromEntries([...document.querySelectorAll('[id]')].map(e => [e.id, e])));
     Object.assign(state, {
@@ -282,16 +278,11 @@ function setupConsts() {
             startHeight: 0,
         },
         isAutoMobileDesktop: 0,
-        isMobileInitial: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-            typeof window.orientation !== 'undefined' ||
-            (navigator.maxTouchPoints && navigator.maxTouchPoints > 1),
+        isMobileInitial: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
         lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
-        CNT: 0,
     });
     el.textarea.dataset.placeholder = strings.textarea.placeholder;
 }
-
-//function setupDataurls() { [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r')); }
 
 function setupCustomLog() {
     toggleCustomLog(true, (...args) => {
@@ -414,7 +405,7 @@ async function updateFromLocalStorage() {
 
 function init() {
     setupConsts();
-    // setupDataurls();
+    // [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
     setupCustomLog();
     setupDividers();
     setupMobileKeyboard();
