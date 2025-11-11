@@ -19,12 +19,19 @@ function getText() { return el.textarea.innerText; }
 function getSvg() { return el.bigsvg.children[0]; }
 function clickReset() { localstorageReset(); location.reload(); }
 function show(e) { [el.message, el.bigsvg, el.smallsvgs].forEach(i => i.classList.toggle('hidden', e !== i)); }
+function setText(rR) {el.textarea.innerHTML = stringify(rR, 1);}
+function getDot() {return el.buttondot.hasAttribute('data-checked');}
+function setDot(enabled) {el.buttondot.toggleAttribute('data-checked', enabled);}
+function updateFromLocation(a = location.href.split(/[?#]/)[1]) {return a && (update(a), 1);}
 
-function message(m, delay = 0, short = '') {
+async function message(m, delay = 0, short = '') {
     clearTimeout(state.timer);
     el.buttonminilog.textContent = short;
-    const f = () => show(Object.assign(el.message, { innerText: m }));
-    state.timer = setTimeout(f, delay);
+    const f = async () => show(Object.assign(el.message, { innerText: m }));
+    if (delay)
+        state.timer = setTimeout(f, delay);
+    else
+        await f();
 }
 
 async function update(rules) {
@@ -38,12 +45,12 @@ async function update(rules) {
         const R = createR(rules);
         if (getDot() && !R._k) R._k = 1;
         el.buttonsubmit.toggleAttribute('data-checked', 1);
-        const isInterrupted = 'interrupted-';
-        const svg = await lsystemSvgWrap(R, isInterrupted);
+        const svg = await lsystemSvgWrap(R, true);
+        clearTimeout(state.timer);
         el.buttonsubmit.toggleAttribute('data-checked', 0);
         const tit = svg.querySelector('title')?.textContent;
         if (!svg) return;
-        if (!tit?.startsWith(isInterrupted)) localstorageSave('R', rules);
+        if (!tit?.startsWith(state.interrupted)) localstorageSave('R', rules);
         else console.log(tit);
         const stat = JSON.parse(svg.querySelector('desc').textContent).stat;
         console.log(Object.entries(stat).map(([k, v]) => v + ' ' + k).join(' '));
@@ -58,7 +65,9 @@ async function update(rules) {
 }
 
 async function lsystemSvgWrap(R, isInterruptable) {
-    return wrappedRun(isInterruptable, lsystemSvg, R, state, n => message('...', 10, (n / 1e6).toFixed(1) + ' M'));
+    const acHolder = isInterruptable ? state : undefined;
+    const progress = isInterruptable ? n => message('Processing...', 0, (n / 1e6).toFixed(1) + ' M') : undefined;
+    return wrappedRun(acHolder, progress, lsystemSvg, R);
 }
 
 function openStandaloneSvg(R = getRules(getText())) {
@@ -119,18 +128,6 @@ function clickNpp(i) {
     R._n = Math.max(0, Math.min(9, (i ? 1 : -1) + parseInt(R._n ?? 0)));
     setText(R);
     update();
-}
-
-function setText(rR) {
-    el.textarea.innerHTML = stringify(rR, 1);
-}
-
-function getDot() {
-    return el.buttondot.hasAttribute('data-checked');
-}
-
-function setDot(enabled) {
-    el.buttondot.toggleAttribute('data-checked', enabled);
 }
 
 function getViewBox(force = 0) {
@@ -268,8 +265,8 @@ function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDes
 function setupConsts() {
     Object.assign(el, Object.fromEntries([...document.querySelectorAll('[id]')].map(e => [e.id, e])));
     Object.assign(state, {
-        shortHelp: new Error(strings.errors.format),
         abortController: null,
+        interrupted: 'interrupted-',
         eg: {
             i: 0,
             a: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s =>
@@ -401,10 +398,6 @@ function setupEventListeners() {
     ael(el.buttonlines, () => (navigator.clipboard.writeText(stringify(getText()).replace(/,/g, '\n')), console.log(strings.copied)));
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
-}
-
-function updateFromLocation(a = location.href.split(/[?#]/)[1]) {
-    return a && (update(a), 1);
 }
 
 async function updateFromLocalStorage() {

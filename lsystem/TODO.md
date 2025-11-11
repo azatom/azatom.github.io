@@ -20,3 +20,4 @@
 - shift+enter
 - canvas
 - ?webgl ? copy UI from typical threejs
+- overview {message,show,console.log,minilog} (async?)

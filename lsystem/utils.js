@@ -16,35 +16,26 @@ export function toggleCustomLog(enable, customLog, _ = console) {
     }
 }
 
-export async function wrappedRun(isInterruptible, fn, arg, state, progress) {
+export async function wrappedRun(acHolder, progress, fn, arg) {
     let ac;
     try {
         let pleaseStop;
-        if (isInterruptible) {
-            state.ac?.abort();
-            state.ac = ac = new AbortController();
+        if (acHolder) {
+            acHolder.ac?.abort();
+            acHolder.ac = ac = new AbortController();
             progress(0)
             await yieldOnce();
             pleaseStop = async (n) => {
-                if (ac.signal.aborted) return isInterruptible;
+                if (ac.signal.aborted) return acHolder.interrupted;
                 progress(n);
-                if (n % 1e4 === 0) {
-                    await yieldOnce();
-                    if (ac.signal.aborted) return isInterruptible;
-                }
+                await yieldOnce();
                 return undefined;
             };
         }
-        const res = await fn(arg, undefined, pleaseStop);
-        isInterruptible && clearTimeout(state.timer);
-        return res;
+        return await fn(arg, undefined, pleaseStop);
     } catch (e) {
-        progress(e.message || strings.errors.e);
-        // message(e.message || strings.errors.e, 0, strings.errors.e);
-        await yieldOnce();
+        acHolder && progress(e.message || strings.errors.e);
     } finally {
-        if (isInterruptible) {
-            state.ac = null;
-        }
+        acHolder && acHolder.ac === ac && (acHolder.ac = null);
     }
 }

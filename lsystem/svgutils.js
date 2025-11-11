@@ -120,7 +120,7 @@ async function downloadBlob(blob, filename) {
         a.click();
         document.body.removeChild(a);
     } catch (e) {
-        message(e.message, 0, strings.errors.e);
+        alert(e.message);
     } finally {
         setTimeout(() => URL.revokeObjectURL(url), 100);
     }

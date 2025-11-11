@@ -1,3 +1,5 @@
+import { strings } from './editor.strings.js';
+
 export function getRules(s) {
     return Object.fromEntries(s
         .replace(/[\n\r&]+/g, ',')
@@ -5,9 +7,9 @@ export function getRules(s) {
         .split(',')
         .filter(a => a !== '')
         .map(a => a.split(/[=:]/))
-        .map(a => { if (a.length != 2) throw state.shortHelp; return a; })
+        .map(a => { if (a.length != 2) throw new Error(strings.errors.format); return a; })
         .map(a => a.map(a => a.replace(/(^["']|["']$)/g, '')))
-        .map(([k, v]) => { if (!/^(|[^"']|_[^"']+|[^"']2)$/.test(k) && /[^"']*/.test(v)) throw state.shortHelp; return [k, v]; })
+        .map(([k, v]) => { if (!/^(|[^"']|_[^"']+|[^"']2)$/.test(k) && /[^"']*/.test(v)) throw new Error(strings.errors.format); return [k, v]; })
     );
 }
 
