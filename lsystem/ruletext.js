@@ -14,7 +14,7 @@ export function getRules(s) {
 }
 
 export function adddefs(i) {
-    setText(i ? {
+    return (i ? {
         S: 'F',
         _a: 90,
         _n: 1, _m: 1, _o: 1,

@@ -5,18 +5,18 @@ import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, adddefs, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 
+function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
 function clickSubmit() { state.ac ? state.ac.abort() : update(getRules(getText())); }
+function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
 function clickNpp(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
 function getSvg() { return el.bigsvg.children[0]; }
-function getText() { return el.textarea.innerText; }
 function getDot() { return el.buttondot.hasAttribute('data-checked'); }
-function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
 function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
 function updateFromLocation(a = location.href.split(/[?#]/)[1]) { return a && (update(a), 1); }
 function show(e) { [el.message, el.bigsvg, el.smallsvgs].forEach(i => i.classList.toggle('hidden', e !== i)); }
 function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDesktop]; }
-function copy(t) {navigator.clipboard.writeText(t); console.log(strings.copied);}
+function copy(t) { navigator.clipboard.writeText(t); console.log(strings.copied); }
 
 async function message(m, delay = 0, short = '') {
     clearTimeout(state.timer);
@@ -31,6 +31,17 @@ async function lsystemSvgWrap(R, isInterruptable) {
     return wrappedRun(acHolder, progress, lsystemSvg, R);
 }
 
+function createR(o, preserveViewBox) {
+    const R = typeof o === 'string' ? getRules(o) : o;
+    const a = preserveViewBox ? getViewBox() : {};
+    const c = {
+        _k: getDot() ? 1 : '',
+        _cc: getDot() ? '#0000' : '#000',
+        _cb: el.buttontpbg.hasAttribute('data-checked') ? '#0000' : '',
+    };
+    return { ...R, ...a, ...c };
+}
+
 async function update(rules) {
     try {
         if (rules) {
@@ -40,7 +51,6 @@ async function update(rules) {
             rules = getRules(getText());
         }
         const R = createR(rules);
-        if (getDot() && !R._k) R._k = 1;
         el.buttonsubmit.toggleAttribute('data-checked', 1);
         const svg = await lsystemSvgWrap(R, true);
         clearTimeout(state.timer);
@@ -69,7 +79,6 @@ async function clickDownloadPng() {
         message(e.message);
     }
 }
-
 
 function clickOpenStandaloneSvg(R = getRules(getText())) {
     Object.assign(
@@ -135,12 +144,6 @@ function getViewBox(force = 0) {
         : {};
 }
 
-function createR(o, preserveViewBox) {
-    const R = typeof o === 'string' ? getRules(o) : o;
-    if (!preserveViewBox) return R;
-    return { ...R, ...getViewBox() };
-}
-
 function showExample(i = state.eg.i, l = state.eg.a.length) {
     i = state.eg.i = (i + l) % l;
     update(state.eg.a[i]);
@@ -155,11 +158,8 @@ function clickNextExample(i) {
 
 async function clickShowExamples() {
     setText('');
+    el.smallsvgs.replaceChildren();
     show(el.smallsvgs);
-    return generateAllExamples(el.smallsvgs);
-}
-
-async function generateAllExamples(container) {
     const t0 = performance.now();
     const decN = eg => ({
         ...eg, ...{
@@ -177,11 +177,10 @@ async function generateAllExamples(container) {
         return r.el;
     };
     const eg2el = async (eg, i) => ({ el: await lsystemSvgWrap(createR(decN(eg))), i });
-    container.replaceChildren();
-    state.eg.a.forEach(async (eg, i) => container.appendChild(await ael(await eg2el(eg, i))));
+    state.eg.a.forEach(async (eg, i) => el.smallsvgs.appendChild(await ael(await eg2el(eg, i))));
     await yieldOnce();
     const overall = ((performance.now() - t0)).toFixed(0);
-    const arr = [...container.querySelectorAll('svg')].map(a => JSON.parse(a.querySelector('desc').textContent).stat.ms);
+    const arr = [...el.smallsvgs.querySelectorAll('svg')].map(a => JSON.parse(a.querySelector('desc').textContent).stat.ms);
     const sum = arr.reduce((p, c) => p + parseFloat(c), 0) | 0;
     const max = Math.max(...arr);
     const maxIdx = arr.indexOf(max);
@@ -218,21 +217,17 @@ function toggleCursive(alt) {
         clickShowExamples();
     }
 }
+
 function toggleExport(s = el.buttonexport.getAttribute('data-checked') === null) {
     el.buttonexport.toggleAttribute('data-checked', s);
     document.querySelectorAll('.export').forEach(e => e.classList.toggle('hidden', !s));
     localstorageSave('export');
 }
+
 function toggleMinilog(s = el.buttonminilog.getAttribute('data-checked') === null) {
     el.buttonminilog.toggleAttribute('data-checked', s);
     el.buttonlog.classList.toggle('hidden', !s);
     localstorageSave('minilog');
-}
-function toggleMobile(e) {
-    state.isMobileForce = state.isMobileForce ? 3 - state.isMobileForce : isMobile() ? 2 : 1;
-    el.buttoncursive.textContent = isMobile() ? 'mobile' : 'desktop';
-    document.body.classList.toggle('keyboard-active', !isMobile());
-    init();
 }
 
 function setupConsts() {
@@ -246,14 +241,7 @@ function setupConsts() {
                 getRules(typeof s === 'string' ? s : stringify(s))
             ).filter(s => s),
         },
-        divider: {
-            isActive: false,
-            active: null,
-            startX: 0,
-            startY: 0,
-            startWidth: 0,
-            startHeight: 0,
-        },
+        divider: { isActive: false, active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0, },
         isAutoMobileDesktop: 0,
         isMobileInitial: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
         lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
@@ -339,7 +327,7 @@ function setupEventListeners() {
     el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
     el.textarea.addEventListener('paste', e => {
         e.preventDefault(); const text = e.clipboardData.getData('text/plain');
-        // deprecated but it has features: ctrl+z, leaves cursor in place, better htmlAsPlaintext, newline
+        // deprecated, but it has features: ctrl+z, leaves cursor in place, better htmlAsPlaintext, newline
         document.execCommand('insertText', false, text);
         clickSubmit();
     });
@@ -357,7 +345,7 @@ function setupEventListeners() {
     ael(el.buttondot, toggleDot);
     ael(el.buttontpbg, toggleTpbg);
     ael(el.buttonnexteg, clickNextExample);
-    ael(el.buttondefs, adddefs);
+    ael(el.buttondefs, () => setText(adddefs()));
     ael(el.buttonalleg, clickShowExamples);
     ael(el.buttonpng, clickDownloadPng);
     ael(el.buttonjs, () => clickOpenStandaloneSvg());
