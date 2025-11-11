@@ -1,4 +1,4 @@
-let examples = [
+export const examples = [
     //undefined,
     //'',
     //{},

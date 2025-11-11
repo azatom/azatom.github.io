@@ -1,4 +1,4 @@
-async function createSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
+export async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
   R = 'string' === typeof R ? Object.fromEntries(R
     .replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2')
     .split(',').map(a => a.split('='))) : R;

@@ -1,5 +1,5 @@
 lsystem.js:
-async function createSvg(R = 'S=F', svg)
+async function lsystemSvg(R = 'S=F', svg)
 {...}
 
 lsystem.svg:

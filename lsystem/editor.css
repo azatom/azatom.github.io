@@ -131,15 +131,33 @@ button:hover {
     filter: brightness(80%) contrast(150%);
 }
 
-.shift-pressed button>.a,
-button>.b,
-[data-checked]>.a {
+.shift-pressed button.altclick>.a,
+button>.b {
     opacity: .2;
 }
 
-.shift-pressed button>.b,
-button>.a,
-[data-checked]>.b {
+.checked1 {
+    display: block;
+    position: absolute;
+    opacity: 0;
+}
+
+.checked0 {
+    display: block;
+    position: absolute;
+    opacity: 1;
+}
+
+[data-checked] .checked1 {
+    opacity: 1;
+}
+
+[data-checked] .checked0 {
+    opacity: 0;
+}
+
+.shift-pressed button.altclick>.b,
+button>.a {
     display: block;
     opacity: 1;
     position: absolute;

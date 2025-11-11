@@ -1,6 +1,7 @@
 
 # create $SVG from lsystem.{html,js}
 IN="lsystem.html lsystem.js"
+IN=lsystemSvg.js
 SVG=lsystem.svg
 DIR=.experiment/bak
 TMP=$DIR/tmp-$SVG
@@ -11,7 +12,7 @@ mkdir $DIR 2>/dev/null
 {
     head -n2 $SVG
     awk '
-        /function createSvg/{a=1;spaces=gensub("[^ \t].*","",1);next}
+        /function lsystemSvg/{a=1;spaces=gensub("[^ \t].*","",1);next}
         /skipbuildsvg/{next}
         a{print gensub("^" spaces, "", "g")}
         /return svg/{exit}

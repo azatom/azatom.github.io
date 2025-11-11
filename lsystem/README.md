@@ -5,9 +5,11 @@
 
 Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
-### Important: If textarea behaves oddly (e.g., after pasting), use the Update (triangle) button.
+### UI:
+**Important: If textarea behaves oddly (e.g., after pasting), use the Update (triangle) button or ctrl+enter.**
+Sorry, UI is inconsistent, it is just for experimenting things.
   - `?` - Show documentation
-  - `<` - Update rules and render
+  - `>` - (triangle) Update rules and render (square: stops)
   - `dots` - Show endpoints only
   - `n--` - Shift or LongTap add iteration
   - `transparent` - ...
@@ -67,13 +69,13 @@ Keys starting with `_` are "string" rather then "chars", eg: number
 - Url: preceed with `#` or `?` (fragment/queryparams)
 - JSON: straightforward key-values
 
-### Files
+### Files (not exatly)
 - `lsystem.html` - an example app
 - `lsystem.svg`
   - embedable with `<object>` or `<embed>`, not with `<img>`.
   - browser opens as standalone image with parameters
   - editable svg in urlbar
-- function `createSvg`
+- function `lsystemSvg`
   - generates img capable plain svg
   - use in app
 - `lsystem.examples.js`- example rules
