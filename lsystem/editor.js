@@ -16,15 +16,13 @@ function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled)
 function updateFromLocation(a = location.href.split(/[?#]/)[1]) { return a && (update(a), 1); }
 function show(e) { [el.message, el.bigsvg, el.smallsvgs].forEach(i => i.classList.toggle('hidden', e !== i)); }
 function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDesktop]; }
+function copy(t) {navigator.clipboard.writeText(t); console.log(strings.copied);}
 
 async function message(m, delay = 0, short = '') {
     clearTimeout(state.timer);
     el.buttonminilog.textContent = short;
     const f = async () => show(Object.assign(el.message, { innerText: m }));
-    if (delay)
-        state.timer = setTimeout(f, delay);
-    else
-        await f();
+    delay ? state.timer = setTimeout(f, delay) : await f();
 }
 
 async function lsystemSvgWrap(R, isInterruptable) {
@@ -73,7 +71,7 @@ async function clickDownloadPng() {
 }
 
 
-function openStandaloneSvg(R = getRules(getText())) {
+function clickOpenStandaloneSvg(R = getRules(getText())) {
     Object.assign(
         document.createElement('a'), {
         target: '_blank',
@@ -143,16 +141,22 @@ function createR(o, preserveViewBox) {
     return { ...R, ...getViewBox() };
 }
 
-function localstorageSave(s, o) {
-    function set(k, v) { (!s || s === k) && localStorage.setItem('lsystem_' + k, v); }
-    try { set('R', stringify(o || getText())); } catch (e) { return; }
-    set('export', el.buttonexport.getAttribute('data-checked') === null);
-    set('minilog', el.buttonminilog.getAttribute('data-checked') === null);
+function showExample(i = state.eg.i, l = state.eg.a.length) {
+    i = state.eg.i = (i + l) % l;
+    update(state.eg.a[i]);
+    console.log(`[example: ${i + 1} / ${l}]`);
 }
 
-function localstorageReset() {
-    ['export', 'minilog', 'R']
-        .forEach(k => localStorage.removeItem('lsystem_' + k));
+function clickNextExample(i) {
+    i = (state.eg.i + (i ? -1 : 1)) % state.eg.a.length;
+    i = (i + state.eg.a.length) % state.eg.a.length;
+    showExample(i);
+}
+
+async function clickShowExamples() {
+    setText('');
+    show(el.smallsvgs);
+    return generateAllExamples(el.smallsvgs);
 }
 
 async function generateAllExamples(container) {
@@ -167,24 +171,15 @@ async function generateAllExamples(container) {
     });
     const ael = r => {
         (r.el).addEventListener('click', e => e.ctrlKey
-            ? openStandaloneSvg(state.eg.a[state.eg.i = r.i])
+            ? clickOpenStandaloneSvg(state.eg.a[state.eg.i = r.i])
             : showExample(state.eg.i = r.i)
         );
         return r.el;
     };
-    /*/ // object: slow!
-    const svg2object = svg => Object.assign(document.createElement('object'), { data: URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' })) });
-    const eg2el = async (eg, i) => ({ el: svg2object(await lsystemSvgWrap(createR(decN(eg)))), i });
-    /*/
     const eg2el = async (eg, i) => ({ el: await lsystemSvgWrap(createR(decN(eg))), i });
-    /**/
-    /*/ // simultaneously:first-slow overall-fast, separately:firstfast-intheory but still displays one go, object not but that horribly slow
-    container.replaceChildren(...(await Promise.all(state.eg.a.map(eg2el))).map(ael));
-    /*/
     container.replaceChildren();
     state.eg.a.forEach(async (eg, i) => container.appendChild(await ael(await eg2el(eg, i))));
     await yieldOnce();
-    /**/
     const overall = ((performance.now() - t0)).toFixed(0);
     const arr = [...container.querySelectorAll('svg')].map(a => JSON.parse(a.querySelector('desc').textContent).stat.ms);
     const sum = arr.reduce((p, c) => p + parseFloat(c), 0) | 0;
@@ -193,16 +188,10 @@ async function generateAllExamples(container) {
     console.log(`[${state.eg.a.length} examples ${overall}ms ?${overall - sum}ms ${max}@${maxIdx + 1}]`);
 }
 
-function showExample(i = state.eg.i, l = state.eg.a.length) {
-    i = state.eg.i = (i + l) % l;
-    update(state.eg.a[i]);
-    console.log(`[example: ${i + 1} / ${l}]`);
-}
-
 function toggleTpbg() {
     const s = el.buttontpbg.toggleAttribute('data-checked');
     el.right.classList.toggle('tpbg', s);
-    if (!getText()) return showExamples();
+    if (!getText()) return clickShowExamples();
     const R = getRules(getText());
     s ? (R._cb = '#0000') : (delete R._cb, 0);
     setText(R);
@@ -213,7 +202,7 @@ function toggleDot() {
     setDot(!getDot());
     getText()
         ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _cc: getDot() ? '#0000' : '' })
-        : showExamples();
+        : clickShowExamples();
 }
 
 function toggleCursive(alt) {
@@ -226,7 +215,7 @@ function toggleCursive(alt) {
         setText({ ...R, _hand: +R._hand === 1 ? '' : 1 });
         update();
     } else {
-        showExamples();
+        clickShowExamples();
     }
 }
 function toggleExport(s = el.buttonexport.getAttribute('data-checked') === null) {
@@ -244,18 +233,6 @@ function toggleMobile(e) {
     el.buttoncursive.textContent = isMobile() ? 'mobile' : 'desktop';
     document.body.classList.toggle('keyboard-active', !isMobile());
     init();
-}
-
-async function showExamples() {
-    setText('');
-    show(el.smallsvgs);
-    return generateAllExamples(el.smallsvgs);
-}
-
-function nextExample(i) {
-    i = (state.eg.i + (i ? -1 : 1)) % state.eg.a.length;
-    i = (i + state.eg.a.length) % state.eg.a.length;
-    showExample(i);
 }
 
 function setupConsts() {
@@ -280,6 +257,7 @@ function setupConsts() {
         isAutoMobileDesktop: 0,
         isMobileInitial: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
         lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
+        lspre: 'lsystem_',
     });
     el.textarea.dataset.placeholder = strings.textarea.placeholder;
 }
@@ -359,7 +337,7 @@ function setupEventListeners() {
     el.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && clickSubmit());
     el.textarea.addEventListener('input', () => update());
     el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
-    el.textarea.addEventListener('paste0', e => {
+    el.textarea.addEventListener('paste', e => {
         e.preventDefault(); const text = e.clipboardData.getData('text/plain');
         // deprecated but it has features: ctrl+z, leaves cursor in place, better htmlAsPlaintext, newline
         document.execCommand('insertText', false, text);
@@ -376,31 +354,34 @@ function setupEventListeners() {
     ael(el.buttonreset, clickReset);
     ael(el.buttonnpp, clickNpp);
     ael(el.buttoncursive, toggleCursive);
-    ael(el.buttonnexteg, nextExample);
-    ael(el.buttondefs, adddefs);
-    ael(el.buttonalleg, showExamples);
     ael(el.buttondot, toggleDot);
     ael(el.buttontpbg, toggleTpbg);
-    ael(el.buttonjs, () => openStandaloneSvg());
-    ael(el.buttonsvg, () => downloadSvg(getSvg()));
+    ael(el.buttonnexteg, clickNextExample);
+    ael(el.buttondefs, adddefs);
+    ael(el.buttonalleg, clickShowExamples);
     ael(el.buttonpng, clickDownloadPng);
-    ael(el.buttonjson, () => (navigator.clipboard.writeText(JSON.stringify(getRules(getText()))), console.log(strings.copied)));
-    ael(el.buttonline, () => (navigator.clipboard.writeText(stringify(getText())), console.log(strings.copied)));
-    ael(el.buttonlines, () => (navigator.clipboard.writeText(stringify(getText()).replace(/,/g, '\n')), console.log(strings.copied)));
+    ael(el.buttonjs, () => clickOpenStandaloneSvg());
+    ael(el.buttonsvg, () => downloadSvg(getSvg()));
+    ael(el.buttonjson, () => copy(JSON.stringify(getRules(getText()))));
+    ael(el.buttonline, () => copy(stringify(getText())));
+    ael(el.buttonlines, () => copy(stringify(getText()).replace(/,/g, '\n')));
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
 }
 
-async function updateFromLocalStorage() {
-    function get(k) { return localStorage.getItem('lsystem_' + k); }
+function localstorageReset() { ['export', 'minilog', 'R'].forEach(k => localStorage.removeItem(state.lspre + k)); }
+function localstorageSave(s, o) {
+    function set(k, v) { (!s || s === k) && localStorage.setItem(state.lspre + k, v); }
+    try { set('R', stringify(o || getText())); } catch (e) { return; }
+    set('export', el.buttonexport.getAttribute('data-checked') === null);
+    set('minilog', el.buttonminilog.getAttribute('data-checked') === null);
+}
+async function localstorageLoad() {
+    function get(k) { return localStorage.getItem(state.lspre + k); }
     toggleExport(get('export') === 'false');
     toggleMinilog(get('minilog') === 'false');
     const r = get('R');
-    if (r && r !== '' && r !== '{}') {
-        await update(r);
-    } else {
-        await showExamples();
-    }
+    await (r && r !== '' && r !== '{}' ? update(r) : clickShowExamples());
 }
 
 function init() {
@@ -410,7 +391,7 @@ function init() {
     setupDividers();
     setupMobileKeyboard();
     setupEventListeners();
-    updateFromLocation() || updateFromLocalStorage();
+    updateFromLocation() || localstorageLoad();
     el.textarea.setAttribute('contenteditable', true);
 }
 
