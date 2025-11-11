@@ -17,3 +17,6 @@
 - pinchzoom, dragmouse
 - use pointer~ instead of mouse~ and touch~
 - `_m` optionally scale stroke-width too
+- shift+enter
+- canvas
+- ?webgl ? copy UI from typical threejs

@@ -7,7 +7,7 @@ Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX
 
 ### Important: If textarea behaves oddly (e.g., after pasting), use the Update (triangle) button.
   - `?` - Show documentation
-  - `&gt;` - Update rules and render
+  - `<` - Update rules and render
   - `dots` - Show endpoints only
   - `n--` - Shift or LongTap add iteration
   - `transparent` - ...
@@ -43,11 +43,11 @@ Keys starting with `_` are "string" rather then "chars", eg: number
 ### Rule Value Characters:
 - `S`: Starting sentence
 - `F`, `f`: Move forward with/without drawing
-- `+`, `-`, `^`, `|`: Rotate +a, -a, +90°, 180°
+- `+`, `-`, `^`, `|`: Rotate +`_a`, -`_a`, +90°, 180°
 - `!`: Toggle rotation parity
-- `*`, `/`: Multiply/divide line length by _m
-- `[`, `]`: Push/pop position, length, direction
-  note: empty stack pop leaves as is
+- `*`, `/`: Multiply/divide line length by `_m`
+- `[`, `]`: Push/pop (position, length, direction),
+  pop empty stack is allowed.
 
 ### Additional parameters for svg:
 - `_l`: Initial line length (width=1)
@@ -68,9 +68,9 @@ Keys starting with `_` are "string" rather then "chars", eg: number
 - JSON: straightforward key-values
 
 ### Files
-- `lsystem.html` - an example "app"
+- `lsystem.html` - an example app
 - `lsystem.svg`
-  - embedable with `&lt;object>` or `&lt;embed>`, not with `&lt;img>`.
+  - embedable with `<object>` or `<embed>`, not with `<img>`.
   - browser opens as standalone image with parameters
   - editable svg in urlbar
 - function `createSvg`

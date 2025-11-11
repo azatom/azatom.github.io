@@ -4,7 +4,7 @@ let examples = [
     //{},
     //{S:'FF'},
     //'S=FFFFF+F',
-    '=ex1,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1,_n=2,_z=2,_cb=#0077,_cd=#f077,_cc=#fff7',
+    //'=experimentColor,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1,_n=2,_z=2,_cb=#0077,_cd=#f077,_cc=#fff7',
     //'=ex1b,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1.2,_n=2,_z=2,_cb=#000,_cd=#ffffff74,_cc=#fff0',
     //'=ex2,S=F+F+f+F,_j=0.1,_k=1,_l=1,_n=1,_o=.4,_cb=#0000,_cd=#f007,_cc=#00f7',
     '=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5',

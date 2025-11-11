@@ -2,7 +2,7 @@
 # create $SVG from lsystem.{html,js}
 IN="lsystem.html lsystem.js"
 SVG=lsystem.svg
-DIR=experiment/bak
+DIR=.experiment/bak
 TMP=$DIR/tmp-$SVG
 BAK=$DIR/$(date +%s)-$SVG
 

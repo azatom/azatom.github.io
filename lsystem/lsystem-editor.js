@@ -15,12 +15,14 @@ function setupEventListeners() {
     el.textarea.addEventListener('input', () => update());
     el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
     el.textarea.addEventListener('paste', e => {
-        e.preventDefault();
-        /**/
-        el.textarea.textContent = e.clipboardData.getData('text/plain'); clickSubmit();
+        e.preventDefault(); const text = e.clipboardData.getData('text/plain');
         /*/
-        document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
+        el.textarea.textContent = text;
+        /*/
+        // deprecated but it has ctrl+z undo feature!!!
+        document.execCommand('insertText', false, text);
         /**/
+        clickSubmit();
     });
     el.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'c'
         && !window.getSelection().toString().length && (
@@ -56,20 +58,11 @@ function adddefs(i) {
     setText(i ? {
         S: 'F',
         _a: 90,
-        _n: 1,
-        _m: 1,
-        _j: 0,
-        _k: 0,
+        _n: 1, _m: 1, _o: 1,
+        _j: 0, _k: 0,
         _l: 9,
-        _x: '',
-        _y: '',
-        _w: '',
-        _h: '',
-        _z: '',
-        _o: 1,
-        _cd: '#000',
-        _cc: '#000',
-        _cb: '#fff',
+        _x: '', _y: '', _w: '', _h: '', _z: '',
+        _cd: '#000', _cc: '#000', _cb: '#fff',
         ...getRules(),
     } : {
         ...getRules(),
@@ -465,10 +458,10 @@ function toggleMobile(e) {
     init();
 }
 
-function showExamples() {
+async function showExamples() {
     setText('');
     show(el.smallsvgs);
-    generateAllExamples(el.smallsvgs);
+    return generateAllExamples(el.smallsvgs);
 }
 
 function nextExample(i) {
@@ -483,7 +476,7 @@ async function downloadSvg(svg) {
     const xmlStr = serializer.serializeToString(svg);
     const uint8Array = new TextEncoder().encode(xmlStr);
     const blob = new Blob([uint8Array], { type: 'image/svg+xml' });
-    const filename = `${svg.querySelector('title')?.textContent ?? 'untitled'}.svg`;
+    const filename = `${svg.querySelector('title')?.textContent ?? strings.exportUntitled}.svg`;
     await downloadBlob(blob, filename);
 }
 
