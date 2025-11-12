@@ -42,7 +42,7 @@ export const examples = [
         _n: 3
     },
     '=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_z=1.5',
-    '=Penrose,S=X                      ,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=5',
+    '=Penrose,S=X,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=5',
     '=KiteDart3,S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],_a=36,_k=4,_l=199,_m=1.6180339887498948,_n=5,_hand=1',
     '=KiteDart1,S=+[/A]F/---[-S]F-F---[-S]*F[/|A],A=[/S]+F/[|A]----F+F----[A]*F,F=f,_a=36,_l=99,_m=1.6180339887498948,_n=5',
     '=KiteDart2,S=[k]++[k]++[k]++[k]++[k],A=[/k]+F/[|A]----F+F----[A]*F,F=f,_a=36,_l=99,_m=1.6180339887498948,k=+[/A]F/---[-k]F-F---[-k]*F[/|A],_n=5',
@@ -126,7 +126,7 @@ export const examples = [
     //'=plant12,S=A,A=F[////////+A]F/B,B=F[////////-B]F/A,_a=45,_m=1.1,_n=14',
     //'=Notsupported(*)plant14,S=x,A=c,F=*F/,b=e,c=o,e=h,h=j,j=y,o=p,p=x,x=F[+A(4)]Fy,y=F[-b(4)]Fx,_a=45,_m=1.18,_n=20,_l=1',
     //'=strt,S=FSF--[+FS]++++-[-],_n=8,_a=90',
-    //'=Penrose2,S=++ZF----XF-YF----WF    ,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
+    //'=Penrose2,S=++ZF----XF-YF----WF,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
     //'=Penrose3,S=[Y]++[Y]++[Y]++[Y]++[Y],F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
     //'=Notsupported(*)Vlinders2,S=f----f----f,_a=30,_l=160,_m=1.732,f=[F]/[-(2)F]+f--[--F]f[----(2)F]+*,_n=7',
     //'=Notsupported(*)Vlinders4,S=[--F]f--[--F]f--[--F]f--[--F]f--[--F]f--[--F]f,_a=30,_l=160,_m=1.732,f=/[-(2)F++(0.5)F]+f--[--]f[----(2)F--(0.5)F]+*,_n=4',
