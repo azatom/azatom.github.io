@@ -89,6 +89,7 @@ function clickOpenStandaloneSvg(R = getRules(getText()), qs = '?') {
     Object.assign(document.createElement('a'), {
         target: '_blank',
         href: `${strings.lsystemsvg}${qs}${qp}`,
+        href: `${strings.lsystemsvg}${qs}${qp}`,
     }).click();
 }
 
