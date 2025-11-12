@@ -1,11 +1,11 @@
 import { strings } from './editor.strings.js';
-import { lsystemSvg } from './lsystemSvg.js';
+import { lsystemSvg } from './lsystem-svg.js';
 import { examples } from './examples.js';
 import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, adddefs, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 
-function getText() { console.error(el.textarea.innerText); return el.textarea.innerText; }
+function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
 function clickSubmit() { state.ac ? state.ac.abort() : update(getRules(getText())); }
 function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
@@ -82,11 +82,13 @@ async function clickDownloadPng() {
     }
 }
 
-function clickOpenStandaloneSvg(R = getRules(getText())) {
-    Object.assign(
-        document.createElement('a'), {
+function clickOpenStandaloneSvg(R = getRules(getText()), qs = '?') {
+    const s = stringify(createR(R, 1));
+    const qp = s.replace(/#/g, '%23');
+    //const qp = encodeURIComponent(s);
+    Object.assign(document.createElement('a'), {
         target: '_blank',
-        href: `lsystem.svg#${stringify(createR(R, 1))}`,
+        href: `${strings.lsystemsvg}${qs}${qp}`,
     }).click();
 }
 
@@ -164,12 +166,11 @@ async function clickShowExamples() {
     show(el.smallsvgs);
     const t0 = performance.now();
     const decN = eg => ({
-        ...eg, ...{
-            _n: Math.max(2, parseInt(eg._n) - 1, 1),
-            _k: eg._k ? eg._k : getDot() ? 1 : '',
-            _cc: eg._cc ? eg._cc : getDot() ? '#0000' : '#000',
-            _cb: eg._cb ? eg._cb : el.buttontpbg.hasAttribute('data-checked') ? '#0000' : '',
-        }
+        ...eg,
+        _n: Math.max(2, parseInt(eg._n) - 1, 1),
+        _k: eg._k ? eg._k : getDot() ? 1 : '',
+        _cc: eg._cc ? eg._cc : getDot() ? '#0000' : '#000',
+        _cb: eg._cb ? eg._cb : el.buttontpbg.hasAttribute('data-checked') ? '#0000' : '',
     });
     const ael = r => {
         (r.el).addEventListener('click', e => e.ctrlKey
@@ -327,6 +328,7 @@ function setupEventListeners() {
     el.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && clickSubmit());
     el.textarea.addEventListener('input', () => update());
     el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
+    el.textareaClose?.addEventListener('click', () => el.textarea.blur());
     el.textarea.addEventListener('paste', e => {
         e.preventDefault();
         const text = e.clipboardData.getData('text/plain');
