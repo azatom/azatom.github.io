@@ -35,11 +35,11 @@ function createR(o, preserveViewBox) {
     const R = typeof o === 'string' ? getRules(o) : o;
     const vb = preserveViewBox ? getViewBox() : {};
     const dot = getDot() ? {
-        _k: 1,
-        _cc: '#0000',
+        _k: R._k ?? 1,
+        _cc: R._cc ?? '#0000',
     } : {};
     const tp = el.buttontpbg.hasAttribute('data-checked') ? {
-        _cb: '#0000',
+        _cb: R._cb ?? '#0000',
     } : {};
     return { ...R, ...vb, ...dot, ...tp };
 }
