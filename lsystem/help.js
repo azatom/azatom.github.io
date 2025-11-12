@@ -6,7 +6,7 @@ export function initHelp() {
 
   const helpHtml = `
     <div id="helpModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:2">
-      <div id="helpWindow" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+      <div id="helpWindow" style="position:fixed;left:10%;top:10%;transform:translate(-5%,-5%);
         background:#fff;padding:1em;border-radius:6px;box-shadow:0 0 10px #000a;overflow:hidden">
         <span style="float:right;cursor:pointer" id="helpClose">X</span>
         <div id="helpText" style="overflow:auto;line-height:1;font-size:.9rem;max-height:80vh;max-width:84ch"></div>
