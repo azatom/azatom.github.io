@@ -1,7 +1,7 @@
 @media (prefers-color-scheme: dark) {
-  html {
-    filter: invert();
-  }
+    html {
+        filter: invert();
+    }
 }
 
 .cursive object,
@@ -222,6 +222,10 @@ hr {
 
 #textarea>p::first-letter {
     font-weight: 900;
+}
+
+em {
+    background-color: var(--err);
 }
 
 .divider {

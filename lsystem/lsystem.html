@@ -14,28 +14,31 @@
     <div class="buttons">
       <button id="buttonhelp" title="Help">?</button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
-        <object data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cc=%23000f,_cb=%230000,_z=3" tabindex="-1" class="checked0" type="image/svg+xml">Update</object>
-        <object data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3" tabindex="-1" class="checked1" type="image/svg+xml">stop</object>
+        <object tabindex="-1" class="checked0" type="image/svg+xml" data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cc=%23000f,_cb=%230000,_z=3">Update</object>
+        <object tabindex="-1" class="checked1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">stop</object>
       </button>
       <button id="buttonreset">reset</button>
       <button id="buttontpbg" title="transparent">opaq</button>
-      <button id="buttondot" title="Show endpoints only"><object data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%230007,_cb=%230000,_l=8,_z=6,_k=2" tabindex="-1" type="image/svg+xml">:</object></button>
+      <button id="buttondot" title="Show endpoints only">
+        <object tabindex="-1" class="checked0" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%23000f,_cb=%230000,_l=8,_z=6">|</object>
+        <object tabindex="-1" class="checked1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%230000,_cb=%230000,_l=8,_z=6,_k=2">:</object>
+      </button>
       <button id="buttonalleg">all eg.</button>
-      <button id="buttonnexteg" class="altclick">
-        <div class="a">next e.g.<br>&nbsp;</div>
-        <div class="b">&nbsp;<br>prev e.g.</div>
+      <button id="buttonnexteg" class="altclick" title="Shift: prev. example">
+        <div class="a">&nbsp;<br>next e.g.</div>
+        <div class="b">prev e.g.<br>&nbsp;</div>
       </button>
-      <button id="buttonnpp" class="altclick" title="CAREFUL! Above 9: type it">
-        <div class="a">n--<br>&nbsp;</div>
-        <div class="b">&nbsp;<br>n++</div>
+      <button id="buttonnpp" class="altclick" title="Shift: increase. CAREFUL!">
+        <div class="a">&nbsp;<br>n--</div>
+        <div class="b">n++<br>&nbsp;</div>
       </button>
-      <button id="buttondefs" class="altclick">
-        <div class="a">viewBox<br>&nbsp;</div>
-        <div class="b">&nbsp;<br>defs</div>
+      <button id="buttondefs" class="altclick" title="Shift: put defaults; put viewbox Into textarea">
+        <div class="a">&nbsp;<br>viewBox</div>
+        <div class="b">defs<br>&nbsp;</div>
       </button>
-      <button id="buttoncursive" class="altclick" title="experiment, simple/shift(long) click: in svg/on UI add turbulence">
-        <div class="a">_hand<br>&nbsp;</div>
-        <div class="b">&nbsp;<br>shake</div>
+      <button id="buttoncursive" class="altclick" title="Shift: alternative; experiment, adds turbulence into svg or whole page">
+        <div class="a">&nbsp;<br>_hand</div>
+        <div class="b">shake<br>&nbsp;</div>
       </button>
       <button id="buttonminilog" class="dropdown" data-checked>log</button>
       <button id="buttonexport" class="dropdown">export</button>

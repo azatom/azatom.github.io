@@ -5,7 +5,7 @@ import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, adddefs, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 
-function getText() { return el.textarea.innerText; }
+function getText() { console.error(el.textarea.innerText); return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
 function clickSubmit() { state.ac ? state.ac.abort() : update(getRules(getText())); }
 function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
@@ -33,13 +33,15 @@ async function lsystemSvgWrap(R, isInterruptable) {
 
 function createR(o, preserveViewBox) {
     const R = typeof o === 'string' ? getRules(o) : o;
-    const a = preserveViewBox ? getViewBox() : {};
-    const c = {
-        _k: getDot() ? 1 : '',
-        _cc: getDot() ? '#0000' : '#000',
-        _cb: el.buttontpbg.hasAttribute('data-checked') ? '#0000' : '',
-    };
-    return { ...R, ...a, ...c };
+    const vb = preserveViewBox ? getViewBox() : {};
+    const dot = getDot() ? {
+        _k: 1,
+        _cc: '#0000',
+    } : {};
+    const tp = el.buttontpbg.hasAttribute('data-checked') ? {
+        _cb: '#0000',
+    } : {};
+    return { ...R, ...vb, ...dot, ...tp };
 }
 
 async function update(rules) {
@@ -171,8 +173,8 @@ async function clickShowExamples() {
     });
     const ael = r => {
         (r.el).addEventListener('click', e => e.ctrlKey
-            ? clickOpenStandaloneSvg(state.eg.a[state.eg.i = r.i])
-            : showExample(state.eg.i = r.i)
+            ? clickOpenStandaloneSvg(state.eg.a[r.i])
+            : showExample(r.i)
         );
         return r.el;
     };
@@ -326,7 +328,8 @@ function setupEventListeners() {
     el.textarea.addEventListener('input', () => update());
     el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
     el.textarea.addEventListener('paste', e => {
-        e.preventDefault(); const text = e.clipboardData.getData('text/plain');
+        e.preventDefault();
+        const text = e.clipboardData.getData('text/plain');
         // deprecated, but it has features: ctrl+z, leaves cursor in place, better htmlAsPlaintext, newline
         document.execCommand('insertText', false, text);
         clickSubmit();
