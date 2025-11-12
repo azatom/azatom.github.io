@@ -1,4 +1,5 @@
 export const strings = {
+  lsystemsvg: 'lsystem.svg',
   textarea: {
     placeholder: " Type here: S=S+F,_n=3 or click 'next'.\n" +
       " Reformat: Ctrl+Enter or Triangle (sorry edit is hectic).\n" +

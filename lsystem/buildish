@@ -1,7 +1,7 @@
 
 # create $SVG from lsystem.{html,js}
 IN="lsystem.html lsystem.js"
-IN=lsystemSvg.js
+IN=lsystem-svg.js
 SVG=lsystem.svg
 DIR=.experiment/bak
 TMP=$DIR/tmp-$SVG
