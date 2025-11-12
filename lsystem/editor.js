@@ -181,7 +181,7 @@ async function clickShowExamples() {
         return r.el;
     };
     const eg2el = async (eg, i) => ({ el: await lsystemSvgWrap(createR(decN(eg))), i });
-    state.eg.a.forEach(async (eg, i) => el.smallsvgs.appendChild(await ael(await eg2el(eg, i))));
+    state.eg.a.forEach(async (eg, i) => el.smallsvgs.append(await ael(await eg2el(eg, i))));
     await yieldOnce();
     const overall = ((performance.now() - t0)).toFixed(0);
     const arr = [...el.smallsvgs.querySelectorAll('svg')].map(a => JSON.parse(a.querySelector('desc').textContent).stat.ms);
@@ -257,7 +257,6 @@ function setupConsts() {
 function setupCustomLog() {
     toggleCustomLog(true, (...args) => {
         if (el.buttonlog) {
-            console.oldLog(...args);
             el.buttonlog.replaceChildren(
                 args.flatMap(a => a && 'object' == typeof a ? Object.entries(a) : [['', a]])
                     .map(([k, v]) => `${k}${k && ' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '-')}`)

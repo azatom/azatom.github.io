@@ -1,3 +1,4 @@
+- quickhelp for `_*`
 - if only dots and gaussianblured: draw once each (aka. path from grid)
 - fix / replace longtap
 - bop it, twist it, STROKE IT!!! firefox clipping blurs eg background

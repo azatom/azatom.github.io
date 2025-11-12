@@ -8,18 +8,18 @@ Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX
 ### UI:
 **Important: If textarea behaves oddly (e.g., after pasting), use the Update (triangle) button or ctrl+enter.**
 Sorry, UI is inconsistent, it is just for experimenting things.
-  - `?` - Show documentation
-  - `>` - (triangle) Update rules and render (square: stops)
-  - `dots` - Show endpoints only
-  - `n--` - Shift or LongTap add iteration
-  - `transparent` - ...
-  - `*`, `next` - All/next examples
-  - `reset` - localstorage+reload
-  - `export`
-    - `url` - Export rules as URL
-    - `svg` - Download generated SVG
-    - `png` - Download as PNG
-    - `copy...` - to clipboard
+- `?` - Show documentation
+- `>` - (triangle) Update rules and render (square: stops)
+- `dots` - Show endpoints only
+- `n--` - Shift or LongTap add iteration
+- `transparent` - ...
+- `*`, `next` - All/next examples
+- `reset` - localstorage+reload
+- `export`
+  - `url` - Export rules as URL
+  - `svg` - Download generated SVG
+  - `png` - Download as PNG
+  - `copy...` - to clipboard
 - SVG retains zoom and includes rules/stats in its description.
 
 ### How it Works:
