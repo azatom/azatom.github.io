@@ -1,3 +1,9 @@
+@media (prefers-color-scheme: dark) {
+  html {
+    filter: invert();
+  }
+}
+
 .cursive object,
 .cursive svg,
 .cursive img,
