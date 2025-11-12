@@ -95,17 +95,17 @@ button {
     overflow: hidden;
 }
 
-button.altclick,
+/*button.altclick,*/
 button.dropdown {
     position: relative;
 }
 
-button.altclick::after {
+/*button.altclick::after {
     content: "^";
     position: absolute;
     bottom: -0.4rem;
     left: 0.1rem;
-}
+}*/
 
 button.dropdown::after {
     content: "V";
