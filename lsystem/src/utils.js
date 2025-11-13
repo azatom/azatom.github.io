@@ -1,13 +1,13 @@
 const mc = new MessageChannel();
 export function yieldOnce() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         mc.port1.onmessage = () => (mc.port1.onmessage = null, resolve());
         mc.port2.postMessage(null);
     });
 }
 
 export function toggleCustomLog(enable, customLog, _ = console) {
-    if (typeof customLog === 'function') {
+    if (typeof customLog === "function") {
         _.oldLog ??= _.log;
         _.customLog = customLog;
     }
@@ -23,16 +23,16 @@ export async function wrappedRun(acHolder, progress, fn, arg) {
         if (acHolder) {
             acHolder.ac?.abort();
             acHolder.ac = ac = new AbortController();
-            progress(0)
+            progress(0);
             await yieldOnce();
             pleaseStop = async (n) => {
                 if (ac.signal.aborted) return acHolder.interrupted;
                 progress(n);
                 await yieldOnce();
-                return undefined;
+                return void 0;
             };
         }
-        return await fn(arg, undefined, pleaseStop);
+        return await fn(arg, void 0, pleaseStop);
     } catch (e) {
         acHolder && progress(e.message || strings.errors.e);
     } finally {

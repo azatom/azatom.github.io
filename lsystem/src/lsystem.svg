@@ -50,7 +50,7 @@ async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
             const l = pxy < xy ? `${pxy},${xy}` : `${xy},${pxy}`;
             if (!lines.has(l)) {
               lines.add(l);
-              if (pxy !== dxy) { d += `M${oo(pxy)}`; }
+              if (pxy !== dxy) d += `M${oo(pxy)}`;
               d += ` ${oo(dxy = xy)}`;
               mx = Math.min(x, px, mx); Mx = Math.max(x, px, Mx);
               my = Math.min(y, py, my); My = Math.max(y, py, My);
@@ -77,11 +77,11 @@ async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
     ++cnt;
     /*skipbuildsvg*/ if (pleaseStop && cnt % 1e5 === 0 && (ir = await pleaseStop(cnt))) break;
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
-    '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 0 + 2) % 4 :
-    '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
-    '!' === i ? p = -p :
-    '[' === i ? z.push([x, y, a, b, q]) :
-    ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+      '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 0 + 2) % 4 :
+        '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
+          '!' === i ? p = -p :
+            '[' === i ? z.push([x, y, a, b, q]) :
+              ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
   }
   [x, y, a, b] = d.length ? D.vb(O(R._z, 2)).map(o) : [0, 0, 0, 0];
   let P = +O(R._j, 0) * 4 + +O(R._k, 0);
