@@ -7,8 +7,9 @@ export const examples = [
     //'=experimentColor,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1,_n=2,_z=2,_cb=#0077,_cd=#f077,_cc=#fff7',
     //'=ex1b,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1.2,_n=2,_z=2,_cb=#000,_cd=#ffffff74,_cc=#fff0',
     //'=ex2,S=F+F+f+F,_j=0.1,_k=1,_l=1,_n=1,_o=.4,_cb=#0000,_cd=#f007,_cc=#00f7',
-    '=blurDemoPentagram,S=FX++FX++FX++FX++FX,X=[++++/F/F!X!*F],_a=36,_j=1,_k=1,_l=22,_m=1.6180339887498948,_n=5,_cc=#f004,_cd=#00f7',
     //'=WARNINGblurDemo,S=U+V+W+V+R,R=V+R+U+V+W+V+R-W,U=V+R+U+V+W+V+R-U+V+W+V+R+U-V,V=W+V+R+U+V+W+V+R-W,W=V+R+U+V+W+V+R-W+V+R+U+V+W-V,R2=FF,U2=F^*F/-*F/^F-F^*F/,V2=*F/^^^F,W2=F^*F/,_a=60,_j=1,_k=1,_l=.5,_m=1.7320508075688772,_n=3,_cb=#000,_cc=#0000,_cd=#fff3',
+    '=blurDemoPentagram,S=FX++FX++FX++FX++FX,X=[++++/F/F!X!*F],_a=36,_j=1,_k=1,_l=22,_m=1.6180339887498948,_n=5,_cc=#f004,_cd=#00f7',
+    '=KiteDart3,S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],_a=36,_k=4,_l=199,_m=1.6180339887498948,_n=5,_hand=1',
     '=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5',
     /*{
         '': 'AperiodicMirrorMonoTile-Hat',
@@ -43,7 +44,6 @@ export const examples = [
     },
     '=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_z=1.5',
     '=Penrose,S=X,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=5',
-    '=KiteDart3,S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],_a=36,_k=4,_l=199,_m=1.6180339887498948,_n=5,_hand=1',
     '=KiteDart1,S=+[/A]F/---[-S]F-F---[-S]*F[/|A],A=[/S]+F/[|A]----F+F----[A]*F,F=f,_a=36,_l=99,_m=1.6180339887498948,_n=5',
     '=KiteDart2,S=[k]++[k]++[k]++[k]++[k],A=[/k]+F/[|A]----F+F----[A]*F,F=f,_a=36,_l=99,_m=1.6180339887498948,k=+[/A]F/---[-k]F-F---[-k]*F[/|A],_n=5',
     '=try90,S=X,F=F+/f*-F,X=[X]F^[X]F^[X]F^[X]F^,_a=80,_l=9,_m=1.4142,_n=5',
