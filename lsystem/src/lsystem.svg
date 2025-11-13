@@ -1,5 +1,5 @@
-<svg onload='e(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
-const e=e=>{const svg=e.target;(onhashchange=(e, R = decodeURIComponent(location.href.split(/[?#]/)[1]) || 'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3')=> {
+<svg onload='o(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
+async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
   R = 'string' === typeof R ? Object.fromEntries(R
     .replace(/&/g, ',').replace(/([^,:=]*)[:=]([^,:=]*)/g, '$1=$2')
     .split(',').map(a => a.split('='))) : R;
@@ -75,6 +75,7 @@ const e=e=>{const svg=e.target;(onhashchange=(e, R = decodeURIComponent(location
   }; ar[0] = R.S; while (i = next(R._n))
   /**/ {
     ++cnt;
+    /*skipbuildsvg*/ if (pleaseStop && cnt % 1e5 === 0 && (ir = await pleaseStop(cnt))) break;
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
     '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 0 + 2) % 4 :
     '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
@@ -117,4 +118,6 @@ const e=e=>{const svg=e.target;(onhashchange=(e, R = decodeURIComponent(location
     }),
   );
   return svg;
-})(e)}//]]></script></svg>
+}
+const o=(e)=>(onhashchange=()=>lsystemSvg(decodeURIComponent(location.href.split(/[?#]/)[1])||'S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_a=60,_n=3',e.target))();
+//]]></script></svg>

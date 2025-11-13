@@ -1,9 +1,9 @@
 # L-System Fractals
 ## Logo Turtle with Context-Free Grammar
 
-[Editor]()
+[Editor](src)
 
-Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
+Standalone svg file example: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](src/lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 
 ### UI (not uptodate):
 **Important: If textarea behaves oddly (e.g., after pasting), use the Update (triangle) button or ctrl+enter.**
