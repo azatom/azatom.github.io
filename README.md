@@ -1,6 +1,6 @@
 move along
 
-[lsystem](lsystem/lsystem.html) - [doc](lsystem)
+[lsystem](lsystem/src/) - [doc](lsystem/src/README.md)
 
 [pattern](pattern.html)
 

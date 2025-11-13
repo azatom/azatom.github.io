@@ -1,4 +1,4 @@
-export function initHelp(helpButtonId, lspre = 'help') {
+export function initHelp(helpButton, lspre = 'help') {
   const LS_KEY = `${lspre}.readme.md`;
 
   const markedScript = document.createElement('script');
@@ -48,7 +48,7 @@ export function initHelp(helpButtonId, lspre = 'help') {
       if (t < 1e4) setTimeout(() => render(t = t * 1.5 + 10), t);
     }
   }
-  document.getElementById(helpButtonId).onclick = async () => {
+  helpButton.onclick = async () => {
     modal.style.display = 'flex';
     render();
   };

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# requirements:
+# npm init -y && npm install esbuild
+
+function build-editor() {
+    IN=src/editor.js
+    ODIR=dist
+    npx esbuild $IN --bundle --outdir=$ODIR --format=iife
+}
+
+function build-svg() {
+    TEMPLATE=src/lsystem.svg.template
+    IN=src/lsystem-svg.js
+    OUT=dist/lsystem.svg
+    {
+        awk '/^HERE/{exit}{print}' $TEMPLATE
+        awk '{print gensub("^export ", "", 1)}' $IN
+        awk 'a{print}/^HERE/{a=1}' $TEMPLATE
+    } > $OUT
+}
+
+function build-static() {
+    rm -rf dist
+    mkdir dist 2>/dev/null
+    cp src/{index.html,editor.css,README.md} dist/
+    sed -i 's, type="module",,' dist/index.html
+}
+
+function main() {
+    build-static
+    build-editor
+    build-svg
+}
+
+main
+
+# TODO node "$(dirname "$0")/build.js" "$@"
+

@@ -4,6 +4,7 @@ import { examples } from './examples.js';
 import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, adddefs, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
+import { initHelp } from './help.js';
 
 function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
@@ -88,7 +89,6 @@ function clickOpenStandaloneSvg(R = getRules(getText()), qs = '?') {
     //const qp = encodeURIComponent(s);
     Object.assign(document.createElement('a'), {
         target: '_blank',
-        href: `${strings.lsystemsvg}${qs}${qp}`,
         href: `${strings.lsystemsvg}${qs}${qp}`,
     }).click();
 }
@@ -360,6 +360,7 @@ function setupEventListeners() {
     ael(el.buttonlines, () => copy(stringify(getText()).replace(/,/g, '\n')));
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
+    initHelp(el.buttonhelp, state.lspre);
 }
 
 function localstorageReset() { ['export', 'minilog', 'R'].forEach(k => localStorage.removeItem(state.lspre + k)); }
