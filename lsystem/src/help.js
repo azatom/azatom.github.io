@@ -1,4 +1,5 @@
 export function initHelp(helpButton, lspre = 'help') {
+  const README = '../README.md';
   const LS_KEY = `${lspre}.readme.md`;
 
   const markedScript = document.createElement('script');
@@ -28,7 +29,7 @@ export function initHelp(helpButton, lspre = 'help') {
   modal.querySelector('.close').onclick = hide;
   const textDiv = modal.querySelector('.md');
   let cachedMd = null;
-  const mdPromise = fetch('README.md', { cache: 'no-store' })
+  const mdPromise = fetch(README, { cache: 'no-store' })
     .then(r => {
       if (!r.ok) throw new Error(r.status);
       return r.text();
@@ -39,17 +40,21 @@ export function initHelp(helpButton, lspre = 'help') {
       } catch (_) { }
       return md;
     })
-    .catch(() => localStorage.getItem(LS_KEY) ?? '# Help unavailable');
+    .catch(() => localStorage.getItem(LS_KEY) ?? '');
   async function render(t = 0) {
     try {
       textDiv.innerHTML = marked.parse(cachedMd ?? await mdPromise);
-      modal.classList.add('wsn');
+      modal.classList.add("wsn");
+      return textDiv.textContent !== '';
     } catch (e) {
       if (t < 1e4) setTimeout(() => render(t = t * 1.5 + 10), t);
+      else return false;
     }
   }
   helpButton.onclick = async () => {
-    modal.style.display = 'flex';
-    render();
+    if (await render())
+      modal.style.display = "flex"
+    else
+      document.querySelector('#objectreadme').classList.toggle('hidden');
   };
 }

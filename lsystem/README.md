@@ -42,7 +42,7 @@ Rules can be in plaintext, URL fragment, query params, or JSON:
 - `S`: Starting sentence
 - `F`, `f`: Move forward with/without drawing
 - `+`, `-`, `^`, `|`: Rotate +`_a`, -`_a`, +90°, 180°
-- `!`: Toggle rotation parity
+- `!`: Toggle rotation (`+-^`) parity (swaps left and right)
 - `*`, `/`: Multiply/divide line length by `_m`
 - `[`, `]`: Push/pop (position, length, direction),
 

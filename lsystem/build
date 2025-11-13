@@ -23,7 +23,7 @@ function build-svg() {
 function build-static() {
     rm -rf dist
     mkdir dist 2>/dev/null
-    cp src/{index.html,editor.css,README.md} dist/
+    cp src/{index.html,editor.css} dist/
     sed -i 's, type="module",,' dist/index.html
 }
 
