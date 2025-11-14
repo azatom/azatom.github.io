@@ -4,9 +4,7 @@
 # npm init -y && npm install esbuild
 
 function build-editor() {
-    IN=src/editor.js
-    ODIR=dist
-    npx esbuild $IN --bundle --outdir=$ODIR --format=iife
+    npx esbuild src/editor.js --outdir=dist/ --bundle --minify 
 }
 
 function build-svg() {
@@ -15,23 +13,23 @@ function build-svg() {
     OUT=dist/lsystem.svg
     {
         awk '/^HERE/{exit}{print}' $TEMPLATE
-        awk '{print gensub("^export ", "", 1)}' $IN
+        npx esbuild $IN --bundle --format=esm --minify | \
+        sed -r 's,(function )([^(]*)(.*)export\{\2 as (.*)\};,\1\4\3,'
         awk 'a{print}/^HERE/{a=1}' $TEMPLATE
     } > $OUT
 }
 
 function build-static() {
-    rm -rf dist
-    mkdir dist 2>/dev/null
     cp src/{index.html,editor.css} dist/
     sed -i 's, type="module",,' dist/index.html
 }
 
 function main() {
+    rm -rf dist && mkdir dist 2>/dev/null || { echo error:dist; exit; }
     build-static
     build-editor
     build-svg
-    diff src/lsystem.svg dist/lsystem.svg && echo svg-same || echo PlzUpdateSrcSvg
+    cmp src/lsystem.svg dist/lsystem.svg || echo PlzUpdateSrcSvg
 }
 
 main

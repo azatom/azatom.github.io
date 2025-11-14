@@ -4,7 +4,6 @@ import { examples } from './examples.js';
 import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, adddefs, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
-import { initHelp } from './help.js';
 
 function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
@@ -15,7 +14,7 @@ function getSvg() { return el.bigsvg.children[0]; }
 function getDot() { return el.buttondot.hasAttribute('data-checked'); }
 function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
 function updateFromLocation(a = location.href.split(/[?#]/)[1]) { return a && (update(a), 1); }
-function show(e) { [el.message, el.bigsvg, el.smallsvgs].forEach(i => i.classList.toggle('hidden', e !== i)); }
+function show(e) { [el.message, el.bigsvg, el.smallsvgs, el.readme].forEach(i => i.classList.toggle('hidden', e !== i)); }
 function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDesktop]; }
 function copy(t) { navigator.clipboard.writeText(t); console.log(strings.copied); }
 
@@ -360,7 +359,8 @@ function setupEventListeners() {
     ael(el.buttonlines, () => copy(stringify(getText()).replace(/,/g, '\n')));
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
-    initHelp(el.buttonhelp, state.lspre);
+    ael(el.buttonhelp, () => show(el.readme));
+    //initHelp(el.buttonhelp, state.lspre);
 }
 
 function localstorageReset() { ['export', 'minilog', 'R'].forEach(k => localStorage.removeItem(state.lspre + k)); }

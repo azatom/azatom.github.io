@@ -9,7 +9,7 @@ export function addSvgZoom(svg, parentSelector) {
     let isDown = false;
     let startX, startY, scrollStartX = 0, scrollStartY = 0;
     const rip = "svgzoomr9fg34gs6h", $rect = createIfAbsent("div", `${rip}rect`);
-    $rect.style = "position:absolute;pointer-events:none;display:none;";
+    Object.assign($rect.style, { position: 'absolute', pointerEvents: 'none', display: 'none' });
     createIfAbsent("style", `${rip}css`).sheet.insertRule(`${parentSelector} svg{cursor:zoom-out}`);
     const getXY = (e) => {
         const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
@@ -28,18 +28,18 @@ export function addSvgZoom(svg, parentSelector) {
         if (!isDown || e.button) return;
         const p = getXY(e);
         const out = p.x + window.scrollX - 2 < startX;
-        $rect.style.cssText = `
-          left:${Math.min(startX, p.x)}px;
-          top:${Math.min(startY, p.y)}px;
-          width:${Math.abs(p.x - startX)}px;
-          height:${Math.abs(p.y - startY)}px;
-          cursor:${out ? "zoom-out" : "zoom-in"};
-          display:block;
-          position:absolute;
-          pointer-events:none;
-          border:.2rem solid ${out ? "#e82" : "#17d"};
-          background-color:${out ? "#e823" : "#17d3"};
-        `;
+        Object.assign($rect.style, {
+            left: `${Math.min(startX, p.x)}px`,
+            top: `${Math.min(startY, p.y)}px`,
+            width: `${Math.abs(p.x - startX)}px`,
+            height: `${Math.abs(p.y - startY)}px`,
+            cursor: out ? "zoom-out" : "zoom-in",
+            display: "block",
+            position: "absolute",
+            pointerEvents: "none",
+            border: `.2rem solid ${out ? "#e82" : "#17d"}`,
+            backgroundColor: out ? "#e823" : "#17d3"
+        });
     };
     const end = (e) => {
         if (!isDown) return;

@@ -64,9 +64,9 @@ Rules can be in plaintext, URL fragment, query parameters, or JSON format:
 - **URL:** Precede with `#` (fragment) or `?` (query parameters)
 - **JSON:** Standard key-value pairs
 
-### Build:
-- Necessary only for app on file:// and *building* svg file,
-  not for http:// or *using* the svg file
+### Build (optional):
+- Serve on http protocol from `src` folder
+- Or `build` and use the html file in `dist`
 
 ### Some fibonacci:
 ```
