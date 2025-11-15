@@ -74,7 +74,7 @@ body {
 .buttons {
     display: grid;
     align-items: center;
-    grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr));
     gap: .5rem;
     user-select: none;
     padding: .5rem;
