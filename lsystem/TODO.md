@@ -6,8 +6,8 @@
 ? compare generator and arrays: Really same?!WTF!
 ? performance: SegmentSet
 ? _o vs _cc ? (opacity vs alpha-channel)
-- make R immutable
-- make R mutable
+- make R immutable: 
+- make R mutable: addDefaults get from lsystemSvg
 + add IFS guessing: show first iter rectangles?
 + add iteration overlay or multi svg?
 + colored fill

@@ -13,15 +13,14 @@ export function getRules(s) {
     );
 }
 
-export function addDefaults(s) {
+export function addDefaults(R, s) {
     return {
-        S: 'F',
-        _a: 90,
-        _n: 1, _m: 1, _o: 1,
-        _j: 0, _k: 0,
-        _l: 9,
-        _x: '', _y: '', _w: '', _h: '', _z: '',
-        _cd: '#000', _cc: '#000', _cb: '#fff',
+        ...R,
+        // _j: 0, _k: 0,
+        // _o: 1,
+        // _l: 9,
+        // _x: '', _y: '', _w: '', _h: '', _z: '',
+        // _cd: '#000', _cc: '#000', _cb: '#fff',
         ...getRules(s),
     };
 }

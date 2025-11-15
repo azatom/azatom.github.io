@@ -353,7 +353,7 @@ function setupEventListeners() {
     ael(el.buttondot, toggleDot);
     ael(el.buttontpbg, toggleTpbg);
     ael(el.buttonnexteg, clickNextExample);
-    ael(el.buttondefs, (i) => setText(i ? addDefaults(getText()) : addVb(getText(), getViewBox(1))));
+    ael(el.buttondefs, (i) => setText(i ? addDefaults((R=>(lsystemSvg(R),R))({}), getText()) : addVb(getText(), getViewBox(1))));
     ael(el.buttonalleg, clickShowExamples);
     ael(el.buttonpng, clickDownloadPng);
     ael(el.buttonjs, () => clickOpenStandaloneSvg());
@@ -409,6 +409,8 @@ function init() {
     setupEventListeners();
     updateFromLocation() || localstorageLoad();
     el.textarea.setAttribute('contenteditable', true);
+    const R={};lsystemSvg(R);
+    console.error(R);
 }
 
 /* end of fun */
