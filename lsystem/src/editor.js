@@ -221,15 +221,20 @@ function toggleCursive(alt) {
     }
 }
 
+function leftinit() {
+    el.left.style.width='24rem';
+    el.left.style.height='initial';
+}
+
 function toggleExport(s = el.buttonexport.getAttribute('data-checked') === null) {
-    el.left.style.width='initial';el.left.style.height='initial';
+    leftinit();
     el.buttonexport.toggleAttribute('data-checked', s);
     document.querySelectorAll('.export').forEach(e => e.classList.toggle('hidden', !s));
     localstorageSave('export');
 }
 
 function toggleMinilog(s = el.buttonminilog.getAttribute('data-checked') === null) {
-    el.left.style.width='initial';el.left.style.height='initial';
+    leftinit();
     el.buttonminilog.toggleAttribute('data-checked', s);
     el.buttonlog.classList.toggle('hidden', !s);
     localstorageSave('minilog');
@@ -273,6 +278,7 @@ function setupDividers() {
     const resize = (e) => {
         if (!state.isResizing) return;
         e.preventDefault();
+        leftinit();
         if (isMobile()) {
             const newHeight = state.startHeight + e.clientY - state.startY;
             const clamped = Math.min(Math.max(newHeight, el.buttons.offsetHeight+el.divider.offsetHeight), window.innerHeight - 64);
@@ -409,8 +415,6 @@ function init() {
     setupEventListeners();
     updateFromLocation() || localstorageLoad();
     el.textarea.setAttribute('contenteditable', true);
-    const R={};lsystemSvg(R);
-    console.error(R);
 }
 
 /* end of fun */
