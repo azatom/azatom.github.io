@@ -7,7 +7,18 @@ export const strings = {
       " Autosave: localstorage.",
   },
   errors: {
-    format: "Format vaguelly:\nlines of key=value pairs\nkey, value : strings without \"&,=: \"",
+    format: `_n Number of iterations, 0+
+_m Line length multiplier, +
+_a Angle in degrees, -0+
+_l Initial line length width=1, +
+_k Dot size, 0+
+_j Dot blur, 0+
+_o Stroke-opacity, 0..1
+_cb Color background, #[0-9a-f]{3,8}
+_cc Color line, #[0-9a-f]{3,8}
+_cd Color dot, #[0-9a-f]{3,8}
+_x _y, _w, _h: ViewBox, -0+
+_z Padding, 0+`,
     e: 'error',
     blob: "Blob creation failed",
   },
