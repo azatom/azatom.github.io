@@ -293,7 +293,7 @@ function setupDividers() {
         e.preventDefault();
         if (isMobile()) {
             const newHeight = state.startHeight + e.clientY - state.startY;
-            const clamped = Math.min(Math.max(newHeight, 64), window.innerHeight - 64);
+            const clamped = Math.min(Math.max(newHeight, el.buttons.offsetHeight+el.divider.offsetHeight), window.innerHeight - 64);
             el.left.style.height = `${clamped}px`;
         } else {
             const newWidth = state.startWidth + e.clientX - state.startX;
