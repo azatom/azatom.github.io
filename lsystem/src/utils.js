@@ -1,3 +1,5 @@
+export const ver = '1';
+
 const mc = new MessageChannel();
 export function yieldOnce() {
     return new Promise((resolve) => {

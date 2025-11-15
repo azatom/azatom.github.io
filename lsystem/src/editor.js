@@ -1,10 +1,10 @@
 import { strings } from './editor.strings.js';
 import { lsystemSvg } from './lsystem-svg.js';
 import { examples } from './examples.js';
-import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
+import { ver, wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, addDefaults, addVb, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
-import { initMobile, isMobile, forceMobile } from './ismobile.js';
+import { initMobile, isMobile, forceMobile, isMobileAgent } from './ismobile.js';
 
 function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
@@ -409,6 +409,7 @@ function init() {
     setupEventListeners();
     updateFromLocation() || localstorageLoad();
     el.textarea.setAttribute('contenteditable', true);
+    el.buttonhelp.textContent=ver;
 }
 
 /* end of fun */
