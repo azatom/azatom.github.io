@@ -222,22 +222,26 @@ function toggleCursive(alt) {
 }
 
 function leftinit() {
-    el.left.style.width='24rem';
-    el.left.style.height='initial';
+    el.left.style.width = '24rem';
+    el.left.style.height = 'initial';
 }
 
-function toggleExport(s = el.buttonexport.getAttribute('data-checked') === null) {
-    leftinit();
+function toggleExport(s = el.buttonexport.getAttribute('data-checked') === null, isInit) {
     el.buttonexport.toggleAttribute('data-checked', s);
     document.querySelectorAll('.export').forEach(e => e.classList.toggle('hidden', !s));
-    localstorageSave('export');
+    if (!isInit) {
+        leftinit();
+        localstorageSave('export');
+    }
 }
 
-function toggleMinilog(s = el.buttonminilog.getAttribute('data-checked') === null) {
-    leftinit();
+function toggleMinilog(s = el.buttonminilog.getAttribute('data-checked') === null, isInit) {
     el.buttonminilog.toggleAttribute('data-checked', s);
     el.buttonlog.classList.toggle('hidden', !s);
-    localstorageSave('minilog');
+    if (!isInit) {
+        leftinit();
+        localstorageSave('minilog');
+    }
 }
 
 function setupCustomLog() {
@@ -281,7 +285,7 @@ function setupDividers() {
         leftinit();
         if (isMobile()) {
             const newHeight = state.startHeight + e.clientY - state.startY;
-            const clamped = Math.min(Math.max(newHeight, el.buttons.offsetHeight+el.divider.offsetHeight), window.innerHeight - 64);
+            const clamped = Math.min(Math.max(newHeight, el.buttons.offsetHeight + el.divider.offsetHeight), window.innerHeight - 64);
             el.left.style.height = `${clamped}px`;
         } else {
             const newWidth = state.startWidth + e.clientX - state.startX;
@@ -359,7 +363,7 @@ function setupEventListeners() {
     ael(el.buttondot, toggleDot);
     ael(el.buttontpbg, toggleTpbg);
     ael(el.buttonnexteg, clickNextExample);
-    ael(el.buttondefs, (i) => setText(i ? addDefaults((R=>(lsystemSvg(R),R))({}), getText()) : addVb(getText(), getViewBox(1))));
+    ael(el.buttondefs, (i) => setText(i ? addDefaults((R => (lsystemSvg(R), R))({}), getText()) : addVb(getText(), getViewBox(1))));
     ael(el.buttonalleg, clickShowExamples);
     ael(el.buttonpng, clickDownloadPng);
     ael(el.buttonjs, () => clickOpenStandaloneSvg());
@@ -382,8 +386,8 @@ function localstorageSave(s, o) {
 }
 async function localstorageLoad() {
     function get(k) { return localStorage.getItem(state.lspre + k); }
-    toggleExport(get('export') === 'false');
-    toggleMinilog(get('minilog') === 'false');
+    toggleExport(get('export') === 'false', 1);
+    toggleMinilog(get('minilog') === 'false', 1);
     const r = get('R');
     await (r && r !== '' && r !== '{}' ? update(r) : clickShowExamples());
 }
