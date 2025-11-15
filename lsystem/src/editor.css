@@ -230,12 +230,12 @@ hr {
 .divider {
     height: initial;
     width: 0;
+    padding: 0.25rem;
 }
 
 .dividerv {
     max-width: 0;
     margin: 0.5rem 0;
-    padding: 0.25rem;
 }
 
 .dividerv:hover {
@@ -243,7 +243,8 @@ hr {
 }
 
 .dividerh {
-    height: 0;
+    max-height: 0;
+    margin: 0 0.5rem;
 }
 
 .dividerh:hover {
@@ -369,7 +370,7 @@ body.keyboard-active #textareaClose {
         grid-template-columns: repeat(auto-fit, minmax(max(4rem, 15%), 1fr));
     }
 
-    #divider1,
+    /*#divider1,*/
     body.keyboard-active .buttons,
     body.keyboard-active #buttonlog {
         display: none;

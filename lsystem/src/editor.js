@@ -2,7 +2,7 @@ import { strings } from './editor.strings.js';
 import { lsystemSvg } from './lsystem-svg.js';
 import { examples } from './examples.js';
 import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
-import { getRules, adddefs, stringify } from './ruletext.js';
+import { getRules, addDefaults, addVb, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 
 function getText() { return el.textarea.innerText; }
@@ -244,7 +244,7 @@ function setupConsts() {
                 getRules(typeof s === 'string' ? s : stringify(s))
             ).filter(s => s),
         },
-        divider: { isActive: false, active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0, },
+        divider: { active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0, },
         isAutoMobileDesktop: 0,
         isMobileInitial: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
         lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
@@ -268,25 +268,29 @@ function setupCustomLog() {
 }
 
 function setupDividers() {
+    if (isMobile()) {
+        el.divider1.classList.remove('dividerv');
+        el.divider1.classList.add('dividerh');
+    }
     el.divider1.addEventListener('pointerdown', e => {
-        if (isMobile() && e.target === el.divider1) return;
-        state.divider.isActive = true;
+        //if (isMobile() && e.target === el.divider1) return;
         state.divider.active = e.target;
         state.divider.startX = e.clientX;
         state.divider.startY = e.clientY;
         state.divider.startWidth = el.left.offsetWidth;
         state.divider.startHeight = el.textarea.offsetHeight;
     }, { passive: true });
-    window.addEventListener('pointerup', () => {
-        state.divider.isActive = false;
-        state.divider.active = null;
-    }, { passive: true });
+    window.addEventListener('pointerup', () => state.divider.active = null, { passive: true });
     window.addEventListener('pointermove', e => {
-        if (!state.divider.isActive || !state.divider.active) return;
         if (state.divider.active === el.divider1 && !isMobile()) {
             const deltaX = e.clientX - state.divider.startX;
             const newWidth = state.divider.startWidth + deltaX;
             el.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
+        }
+        if (state.divider.active === el.divider1 && isMobile()) {
+            const deltaY = e.clientY - state.divider.startY;
+            const newHeight = state.divider.startHeight + deltaY;
+            el.left.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
         }
     }, { passive: true });
 }
@@ -349,7 +353,7 @@ function setupEventListeners() {
     ael(el.buttondot, toggleDot);
     ael(el.buttontpbg, toggleTpbg);
     ael(el.buttonnexteg, clickNextExample);
-    ael(el.buttondefs, () => setText(adddefs()));
+    ael(el.buttondefs, (i) => setText(i ? addDefaults(getText()) : addVb(getText(), getViewBox(1))));
     ael(el.buttonalleg, clickShowExamples);
     ael(el.buttonpng, clickDownloadPng);
     ael(el.buttonjs, () => clickOpenStandaloneSvg());

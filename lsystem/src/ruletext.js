@@ -13,8 +13,8 @@ export function getRules(s) {
     );
 }
 
-export function adddefs(i) {
-    return (i ? {
+export function addDefaults(s) {
+    return {
         S: 'F',
         _a: 90,
         _n: 1, _m: 1, _o: 1,
@@ -22,11 +22,15 @@ export function adddefs(i) {
         _l: 9,
         _x: '', _y: '', _w: '', _h: '', _z: '',
         _cd: '#000', _cc: '#000', _cb: '#fff',
-        ...getRules(),
-    } : {
-        ...getRules(),
-        ...getViewBox(1),
-    });
+        ...getRules(s),
+    };
+}
+
+export function addVb(s, vb) {
+    return {
+        ...getRules(s),
+        ...vb,
+    };
 }
 
 export function stringify(rR, isHtml) {
