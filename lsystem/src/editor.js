@@ -268,12 +268,9 @@ function setupCustomLog() {
 }
 
 function setupDividers() {
-    if (isMobile()) {
-        el.divider1.classList.remove('dividerv');
-        el.divider1.classList.add('dividerh');
-    }
-    el.divider1.addEventListener('pointerdown', e => {
-        //if (isMobile() && e.target === el.divider1) return;
+    el.divider.classList.toggle('dividerv', !isMobile());
+    el.divider.classList.toggle('dividerh', isMobile());
+    el.divider.addEventListener('pointerdown', e => {
         state.divider.active = e.target;
         state.divider.startX = e.clientX;
         state.divider.startY = e.clientY;
@@ -282,15 +279,15 @@ function setupDividers() {
     }, { passive: true });
     window.addEventListener('pointerup', () => state.divider.active = null, { passive: true });
     window.addEventListener('pointermove', e => {
-        if (state.divider.active === el.divider1 && !isMobile()) {
-            const deltaX = e.clientX - state.divider.startX;
-            const newWidth = state.divider.startWidth + deltaX;
-            el.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
-        }
-        if (state.divider.active === el.divider1 && isMobile()) {
+        if (state.divider.active !== el.divider) return;
+        if (isMobile()) {
             const deltaY = e.clientY - state.divider.startY;
             const newHeight = state.divider.startHeight + deltaY;
             el.left.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
+        } else {
+            const deltaX = e.clientX - state.divider.startX;
+            const newWidth = state.divider.startWidth + deltaX;
+            el.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
         }
     }, { passive: true });
 }
