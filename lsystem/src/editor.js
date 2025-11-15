@@ -4,6 +4,7 @@ import { examples } from './examples.js';
 import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, addDefaults, addVb, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
+import { initMobile, isMobile, forceMobile } from './ismobile.js';
 
 function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
@@ -15,7 +16,6 @@ function getDot() { return el.buttondot.hasAttribute('data-checked'); }
 function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
 function updateFromLocation(a = location.href.split(/[?#]/)[1]) { return a && (update(a), 1); }
 function show(e) { [el.message, el.bigsvg, el.smallsvgs, el.readme].forEach(i => i.classList.toggle('hidden', e !== i)); }
-function isMobile() { return [state.isMobileInitial, 1, 0][state.isAutoMobileDesktop]; }
 function copy(t) { navigator.clipboard.writeText(t); console.log(strings.copied); }
 
 async function message(m, delay = 0, short = '') {
@@ -245,8 +245,6 @@ function setupConsts() {
             ).filter(s => s),
         },
         divider: { active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0, },
-        isAutoMobileDesktop: 0,
-        isMobileInitial: /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
         lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
         lspre: 'lsystem_',
     });
@@ -268,32 +266,30 @@ function setupCustomLog() {
 }
 
 function setupDividers() {
-    el.divider.classList.toggle('dividerv', !isMobile());
-    el.divider.classList.toggle('dividerh', isMobile());
+    const foo = {};
     el.divider.addEventListener('pointerdown', e => {
-        state.divider.active = e.target;
-        state.divider.startX = e.clientX;
-        state.divider.startY = e.clientY;
-        state.divider.startWidth = el.left.offsetWidth;
-        state.divider.startHeight = el.textarea.offsetHeight;
+        foo.active = e.target;
+        foo.startX = e.clientX;
+        foo.startY = e.clientY;
+        foo.startY = e.clientY;
+        foo.startWidth = el.left.offsetWidth;
+        foo.startHeight = el.left.offsetHeight;
     }, { passive: true });
-    window.addEventListener('pointerup', () => state.divider.active = null, { passive: true });
+    window.addEventListener('pointerup', () => foo.active = null, { passive: true });
     window.addEventListener('pointermove', e => {
-        if (state.divider.active !== el.divider) return;
+        if (foo.active !== el.divider) return;
         if (isMobile()) {
-            const deltaY = e.clientY - state.divider.startY;
-            const newHeight = state.divider.startHeight + deltaY;
-            el.left.style.height = `${Math.min(Math.max(newHeight, 50), window.innerHeight - 50)}px`;
+            const a = foo.startHeight + e.clientY - foo.startY;
+            el.left.style.height = `${Math.min(Math.max(a, 64), window.innerHeight - 64)}px`;
         } else {
-            const deltaX = e.clientX - state.divider.startX;
-            const newWidth = state.divider.startWidth + deltaX;
-            el.left.style.width = `${Math.min(Math.max(newWidth, 50), window.innerWidth - 50)}px`;
+            const a = foo.startWidth + e.clientX - foo.startX;
+            el.left.style.width = `${Math.min(Math.max(a, 64), window.innerWidth - 64)}px`;
         }
     }, { passive: true });
 }
 
 function setupMobileKeyboard() {
-    if (!isMobile()) return;
+    // if (!isMobile()) return;
     const updateRightSize = () => {
         if (document.body.classList.contains('keyboard-active') && window.visualViewport) {
             el.right.style.height = `${window.visualViewport.height}px`;
@@ -361,7 +357,7 @@ function setupEventListeners() {
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
     ael(el.buttonhelp, () => show(el.readme));
-    //initHelp(el.buttonhelp, state.lspre);
+    initMobile(() => el.left.style[isMobile() ? 'width' : 'height'] = 'initial');
 }
 
 function localstorageReset() { ['export', 'minilog', 'R'].forEach(k => localStorage.removeItem(state.lspre + k)); }

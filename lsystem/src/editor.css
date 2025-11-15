@@ -17,7 +17,8 @@
 }
 
 :root,
-iframe {
+#readme {
+    --max-mobile: 45rem;
     --o: #000;
     --oa: #000a;
     --d: #777;
@@ -33,7 +34,7 @@ iframe {
 @media (prefers-color-scheme: dark) {
 
     :root,
-    iframe {
+    #readme {
         filter: invert();
     }
 }
@@ -224,7 +225,7 @@ hr {
     }
 }
 
-.dividerv {
+#divider {
     width: 0;
     height: initial;
     max-width: 0;
@@ -232,19 +233,19 @@ hr {
     padding: 0.25rem;
 }
 
-.dividerv:hover {
+#divider:hover {
     cursor: col-resize;
 }
 
-.dividerh {
+body.mobile-view>#divider {
     width: initial;
     height: 0;
+    max-width: initial;
     max-height: 0;
     margin: 0 0.5rem;
-    padding: 0.25rem;
 }
 
-.dividerh:hover {
+body.mobile-view>#divider:hover {
     cursor: row-resize;
 }
 
@@ -330,7 +331,10 @@ body.keyboard-active #textareaClose {
     font-size: 1rem;
 }
 
+/* todo ? body.mobile-view ??? */
 @media only screen and (max-width: 45rem) {
+
+    /* --max-mobile */
     body {
         flex-direction: column;
     }
@@ -348,9 +352,6 @@ body.keyboard-active #textareaClose {
 
     #textarea {
         padding: .2rem;
-        resize: vertical;
-        background: linear-gradient(135deg, var(--f) 98%, var(--d) 0);
-        max-height: 50%;
     }
 
     body.keyboard-active #textarea {
