@@ -17,7 +17,6 @@
 - 3D, HigherDImensionalProjections (IFS?)
 - pinchzoom, dragmouse
 - use pointer~ instead of mouse~ and touch~
-- `_m` optionally scale stroke-width too
 - shift+enter
 - canvas
 - ?webgl ? copy UI from typical threejs
@@ -25,11 +24,13 @@
 
 
 lsystem.js:
-async function lsystemSvg(R = 'S=F', svg){...}
+async function lsystemSvg(R='S=F',svg){...}
 
-lsystem.svg:
-<svg onload='e(event)' xmlns='http://www.w3.org/2000/svg'><script>//<![CDATA[
-const e=e=>{const svg=e.target;(onhashchange=(e, R = location.href.split(/[?#]/)[1] || 'S=F')=>{...})(e)}//]]></script></svg>
+lsystem.svg.tag:
+<svg onload="e(event)" xmlns="http://www.w3.org/2000/svg"><script>//<![CDATA[...//]]></script></svg>
+const e=e=>{const svg=e.target;(onhashchange=(e,R=decodeURIComponent(location.href.split(/[?#]/)[1]))=>{...})(e)}//]]></script></svg>
 
-lsystem.attr.svg: dontforget [" & < "] -> [' &amp; &lt; &quot;]
-<svg onload="const svg=event.target;(onhashchange=(e, R = location.href.split(/[?#]/)[1] || 'S=F')=>{...})()" xmlns="http://www.w3.org/2000/svg"></svg>
+lsystem.svg.attr: dontforget [" & < "] -> [' &amp; &lt; &quot;]
+<svg onload="..." xmlns="http://www.w3.org/2000/svg"></svg>
+const svg=event.target;(onhashchange=(e,R=decodeURIComponent(location.href.split(/[?#]/)[1]))=>{...})()
+((e,s=e.target)=>(onhashchange=e=>lsystemSvg(decodeURIComponent(location.href.split(/[?#]/)[1]),s))())(event)

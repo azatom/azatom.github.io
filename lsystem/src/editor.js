@@ -349,7 +349,7 @@ function setupEventListeners() {
     el.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && clickSubmit());
     el.textarea.addEventListener('input', () => update());
     el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
-    el.textareaClose?.addEventListener('click', () => el.textarea.blur());
+    el.buttontxtclose?.addEventListener('click', () => el.textarea.blur());
     el.textarea.addEventListener('paste', e => {
         e.preventDefault();
         const text = e.clipboardData.getData('text/plain');

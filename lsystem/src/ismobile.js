@@ -1,12 +1,13 @@
 let mq;
-const maxMobile = '--max-mobile';
-const handler = () => document.body.classList.toggle('mobile-view', mq.matches);
+const cssvar = '--max-mobile';
+const bodyclass = 'mobile-view';
+const handler = () => document.body.classList.toggle(bodyclass, mq.matches);
 let handler2;
 initMobile();
 
 export function initMobile(handler2_) {
   handler2 = handler2_;
-  const bp = getComputedStyle(document.documentElement).getPropertyValue(maxMobile).trim();
+  const bp = getComputedStyle(document.documentElement).getPropertyValue(cssvar).trim();
   mq = window.matchMedia(`(max-width: ${bp})`);
   mq.addEventListener('change', handler);
   handler();
@@ -18,7 +19,7 @@ export function isMobile() {
 }
 
 export function forceMobile(mobile) {
-  document.documentElement.style.setProperty(maxMobile, mobile ? '1px' : '9999px');
+  document.documentElement.style.setProperty(cssvar, mobile ? '1px' : '9999px');
   initMobile(handler2);
 };
 

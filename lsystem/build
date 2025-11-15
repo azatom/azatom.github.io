@@ -25,7 +25,7 @@ function build-static() {
 }
 
 function main() {
-    rm -rf dist && mkdir dist 2>/dev/null || { echo error:dist; exit; }
+    rm -rf dist && mkdir dist 2>/dev/null || { echo "error:dist"; exit; }
     build-static
     build-editor
     build-svg

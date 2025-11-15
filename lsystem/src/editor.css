@@ -59,7 +59,7 @@ body {
     max-width: 90vw;
     min-width: 3rem;
     position: relative;
-    /*z-index: 1;*/
+    z-index: 1;
     height: auto;
 }
 
@@ -98,17 +98,9 @@ button {
     overflow: hidden;
 }
 
-/*button.altclick,*/
 button.dropdown {
     position: relative;
 }
-
-/*button.altclick::after {
-    content: "^";
-    position: absolute;
-    bottom: -0.4rem;
-    left: 0.1rem;
-}*/
 
 button.dropdown::after {
     content: "V";
@@ -316,7 +308,7 @@ div[contenteditable="true"]:empty:not(:focus):before {
     background: var(--e);
 }
 
-#textareaClose {
+#buttontxtclose {
     position: absolute;
     top: .5rem;
     right: .5rem;
@@ -326,7 +318,7 @@ div[contenteditable="true"]:empty:not(:focus):before {
     z-index: 4;
 }
 
-body.keyboard-active #textareaClose {
+body.keyboard-active #buttontxtclose {
     display: block;
 }
 
@@ -334,10 +326,8 @@ body.keyboard-active #textareaClose {
     font-size: 1rem;
 }
 
-/* todo ? body.mobile-view ??? */
 @media only screen and (max-width: 45rem) {
 
-    /* --max-mobile */
     body {
         flex-direction: column;
     }
@@ -401,7 +391,7 @@ body.keyboard-active #textareaClose {
 }
 
 @media only screen and (min-width: 45.001rem) {
-    #textareaClose {
+    #buttontxtclose {
         display: none !important;
     }
 }
