@@ -7,7 +7,7 @@ export function getRules(s) {
         .split(',')
         .filter(a => a !== '')
         .map(a => a.split(/[=:]/))
-        .map(a => { if (a.length != 2) throw new Error(strings.errors.format + '\n' + s); return a; })
+        .map(a => { if (a.length != 2) throw new Error(strings.errors.format); return a; })
         .map(a => a.map(a => a.replace(/(^["']|["']$)/g, '')))
         .map(([k, v]) => { if (!/^(|[^"']|_[^"']+|[^"']2)$/.test(k) && /[^"']*/.test(v)) throw new Error(strings.errors.format); return [k, v]; })
     );
