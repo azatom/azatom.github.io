@@ -231,10 +231,13 @@ hr {
     max-width: 0;
     margin: 0.5rem 0;
     padding: 0.25rem;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 #divider:hover {
-    cursor: col-resize;
+    cursor: ew-resize;
 }
 
 body.mobile-view>#divider {
@@ -246,7 +249,7 @@ body.mobile-view>#divider {
 }
 
 body.mobile-view>#divider:hover {
-    cursor: row-resize;
+    cursor: ns-resize;
 }
 
 #right {

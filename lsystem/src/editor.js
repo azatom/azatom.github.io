@@ -222,12 +222,14 @@ function toggleCursive(alt) {
 }
 
 function toggleExport(s = el.buttonexport.getAttribute('data-checked') === null) {
+    el.left.style.width='initial';el.left.style.height='initial';
     el.buttonexport.toggleAttribute('data-checked', s);
     document.querySelectorAll('.export').forEach(e => e.classList.toggle('hidden', !s));
     localstorageSave('export');
 }
 
 function toggleMinilog(s = el.buttonminilog.getAttribute('data-checked') === null) {
+    el.left.style.width='initial';el.left.style.height='initial';
     el.buttonminilog.toggleAttribute('data-checked', s);
     el.buttonlog.classList.toggle('hidden', !s);
     localstorageSave('minilog');
@@ -266,26 +268,49 @@ function setupCustomLog() {
 }
 
 function setupDividers() {
-    const foo = {};
-    el.divider.addEventListener('pointerdown', e => {
-        foo.active = e.target;
-        foo.startX = e.clientX;
-        foo.startY = e.clientY;
-        foo.startY = e.clientY;
-        foo.startWidth = el.left.offsetWidth;
-        foo.startHeight = el.left.offsetHeight;
-    }, { passive: true });
-    window.addEventListener('pointerup', () => foo.active = null, { passive: true });
-    window.addEventListener('pointermove', e => {
-        if (foo.active !== el.divider) return;
+    const state = {
+        isResizing: false,
+        startX: 0,
+        startY: 0,
+        startWidth: 0,
+        startHeight: 0
+    };
+    const startResize = (e) => {
+        if (e.target !== el.divider) return;
+        e.preventDefault();
+        state.isResizing = true;
+        state.startX = e.clientX;
+        state.startY = e.clientY;
+        state.startWidth = el.left.offsetWidth;
+        state.startHeight = el.left.offsetHeight;
+        document.addEventListener('pointermove', resize, { passive: false });
+        document.addEventListener('pointerup', stopResize, { passive: false });
+        document.addEventListener('pointercancel', stopResize, { passive: false });
+        el.divider.style.transition = 'none';
+    };
+    const resize = (e) => {
+        if (!state.isResizing) return;
+        e.preventDefault();
         if (isMobile()) {
-            const a = foo.startHeight + e.clientY - foo.startY;
-            el.left.style.height = `${Math.min(Math.max(a, 64), window.innerHeight - 64)}px`;
+            const newHeight = state.startHeight + e.clientY - state.startY;
+            const clamped = Math.min(Math.max(newHeight, 64), window.innerHeight - 64);
+            el.left.style.height = `${clamped}px`;
         } else {
-            const a = foo.startWidth + e.clientX - foo.startX;
-            el.left.style.width = `${Math.min(Math.max(a, 64), window.innerWidth - 64)}px`;
+            const newWidth = state.startWidth + e.clientX - state.startX;
+            const clamped = Math.min(Math.max(newWidth, 64), window.innerWidth - 64);
+            el.left.style.width = `${clamped}px`;
         }
-    }, { passive: true });
+    };
+    const stopResize = (e) => {
+        if (!state.isResizing) return;
+        state.isResizing = false;
+        document.removeEventListener('pointermove', resize);
+        document.removeEventListener('pointerup', stopResize);
+        document.removeEventListener('pointercancel', stopResize);
+        el.divider.style.transition = '';
+    };
+    el.divider.addEventListener('pointerdown', startResize, { passive: false });
+    el.divider.style.touchAction = 'none';
 }
 
 function setupMobileKeyboard() {
