@@ -1,5 +1,3 @@
-export const ver = '1';
-
 const mc = new MessageChannel();
 export function yieldOnce() {
     return new Promise((resolve) => {
@@ -23,8 +21,8 @@ export async function wrappedRun(acHolder, progress, fn, arg) {
     try {
         let pleaseStop;
         if (acHolder) {
-            acHolder.ac?.abort();
-            acHolder.ac = ac = new AbortController();
+            acHolder.abortController?.abort();
+            acHolder.abortController = ac = new AbortController();
             progress(0);
             await yieldOnce();
             pleaseStop = async (n) => {
@@ -38,6 +36,6 @@ export async function wrappedRun(acHolder, progress, fn, arg) {
     } catch (e) {
         acHolder && progress(e.message || strings.errors.e);
     } finally {
-        acHolder && acHolder.ac === ac && (acHolder.ac = null);
+        acHolder && acHolder.abortController === ac && (acHolder.abortController = null);
     }
 }

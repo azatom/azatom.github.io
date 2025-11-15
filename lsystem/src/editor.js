@@ -1,14 +1,14 @@
 import { strings } from './editor.strings.js';
 import { lsystemSvg } from './lsystem-svg.js';
 import { examples } from './examples.js';
-import { ver, wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
+import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, addDefaults, addVb, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 import { initMobile, isMobile, forceMobile, isMobileAgent } from './ismobile.js';
 
 function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.reload(); }
-function clickSubmit() { state.ac ? state.ac.abort() : update(getRules(getText())); }
+function clickSubmit() { state.abortController ? state.abortController.abort() : update(getRules(getText())); }
 function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
 function clickNpp(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
 function getSvg() { return el.bigsvg.children[0]; }
@@ -138,7 +138,7 @@ function ael(elOrQS, listener) {
 }
 
 function getViewBox(force = 0) {
-    const svg = el.right.querySelector('svg');
+    const svg = el.bigsvg.querySelector('svg');
     if (!svg) return {};
     const v = svg.getAttribute('viewBox')?.split(' ') || [];
     return v.length && (force ||
@@ -233,24 +233,6 @@ function toggleMinilog(s = el.buttonminilog.getAttribute('data-checked') === nul
     el.buttonminilog.toggleAttribute('data-checked', s);
     el.buttonlog.classList.toggle('hidden', !s);
     localstorageSave('minilog');
-}
-
-function setupConsts() {
-    Object.assign(el, Object.fromEntries([...document.querySelectorAll('[id]')].map(e => [e.id, e])));
-    Object.assign(state, {
-        abortController: null,
-        interrupted: 'interrupted-',
-        eg: {
-            i: 0,
-            a: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s =>
-                getRules(typeof s === 'string' ? s : stringify(s))
-            ).filter(s => s),
-        },
-        divider: { active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0, },
-        lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
-        lspre: 'lsystem_',
-    });
-    el.textarea.dataset.placeholder = strings.textarea.placeholder;
 }
 
 function setupCustomLog() {
@@ -400,6 +382,24 @@ async function localstorageLoad() {
     await (r && r !== '' && r !== '{}' ? update(r) : clickShowExamples());
 }
 
+
+function setupConsts() {
+    Object.assign(el, Object.fromEntries([...document.querySelectorAll('[id]')].map(e => [e.id, e])));
+    Object.assign(state, {
+        interrupted: 'interrupted-',
+        eg: {
+            i: 0,
+            a: (typeof examples !== 'undefined' ? examples : ['S=f+f-fSF+FSF,_n=4']).map(s =>
+                getRules(typeof s === 'string' ? s : stringify(s))
+            ).filter(s => s),
+        },
+        divider: { active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0, },
+        lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
+        lspre: 'lsystem_',
+    });
+    el.textarea.dataset.placeholder = strings.textarea.placeholder;
+}
+
 function init() {
     setupConsts();
     // [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
@@ -409,7 +409,6 @@ function init() {
     setupEventListeners();
     updateFromLocation() || localstorageLoad();
     el.textarea.setAttribute('contenteditable', true);
-    el.buttonhelp.textContent=ver;
 }
 
 /* end of fun */
