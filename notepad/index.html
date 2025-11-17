@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Notepad">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Stopwatch">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#111">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <!-- link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" -->
+    <!-- link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF" -->
+    <title>npTitle</title>
+    <script>
+        function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+        function setBase() {
+            /*/
+            document.write(`<base href="${getBase()}">`);
+            /*/
+            const base = document.createElement('base');
+            base.href = getBase();
+            document.head.insertBefore(base, document.head.firstChild);
+            /**/
+        }
+        setBase();
+        /*/
+        navigator?.serviceWorker.register(getBase() + 'sw.js');
+        /*/
+        window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+        /**/
+    </script>
+
+    <style>
+        html {
+            background: repeating-conic-gradient(#888 0 25%, #0000 0 50%) 50% / 1.5rem 1.5rem;
+        }
+
+        body {
+            --s: 2.3rem;
+            --m: .2rem;
+            --ss: calc(var(--s) + 2 * var(--m));
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            padding-top: env(safe-area-inset-top);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+        }
+
+        #sh {
+            height: var(--ss);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: #fff;
+            padding: 0;
+            z-index: 8;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            transition: box-shadow .2s;
+            user-select: none;
+        }
+
+        button,
+        select,
+        .sq {
+            flex: 1 1 5%;
+            margin: var(--m);
+            padding: 0;
+            font-size: 1.5rem;
+            background: #08f;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: .3rem;
+            overflow: hidden;
+            max-height: var(--s);
+        }
+
+        #np {
+            --ph: 'hi';
+            margin: 0;
+            padding: var(--m);
+            margin-top: var(--ss);
+            margin-bottom: env(safe-area-inset-bottom);
+            padding-bottom: var(--ss);
+            width: 100%;
+            height: calc(100vh - var(--ss));
+            font-size: 1rem;
+            box-sizing: border-box;
+            overflow-y: auto;
+            will-change: transform;
+            cursor: text;
+            background: #fffffff7;
+            font-family: sans-serif;
+            white-space: normal;
+        }
+
+        #np:empty:before {
+            white-space: pre;
+            content: var(--ph);
+            display: block;
+            color: #0006;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: var(--s);
+            right: .5rem;
+            display: none;
+            grid-template-columns: repeat(2, var(--ss));
+            gap: var(--m);
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: .3rem;
+            z-index: 10;
+            padding: var(--m);
+        }
+
+        .dropdown button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: #08f;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: .3rem;
+        }
+
+        .dropdown2 {
+            left: .5rem;
+            right: initial;
+            grid-template-columns: none;
+            display: none;
+            flex-direction: column;
+            align-items: stretch;
+            min-width: max-content;
+        }
+
+        .dropdown2 button {
+            height: var(--s);
+            flex-basis: auto;
+            text-align: left;
+            padding: 0 .5rem;
+            white-space: nowrap;
+            justify-content: space-between;
+        }
+
+        .sq {
+            flex: 0 0 auto;
+            display: flex;
+            width: var(--s);
+            height: var(--s);
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            line-height: normal;
+        }
+
+        .sq:active,
+        button:active,
+        .pressed {
+            background: #06d;
+            box-shadow: 0 .3rem .3rem #0008 inset;
+        }
+
+        .sq:active,
+        .pressed.sq {
+            transform: scale(.9);
+        }
+
+        .rt {
+            width: initial;
+            min-width: calc(2 * var(--s));
+        }
+
+        .dropdown2 button::after {
+            content: attr(data-a);
+            margin-left: .5rem;
+            font-size: .9rem;
+            color: #333;
+        }
+
+        .scrolled {
+            box-shadow: #567 0 var(--m) var(--m) 0;
+        }
+
+        .hl {
+            background: #e95;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dropdown.show {
+            display: grid;
+        }
+
+        .dropdown2.show {
+            display: flex;
+        }
+
+        #cy {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        label {
+            display: inline-block;
+            margin-bottom: 5px;
+            vertical-align: top;
+        }
+
+        hr {
+            margin: 0;
+            background-color: #000;
+            height: .02315rem;
+            border: 0;
+        }
+
+        @media screen and (max-width: 21rem) {
+            #np {
+                margin-top: calc(2 * var(--ss));
+                padding-bottom: calc(2 * var(--ss));
+            }
+
+            #sh {
+                height: calc(2 * var(--ss));
+                flex-wrap: wrap;
+            }
+
+            .sq {
+                flex: 1 1 calc(25% - 2 * var(--m));
+                max-height: var(--s);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+        window.addEventListener("resize", handleResizeEvent);
+        setupMediaQueryListeners();
+        function handleResizeEvent(e) {
+            console.log("Resize Event", window.innerWidth, window.devicePixelRatio);
+        }
+        function handleMediaQueryChangeEvent(e) {
+            console.log("MediaQueryList Event", e.media, e.matches);
+        }
+        function setupMediaQueryListeners() {
+            try {
+                for (const rule of document.styleSheets[0].cssRules) {
+                    let conditionText = (rule.media && rule.media[0]);
+                    if (!conditionText) continue;
+                    let mediaQueryList = window.matchMedia(conditionText);
+                    mediaQueryList.addListener(handleMediaQueryChangeEvent);
+                    console.log("setupMediaQueryListeners", conditionText, mediaQueryList.matches);
+                }
+            } catch (e) { console.log('no stylesheet'); }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="sh">
+        <button class="sq ddlabel">⇩</button>
+        <div class="dropdown dropdown2" id="dd">
+            <div id="cy"><label for="cx">share🔗</label><input class="sq" type="checkbox" id="cx"></div>
+            <!--div id="cy"><label for="sx">stat</label><input class="sq" type="checkbox" id="sx"></div-->
+            <button class="ex" onclick="downOrShare('html')" title="innerHTML">.html</button>
+            <button class="ex" onclick="downOrShare('txt')" title="innerText">.txt</button>
+            <button class="ex" onclick="downOrShare('text')" title="textContent">.t𝕖𝕩t</button>
+        </div>
+        <button class="sq" onclick="prependDate()" title="date">📆</button>
+        <button class="sq" id="cl" onclick="confirm('clear it?') && store(np.textContent = '')" title="clear">🗑︎</button>
+        <button class="sq" id="sw" onclick="swap()">sw</button>
+        <button class="rt" id="lg" onclick="swp()">swp</button>
+        <button class="sq" onclick="test()">📋</button>
+        <button class="sq" title="wrap">----</button>
+        <button class="sq ddlabel">𝔉</button>
+        <div class="dropdown" id="df">
+            <button class="sq" onclick="adjustFontSize(5/7)" title="f-">a-</button>
+            <button class="sq" onclick="adjustFontSize(7/5)" title="f+">A+</button>
+            <button class="sq" onclick="toggleProp(b, 'zoom', '1.5', '2', '0.5', '1')" title="z+">+</button>
+            <button class="sq" onclick="zap()" title="zap style">Z</button>
+            <button class="sq" onclick="np.contentEditable='true'!=np.contentEditable" title="edit">✏</button>
+            <button class="sq" onclick="foo()">a</button>
+            <button class="sq" onclick="foo2()">🛢️</button>
+        </div>
+    </div>
+    <div id="np" contenteditable></div>
+    <script>
+        let ver = 'index', np, sh, cl, lg, sw, df, dd, cx, d = document, b = d.body;
+        d.addEventListener('DOMContentLoaded', init);
+
+        function foo() {
+            np.style.fontFamily = '"Noto Color Emoji", sans-serif';
+        }
+        async function foo2() {
+            const before = await navigator?.storage?.estimate();
+            const persisted = await navigator?.storage?.persist();
+            const after = await navigator?.storage?.estimate();
+            alert(
+                `persist: ${persisted ? "yes" : "no"}\n` +
+                `usage before: ${before?.usage ? (before.usage / 1e3).toFixed(2) + " kB" : "n/a"}\n` +
+                `usage after: ${after?.usage ? (after.usage / 1e3).toFixed(2) + " kB" : "n/a"}`
+            );
+        }
+        function test() {
+            window.navigator.clipboard
+                .readText()
+                .then(a => np.innerText = a);
+            swp();
+        }
+        function test0() {
+            try {
+                caches.keys()
+                    .then(k => caches.open(k[0]))
+                    .then(c => np.innerText = JSON.stringify(c, null, "  "));
+            } catch (e) { np.innerText = e; }
+        }
+        function test1() {
+            lg.replaceChildren(consoletable({
+                title: lg.textContent,
+                ver: ver,
+                fs: getComputedStyle(d.documentElement).fontSize + ' ' + getComputedStyle(d.body).fontSize,
+                zoomd: d.documentElement.style.zoom,
+                zoomb: b.style.zoom,
+                zoomt: b.style.transform,
+                dpr: devicePixelRatio,
+                w: getComputedStyle(d.querySelector('body')).width,
+                now: now(),
+                host: location.hostname,
+                ...len(np.innerText)
+            }));
+            swp();
+        }
+        function swp() {
+            [np.innerHTML, lg.innerHTML] = [lg.innerHTML, np.innerHTML];
+        }
+
+        async function addListeners() {
+            const detectScroll = () => {
+                const scrolled = np.scrollTop > 0 || document.documentElement.scrollTop > 0 || b.scrollTop > 0;
+                np.classList.toggle('scrolled', scrolled);
+                sh.classList.toggle('scrolled', scrolled);
+            };
+            np.addEventListener('scroll', detectScroll);
+            window.addEventListener('scroll', detectScroll);
+            window.addEventListener('beforeunload', store);
+            d.addEventListener('visibilitychange', () => d.visibilityState === 'hidden' && store());
+            d.querySelectorAll('.ddlabel').forEach((butt) => {
+                butt.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isDd = e.target.nextElementSibling.id === 'dd';
+                    dd.classList.toggle('show', isDd);
+                    df.classList.toggle('show', !isDd);
+                });
+                lg.textContent = '?';
+            });
+            d.addEventListener('click', e =>
+                'd.click' + [df, dd].forEach(d => d.contains(e.target) || d.classList.remove('show'))
+            );
+            np.addEventListener('input', () => (clearTimeout(np.t), np.t = setTimeout(store, 1000)));
+            d.querySelector('[title=wrap]').addEventListener('click', e => {
+                e.target.style.setProperty('font-family', toggleProp(np, 'font-family', 'monospace', 'sans-serif'));
+                e.target.style.setProperty('white-space', toggleProp(np, 'white-space', 'pre', 'normal'));
+            });
+        }
+
+        function now() { return new Date().toISOString().replace(/[-:.]/g, '').replace('T', '.').slice(0, 15); }
+        function downOrShare(e) {
+            const [text, ext, type] = e === 'html' ?
+                [np.innerHTML, 'html', 'html'] : e === 'text' ?
+                    [np.textContent, 'full.txt', 'plain'] :
+                    [np.innerText, 'txt', 'plain'],
+                title = `np.${now()}.${ext}`;
+            if (cx.checked) return share({ title: title, text: text });
+            const a = document.createElement('a'),
+                url = URL.createObjectURL(new Blob([text], { type: `text/${type};charset=utf8` }));
+            a.href = url;
+            a.download = title;
+            a.click();
+            URL.revokeObjectURL(url);
+            dd.classList.remove('show');
+            lg.textContent = title;
+        }
+        function share(data) {
+            function canBrowserShareData(data) { if (!navigator.share || !navigator.canShare) { return false; } return navigator.canShare(data); }
+            async function shareData() { try { await navigator.share(data); } catch (e) { } }
+            if (canBrowserShareData(data)) { shareData(data); }
+        }
+        function tsl(i) { return new Intl.NumberFormat().format(i); }
+        function sb1() { sw.innerHTML = (s => s ? (s => ~~s == s ? s : ~~s + '+')(Math.log2(s.length)) : -1)(localStorage.getItem('sht1')); }
+        function sb0(
+            n = np.innerText.split(/\r\n|\r|\n/).length - 1,
+            i = np.innerText.length,
+            t = np.textContent.length,
+            o = np.innerText.length - np.textContent.length - n,
+            I = new TextEncoder().encode(np.innerText).length,
+            T = new TextEncoder().encode(np.textContent).length,
+        ) {
+            [...dd.querySelectorAll('.ex')].map((e, i) =>
+                e.setAttribute('data-a', [
+                    tsl(np.innerHTML.length),
+                    tsl(i) + ' +uni: ' + tsl(I - i),
+                    tsl(t) + ' +uni: ' + tsl(T - t),
+                    // n + (o < 0 ? ' ' : ' +') + o
+                ][i]));
+        }
+        function store() {
+            if (np.innerHTML === '<br>') np.innerHTML = '';
+            lg.classList.add('hl');
+            clearTimeout(lg.t);
+            try {
+                localStorage.setItem('sht0', np.innerHTML);
+                lg.t = setTimeout(() => lg.classList.remove('hl'), 40);
+            } catch (e) { msg(e); }
+            sb0();
+        }
+        function swap() {
+            let t1 = localStorage.getItem('sht1') || '', t0 = np.innerHTML;
+            localStorage.setItem('sht0', '');
+            localStorage.setItem('sht1', '');
+            try {
+                localStorage.setItem('sht1', t0);
+                np.innerHTML = t1;
+                sb1();
+            } catch (e) {
+                localStorage.setItem('sht1', t1);
+                msg(e);
+            }
+            store();
+        }
+        function toggleProp(e, k, ...v) { let a = v[(v.findIndex(a => a === e.style.getPropertyValue(k)) + v.length + 1) % v.length]; e.style.setProperty(k, a); return a; }
+        function adjustFontSize(f) { np.style.fontSize = parseFloat(window.getComputedStyle(np).fontSize) * f + 'px'; }
+        function prependDate() {
+            let a = '', r = document.createRange(), s = window.getSelection();
+            a += now() + ' - ';
+            np.innerHTML = a + '<br>' + np.innerHTML;
+            r.setStart(np.firstChild, a.length);
+            r.collapse(true);
+            s.removeAllRanges();
+            s.addRange(r);
+            np.focus();
+        }
+        function msg(s) { alert(lg.textContent = s); }
+        async function loadShared() {
+            const params = new URLSearchParams(window.location.search);
+            const sharedId = params.get('sharedId');
+            if (sharedId) {
+                try {
+                    const cache = await caches.open('shared-data-cache');
+                    const resp = await cache.match(`/shared-data/${sharedId}`);
+                    let images, data;
+                    if (resp) {
+                        data = await resp.json();
+                        if (data.images) {
+                            images = data.images;
+                        }
+                        np.textContent = data.text;
+                        lg.innerText = `${data.etc}\ntitle: ${data.title ? data.title : now()}\nurl: ${data.url ? ' ' + data.url : ''}\nimgs: ${images?.length}`;
+                        for (const image of images) {
+                            const blob = await cache.match(`/shared-data/file/${image.cid}`);
+                            const img0 = document.createElement('img');
+                            img0.title = img0.alt = image.cid + ' ' + image.name + ' ' + image.type;
+                            try { img0.src = URL.createObjectURL(blob); } catch (e) { }
+                            np.appendChild(img0);
+                        }
+                        await cache.delete(`/shared-data/${sharedId}`);
+                    } else { throw ('No shared data found for sharedId:' + sharedId); }
+                } catch (e) { msg('Error loading shared data:' + e); }
+                params.delete('sharedId');
+                window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+            }
+        }
+        async function init() {
+            [np, sh, cl, lg, sw, df, dd, cx] = ['np', 'sh', 'cl', 'lg', 'sw', 'df', 'dd', 'cx'].map(i => document.querySelector(`#${i}`));
+            np.style.setProperty('--ph', `"- 👨‍👩‍👧‍👦fǐﬀÅ𝐀𝓧̱𐍈🧑🏻‍🚀\\A- type or paste image\\A- warn: no input clean at pasting html\\A- autosave: localstorage\\A- download: html, innerText, t𝕖𝕩tContent\\A- ZWJ: copy(decodeURIComponent('%E2%80%8D'))\\A\\A ${ver} ${location.hostname}"`);
+            np.innerHTML = localStorage.getItem('sht0') || '';
+            loadShared();
+            sb0();
+            sb1();
+            np.focus();
+            addListeners();
+            lg.textContent = ver;
+        }
+        function zap(e) { np.querySelectorAll('*').forEach(e => e.removeAttribute('style')); }
+        function len(str) {
+            const res = {};
+            res.zeroWidthChar /*			*/ = /[\u200B-\u200D\uFEFF]/gu;
+            res.variantSelector /*			*/ = /[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
+            res.regionalIndicatorPair /*	*/ = /[\u{1F1E6}-\u{1F1FF}]{2}/gu;
+            res.word /*						*/ = /\b\w+\b/g;
+            res.letter /*					*/ = /\p{L}/gv;
+            res.uppercaseLetter /*			*/ = /\p{Lu}/gv;
+            res.lowercaseLetter /*			*/ = /\p{Ll}/gv;
+            res.number /*					*/ = /\p{N}/gv;
+            res.decimalDigit /*				*/ = /\p{Nd}/gv;
+            res.mark /*						*/ = /\p{M}/gv;
+            res.nonspacingMark /*			*/ = /\p{Mn}/gv;
+            res.punctuation /*				*/ = /\p{P}/gv;
+            res.symbol /*					*/ = /\p{S}/gv;
+            res.separator /*				*/ = /\p{Z}/gv;
+            res.controlCharacter /*			*/ = /\p{C}/gv;
+            res.defaultIgnorable /*			*/ = /\p{Default_Ignorable_Code_Point}/gv;
+            res.unicodeWhiteSpace /*		*/ = /\p{White_Space}/gv;
+            res.idStart /*					*/ = /\p{ID_Start}/gv;
+            res.idContinue /*				*/ = /\p{ID_Continue}/gv;
+            res.latin /*					*/ = /\p{Script=Latin}/gv;
+            res.greek /*					*/ = /\p{Script=Greek}/gv;
+            res.cyrillic /*					*/ = /\p{Script=Cyrillic}/gv;
+            res.han /*						*/ = /\p{Script=Han}/gv;
+            res.arabic /*					*/ = /\p{Script=Arabic}/gv;
+            res.common /*					*/ = /\p{Script=Common}/gv;
+            res.inherited /*				*/ = /\p{Script=Inherited}/gv;
+            res.emoji /*					*/ = /\p{Emoji_Presentation}/gv;
+            for (const k in res) { res[k] = (str.match(res[k]) || []).length; }
+            const grapheme = [...new Intl.Segmenter('und', { granularity: 'grapheme' }).segment(str)];
+            res.utf16CodeUnit = str.length;
+            res.utf16Byte = str.length * 2;
+            res.codePoint = [...str].length;
+            res.utf8Byte = new TextEncoder().encode(str).length;
+            res.graphemeCluster = grapheme.length;
+            res.line = str.split('\n').length;
+            res.ascii = [...str].filter(c => c.codePointAt(0) < 128).length;
+            res.graphemesBaseStart = grapheme
+                .filter(seg => !/[\p{Mn}\p{Mc}\p{Me}]/v.test(seg.segment[0]))
+                .length;
+            res._ignoreOrNot = res.codePoint - res.graphemeCluster - res.defaultIgnorable;
+            return res;
+        }
+        function escUniSur(str) { return str.replace(/[^\\!-~]/g, (c) => "\\u" + ("000" + c.charCodeAt().toString(16)).slice(-4)); }
+        function escUni(str, b = 16) { return Array.from(str).map(c => c.codePointAt(0).toString(b)).join(' '); }
+        function consoletable(obj, err = (val) => 0, isEmptyRow = (obj, key) => 0) {
+            const rowKeys = Object.keys(obj),
+                colKeys = Object.values(obj).reduce((p, c) => {
+                    c !== null && typeof c === 'object' && Object.keys(c).forEach(e => p.includes(e) || p.push(e));
+                    return p;
+                }, []),
+                showHeaderRow = colKeys.length,
+                div = (c, t = '', _ = document.createElement('div')) => (_.innerText = t, _.className = c, _),
+                res = div('consoletable-root'),
+                cell = (t, notHeader, d = res.appendChild(div('consoletable-cell', t))) => {
+                    d.className += !notHeader ? ' consoletable-header' : (err(t) ? ' consoletable-error' : '');
+                    // d.setAttribute('title', t?.constructor?.name ?? typeof t + ": " + (typeof t === 'object' && JSON.stringify(t)));
+                    return d;
+                },
+                emptyRow = k => cell(obj[k]).classList.add('consoletable-fullrow'),
+                fullRow = k => colKeys.forEach((c, i) =>
+                    cell(i ? showHeaderRow ? c === null ? obj[k] : obj[k][c] : obj[k] : k, i).
+                        classList.toggle('consoletable-right', c != null && c.startsWith('_'))
+                );
+            colKeys.unshift('_');
+            showHeaderRow ? colKeys.forEach(k => cell(k)) : colKeys.push(null);
+            res.style.setProperty('--cols', colKeys.length);
+            rowKeys.forEach(k => isEmptyRow(obj, k) ? emptyRow(k) : fullRow(k));
+            if (!document.getElementById('consoletable-css')) {
+                const css = document.createElement('style');
+                css.id = 'consoletable-css';
+                css.textContent = `
+                    .consoletable-root {
+                        grid-template-columns: repeat(var(--cols), auto);
+                        display: inline-grid;
+                        grid-auto-flow: row;
+                        background-color: #ccd;
+                        font-family: sans-serif;
+                        vertical-align: top;
+                        /*//*/ gap: 0 1px; /**/
+                    }
+                    .consoletable-cell {
+                        background-color: #fff;  
+                        padding: .1rem .3rem;
+                        overflow-wrap: anywhere;
+                    }
+                    .consoletable-header {background-color: #eef; font-weight: bold;}
+                    .consoletable-fullrow {grid-column: 1 / -1;}
+                    .consoletable-error {background-color: #caa;}
+                    .consoletable-right {text-align: right;}
+                `;
+                document.head.appendChild(css);
+            }
+            return res;
+        }
+    </script>
+</body>
+
+</html>

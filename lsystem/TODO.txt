@@ -1,0 +1,21 @@
+- Force mobile
+? Mobile back button: ?undo?example->all
+- Mobile opened in keyboard mode w/o actual keyboard
+- R=_hand=1 ch/fx
++ Turbulence in svg? (no use if segments have same turb at path joints)
+- If only dots and gaussianblured: draw once each (aka. path from grid)
++ Replace longtap ? button: [<|>]
+? Performance: SegmentSet
+? How different are generator than array? GC seems effective enough.
+- Make R immutable: no parseFloat
+- Make R mutable: addDefaults get from lsystemSvg
++ Add IFS guessing: show first iter rectangles?
++ Add iteration overlay or multi svg?
++ Colored fill
+? Webkit blur bug/feGaussianBlur?
++ 3D, HigherDImensionalProjections (IFS?)
++ Pinchzoom, dragmouse ? pointer vs touch
++ Canvas
++ ?webgl ? copy UI from typical threejs
+- Dropdown arrow: make proper lines
+- Where readme

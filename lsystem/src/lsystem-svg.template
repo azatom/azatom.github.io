@@ -1,0 +1,3 @@
+<svg onload="((e,s=e.target)=>(onhashchange=e=>lsystemSvg(decodeURIComponent(location.href.split(/[?#]/)[1]),s))())(event)" xmlns="http://www.w3.org/2000/svg"><script>//<![CDATA[
+HERE
+//]]></script></svg>

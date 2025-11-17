@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>L-System Fractals</title>
+  <link rel="manifest" href="manifest.json">
+  <script>(() => {
+  // src/strings.js
+  var strings2 = {
+    lsystemsvg: "lsystem.svg",
+    placeholder: `Type here: S=S+F,_n=3 or click 'next'.
+Practical usage: see button images in source.
+MiniHelp: in the 'log'.
+Reformat, tidy text: Ctrl+Enter or Triangle.
+Autosave: localstorage.
+Shift/LongTap reverses '++', 'next', or alters fun.`,
+    shorthelp: `_n Number of iterations, 0+
+_m Line length multiplier, +
+_a Angle in degrees, -0+
+_l Initial line length width=1, +
+_k Dot size, 0+
+_j Dot blur, 0+
+_o Stroke-opacity, 0..1
+_cb Color background, #[0-9a-f]{3,8}
+_cc Color line, #[0-9a-f]{3,8}
+_cd Color dot, #[0-9a-f]{3,8}
+_x _y, _w, _h: ViewBox, -0+
+_z Padding, 0+
+_hand turbulenceTBD, 1`,
+    error: "error",
+    copied: "copied",
+    pngPrompt: "Larger size [px]? max.safe: 16384, def.: 3840",
+    untitled: "untitled",
+    processing: "Processing...",
+    nothingToExport: "Nothing to export"
+  };
+
+  // src/lsystem-svg.js
+  async function lsystemSvg(R = "S=SF+SF-SF", svg, pleaseStop) {
+    R = "string" === typeof R ? Object.fromEntries(R.replace(/&/g, ",").replace(/([^,:=]*)[:=]([^,:=]*)/g, "$1=$2").split(",").map((a2) => a2.split("="))) : R;
+    let T = performance.now(), [x, y, a, b, q, cnt] = Array(9).fill(0), d = "", p = 1, i, j, Q = Math.PI / 2;
+    R.S ??= "F";
+    R._n = R._n | 0;
+    R._a = R._a ? R._a === "q" ? 180 * (3 - Math.sqrt(5)) : R._a : 90;
+    R._l ??= 9;
+    R._m ??= Q;
+    const O = (v, a2) => v == null || v === "" ? a2 : v, z = [], B = R._a / 90, Z = Object.fromEntries(Object.entries(R).filter(([k]) => k.endsWith("2")).map(([k, v]) => [k[0], v])), o = (a2) => +parseFloat(a2).toPrecision(12), f = (f2) => R._l * Math.pow(R._m, q) * f2(Q * (a * B + b)), C = (t, a2, ...b2) => {
+      t = document.createElementNS("http://www.w3.org/2000/svg", t);
+      for (i in a2) t.setAttribute(i, a2[i]);
+      b2?.map((b3) => t.prepend(b3));
+      return t;
+    }, grid = {}, D = ((E = 1e-5, F = 9 * E) => {
+      let lines = /* @__PURE__ */ new Set(), [px, py] = align(x, y), pxy = `${px},${py}`, dxy, mx = 1 / 0, Mx = -1 / 0, my = mx, My = Mx, _min = mx, _max = Mx;
+      function oo(s) {
+        return s.split(",").map(o).join(",");
+      }
+      function align(X, Y) {
+        let D2 = Infinity, P2, ps, p2, d2, i2, j2, k, x2 = Math.floor(X / F), y2 = Math.floor(Y / F), e = Math.ceil(E / F);
+        for (j2 = -e; j2 <= e; j2++) for (i2 = -e; i2 <= e; i2++) {
+          ps = grid[`${x2 + i2},${y2 + j2}`];
+          if (ps) for (k = 0; k < ps.length; k++) {
+            p2 = ps[k];
+            d2 = Math.hypot(p2[0] - X, p2[1] - Y);
+            if (d2 < D2) {
+              D2 = d2;
+              P2 = p2;
+            }
+            _max < d2 && d2 < E && (_max = d2);
+            E < d2 && d2 < _min && (_min = d2);
+          }
+        }
+        if (D2 >= E) (grid[`${x2},${y2}`] ??= []).push(P2 = [X, Y]);
+        return P2;
+      }
+      return {
+        stat: function(ts = (a2) => a2 >= 1e6 ? (a2 / 1e6).toFixed(6) : a2, dots = Object.values(grid).reduce((p2, c) => p2 + c.length, 0)) {
+          return {
+            err: dots - Object.keys(grid).length,
+            ms: +(performance.now() - T).toFixed(3),
+            B: ts(cnt),
+            lg: Math.log(_max) | 0,
+            len: _min.toExponential(2),
+            dot: ts(dots),
+            line: ts(lines.size)
+          };
+        },
+        vb: function(m) {
+          return [mx - m, my - m, Mx - mx + 2 * m, My - my + 2 * m];
+        },
+        put: function(x2, y2, L) {
+          let XY = align(x2, y2);
+          [x2, y2] = XY;
+          let xy = `${x2},${y2}`;
+          if (L) {
+            const l = pxy < xy ? `${pxy},${xy}` : `${xy},${pxy}`;
+            if (!lines.has(l)) {
+              lines.add(l);
+              if (pxy !== dxy) d += `M${oo(pxy)}`;
+              d += ` ${oo(dxy = xy)}`;
+              mx = Math.min(x2, px, mx);
+              Mx = Math.max(x2, px, Mx);
+              my = Math.min(y2, py, my);
+              My = Math.max(y2, py, My);
+            }
+          }
+          pxy = xy;
+          px = x2;
+          py = y2;
+          return XY;
+        }
+      };
+    })();
+    let id = [0, 1].map((_) => "id" + Math.random().toString(36).slice(2)), ir;
+    const ai = Array(2 + R._n).fill(0), ar = ai.map(() => []), next = (n, c) => {
+      while (true) {
+        if (ai[n] < ar[n].length) return ar[n][ai[n]++];
+        if (!n || !(c = next(n - 1))) return 0;
+        ar[n] = (Z && n === R._n ? Z : R)[c] ?? c;
+        ai[n] = 0;
+      }
+    };
+    ar[0] = R.S;
+    while (i = next(R._n)) {
+      ++cnt;
+      if (pleaseStop && cnt % 1e5 === 0 && (ir = await pleaseStop(cnt))) break;
+      "F" === i || "f" === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), "F" === i) : "+" === i ? a += p : "*" === i ? q++ : "|" === i ? b = (b + 0 + 2) % 4 : "-" === i ? a -= p : "/" === i ? q-- : "^" === i ? b = (b + p + 4) % 4 : "!" === i ? p = -p : "[" === i ? z.push([x, y, a, b, q]) : "]" === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+    }
+    [x, y, a, b] = d.length ? D.vb(O(R._z, 2)).map(o) : [0, 0, 0, 0];
+    let P = +O(R._j, 0) * 4 + +O(R._k, 0);
+    svg ||= C("svg");
+    svg.setAttribute("viewBox", `${O(R._x, x)} ${O(R._y, y)} ${O(R._w, a)} ${O(R._h, b)}`);
+    svg.setAttribute("stroke-opacity", `${O(R._o, 1)}`);
+    svg.replaceChildren(
+      R._min ? "" : ((t) => (t.textContent = (ir ?? "") + O(R[""], ""), t))(C("title")),
+      R._min ? "" : ((t) => (t.textContent = JSON.stringify({ stat: D.stat(), R }), t))(C("desc")),
+      C("rect", { stroke: `${O(R._cb, "#fff")}`, fill: `${O(R._cb, "#fff")}`, x, y, width: a, height: b }),
+      R._k ? C(
+        "defs",
+        0,
+        C("marker", {
+          id: id[0],
+          markerWidth: 2 * P,
+          markerHeight: 2 * P,
+          viewBox: `${-P} ${-P} ${2 * P} ${2 * P}`
+        }, C("circle", {
+          r: O(R._k, 1),
+          fill: O(R._cd, "#000"),
+          style: R._j ? `filter:blur(${R._j}px)` : ""
+        }))
+      ) : "",
+      R._hand ? C(
+        "filter",
+        { id: id[1], x: "-20%", y: "-20%", width: "140%", height: "140%", filterUnits: "objectBoundingBox", primitiveUnits: "userSpaceOnUse", "color-interpolation-filters": "linearRGB" },
+        C("feGaussianBlur", { stdDeviation: "0.15" }),
+        C("feDisplacementMap", { in: "SourceGraphic", in2: "turbulence", scale: "6", xChannelSelector: "G", yChannelSelector: "A", result: "displacementMap" }),
+        C("feTurbulence", { type: "turbulence", baseFrequency: "0.03 0.03", numOctaves: "3", seed: "1", stitchTiles: "noStitch", result: "turbulence" })
+      ) : "",
+      C("path", {
+        stroke: O(R._cc, "#000"),
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        fill: "none",
+        ...R._hand ? { filter: `url(#${id[1]})` } : {},
+        ...R._k && ["start", "mid", "end"].reduce((p2, c) => (p2["marker-" + c] = `url(#${id[0]})`, p2), {}),
+        d
+      })
+    );
+    return svg;
+  }
+
+  // src/examples.js
+  var examples = [
+    //undefined,
+    //'',
+    //{},
+    //{S:'FF'},
+    //'S=FFFFF+F',
+    //'=experimentColor,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1,_n=2,_z=2,_cb=#0077,_cd=#f077,_cc=#fff7',
+    //'=ex1b,S=F,F=F+SF-fSF,_a=150,_j=.04,_k=1,_l=1.2,_n=2,_z=2,_cb=#000,_cd=#ffffff74,_cc=#fff0',
+    //'=ex2,S=F+F+f+F,_j=0.1,_k=1,_l=1,_n=1,_o=.4,_cb=#0000,_cd=#f007,_cc=#00f7',
+    //'=WARNINGblurDemo,S=U+V+W+V+R,R=V+R+U+V+W+V+R-W,U=V+R+U+V+W+V+R-U+V+W+V+R+U-V,V=W+V+R+U+V+W+V+R-W,W=V+R+U+V+W+V+R-W+V+R+U+V+W-V,R2=FF,U2=F^*F/-*F/^F-F^*F/,V2=*F/^^^F,W2=F^*F/,_a=60,_j=1,_k=1,_l=.5,_m=1.7320508075688772,_n=3,_cb=#000,_o=0,_cd=#fff3',
+    "=blurDemoPentagram,S=FX++FX++FX++FX++FX,X=[++++/F/F!X!*F],_a=36,_j=1,_k=1,_l=22,_m=1.6180339887498948,_n=5,_cc=#f004,_cd=#00f7",
+    "=KiteDart3,S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],_a=36,_k=4,_l=199,_m=1.6180339887498948,_n=5,_z=9,_hand=1",
+    "=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5",
+    /*{
+        '': 'AperiodicMirrorMonoTile-Hat',
+        S: 'U+V+W+V+R',
+        R: 'V+R+U+V+W+V+R-W',
+        U: 'V+R+U+V+W+V+R-U+V+W+V+R+U-V',
+        V: 'W+V+R+U+V+W+V+R-W',
+        W: 'V+R+U+V+W+V+R-W+V+R+U+V+W-V',
+        R2: 'FF',
+        U2: 'F^*F/-*F/^F-F^*F/',
+        V2: '*F/^^^F',
+        W2: 'F^*F/',
+        _a: 60,
+        _l: 5,
+        _m: Math.sqrt(3),
+        _n: 3
+    },*/
+    {
+      "": "AperiodicMirrorMonoTile-Spectre",
+      S: "U+V+W+V+R",
+      R: "V+R+U+V+W+V+R-W",
+      U: "V+R+U+V+W+V+R-U+V+W+V+R+U-V",
+      V: "W+V+R+U+V+W+V+R-W",
+      W: "V+R+U+V+W+V+R-W+V+R+U+V+W-V",
+      R2: "FF",
+      U2: "F^F-F^F-F^F",
+      V2: "F^^^F",
+      W2: "F^F",
+      _a: 60,
+      _l: 6,
+      _n: 3
+    },
+    "=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_z=1.5",
+    "=Penrose,S=X,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=5",
+    "=KiteDart1,S=+[/A]F/---[-S]F-F---[-S]*F[/|A],A=[/S]+F/[|A]----F+F----[A]*F,F=f,_a=36,_l=99,_m=1.6180339887498948,_n=5",
+    "=KiteDart2,S=[k]++[k]++[k]++[k]++[k],A=[/k]+F/[|A]----F+F----[A]*F,F=f,_a=36,_l=99,_m=1.6180339887498948,k=+[/A]F/---[-k]F-F---[-k]*F[/|A],_n=5",
+    "=try90,S=X,F=F+/f*-F,X=[X]F^[X]F^[X]F^[X]F^,_a=80,_l=9,_m=1.4142,_n=5",
+    "=tilesg5,S=AX,A=F+F-F,F=,X=[+AX-AX-AX]-AX+AX+AX-,_a=60,_l=6,_n=5",
+    "=tilesg6,S=AX,A=FfF,F=,X=[+AX-AX-AX]-AX+AX+AX-,_a=60,_l=6,f=,_n=5",
+    "=tilesg7,S=AX,A=++F--f++F--,B=++F--f++F--,C=++F--f++F--,D=++F--f++F--,E=++F--f++F--,F=,G=++F--f++F--,X=[+AX-BX-CX]-DX+EX+GX-,_a=60,_l=6,f=,_n=4",
+    "=tilesgHex,S=AX,A=F-F-F-F+F+F+F,F=,X=[+AX-AX-AX]-AX+AX+AX-,_a=60,_l=6,f=,_n=4",
+    "=Quartet,S=FB,A=FBFA+HFA+FB-FA,B=FB+FA-FB-JFBFA,F=,H=-,J=+,_a=90,_n=4",
+    "=Koch5,S=F-F-F-F,F=F-F+F+FFF-F-F+F,_a=90,_n=3",
+    "=QuadKoch,S=F-F-F-F-,F=F+FF-FF-F-F+F+FF-F-F+F+FF+FF-F,_a=90,_n=3",
+    "=Koch,S=F--F--F,F=F+F--F+F,_a=60,_l=2,_n=5",
+    "=tilesg4,S=X,F=F+f-F,X=[X]F+[X]F+[X]F+[X]F+[X]F+[X]F+,_a=60,_l=6,f=F,_n=5",
+    "=lars2,S=+[F]++[F]++[F]++F,F=F[+F][-F],_a=60,_n=6",
+    "=Vlinders1,S=f----f----f,_a=30,_l=160,_m=1.732,f=[F]/+f--f+*,_n=7",
+    "=Notsupported(*)Vlinders3,S=[--F]f--[--F]f--[--F]f--[--F]f--[--F]f--[--F]f,_a=30,_l=160,_m=1.732,f=/[-(2)F]+f--[--]f[----(2)F]+*,_n=4",
+    "=Sierpinski3,S=YF,X=YF+XF+Y,Y=XF-YF-X,_a=60,_n=5",
+    "=sierpin,S=--X,F=FF,X=++FXF++FXF++FXF,_a=60,_n=5",
+    "=CircularTile,S=X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X,X=[F+F+F+F[---X-Y]+++++F++++++++F-F-F-F],Y=[F+F+F+F[---Y]+++++F++++++++F-F-F-F],_a=15,_n=3",
+    "S=+FFFFF,_n=1",
+    "=ColorTriangGasket,S=--X,F=FF,X=++FXF++FXF++FXF>1,_a=60,_n=4",
+    "=curve3,S=F-F-F-F-,F=FF-F+F-F-FF,_a=90,_l=6,_n=4",
+    "=curve4,S=F-F-F-F-,F=FF-F-F-F-F-F+F,_a=90,_l=6,_n=4",
+    "=Cesaro,S=F^F^F^F^,F=+!F!--!F!+,_a=42,_n=5",
+    "=Cesa,S=XY|XY,A=-F++F-,X=XYA^XY|XY,Y=A^XY,_a=30,_l=6,_n=4",
+    "=Fass1,S=L,L=LF+RFR+FL-F-LFLFL-FRFR+,R=-LFLF+RFRFR+F+RF-LFL-FR,_a=90,_l=6,_n=4",
+    "=fibonacci,S=X,X=F[+X]-FX,_a=90,_l=6,_n=10",
+    "=FlowSnake,S=FL,F=,L=FL-FR--FR+FL++FLFL+FR-,R=+FL-FRFR--FR-FL++FL+FR,_a=60,_n=3",
+    "=Pentigree,S=F-F-F-F-F,F=F-F++F+F-F-F,_a=72,_n=5",
+    "=Lace2,S=w,_a=30,_l=4,w=+++x--F--zFx+,x=---w++F++yFw-,y=+zFx--F--z+++,z=-yFw++F++y---,_n=6",
+    "=Island1,S=F+F+F+F,F=FFFF-F+F+F-F[-fFF+F+FF+F]FF,_a=90,_m=6,f=*f/,_n=2",
+    "=Island2,S=F+F+F+F,F=F+gF-FF-F-FF+g+FF-gF+FF+F+FF-g-FFF,_a=90,_m=6,g=*f/,_n=3",
+    "=ize2,S=XY++XY,X=XYF+XY++XY,Y=F+XY,_a=90,_l=6,_n=5",
+    "=ize3,S=F----F----F,F=[-F]+F--F+,_a=30,_l=6,_n=7",
+    "=Demon,S=FS+,F=SF-,_a=45,_l=4,_n=12",
+    "=Dragon,S=+FX,F=,X=-FX++FY-,Y=+FX--FY+,_a=45,_n=10",
+    "=DragonCurve,S=X,X=X-YF-,Y=+FX+Y,_a=90,_n=8",
+    "=Dragonka,S=F,F=F+F-F,_a=120,_l=22,_n=8",
+    "=Dragonka2,S=/[F+S]|F+S,F=f,_a=30,_l=234,_m=1.4142,_n=10",
+    "=XmasColor,S=FU--1FP++++1FQ--,F=,P=--FR++++1FS--1FU,Q=FT++1FR----1FS++,R=++FP----1FQ++1FT,X=P,T=+FU--1FP+,U=-FQ++1FT-,_a=36,_n=7",
+    "=Peano1,S=FXY++F++FXY++F,X=XY*-F/-FXY++F++FXY,Y=-*F-/FXY,_a=45,_m=1.41,_n=4",
+    "=Peano2,S=X,X=XFYFX+F+YFXFY-F-XFYFX,Y=YFXFY-F-XFYFX+F+YFXFY,_a=90,_n=4",
+    "=Pentagram,S=FX++FX++FX++FX++FX,X=[++++/F/F!X!*F],_a=36,_l=222,_m=1.6180339887498948,_n=5",
+    "=PentaPlexy,S=F++F++F++F++F,F=F++F++F+++++F-F++F,_a=36,_n=3",
+    "=Sierpinski1,S=F-F-F,F=F[-F]F,_a=120,_n=4",
+    "=Sierpinski2,S=X,F=FF,X=++FXF++FXF++FXF,_a=60,_n=6",
+    "=Sierpinski4,S=F,F=FXF,X=+FXF-FXF-FXF+,_a=120,_n=5",
+    "=Sierpinski5,S=FXF--FF--FF,F=FF,X=--FXF++FXF++FXF--,_a=60,_n=3",
+    "=sierpinskiSquare1,S=F+F+F+F,F=FF+F+F+F+FF,_a=90,_n=4",
+    "=sierpinskiSquare3,S=A,A=AfAfA-f+A-f+A|f|A|f|A+f-AfF-F-F-Ff+f|,F=FFF,_a=90,f=fff,_n=4",
+    "=sierpinskiSquare2,S=A,A=AFAFAF-FAFAF-FAFAF-FAFF-,F=fff,_a=90,f=fff,_n=5",
+    "=SnowFlake1,S=FR,F=,R=++!FRFU++FU++FU!---*FU|-/!FRFU!,U=!FRFU!|+*FR/+++!FR--FR--FRFU!--,_a=30,_m=1.732,_n=5",
+    "=Snowflake2!,S=F,F=++!F!F--F--F/|+F!F--F--F!+++*F/|+F!F*|+F!F,_a=30,_l=60,_m=1.732,_n=4",
+    "=SnowFlake3,S=Fx,F=,_a=30,_m=1.732,x=++F!x!Fy--Fx--Fy|+/FyF!x!++F!y!++F!y!Fx*+++F!y!Fx,y=FyF!x!+++/FyF!x!++F!x!++F!y!Fx*|+Fx--Fy--FxF!y!++,_n=4",
+    "=Sphinx2,S=+++X,F=ff,X=+FF-YFF+FF--FFF+++X+++F--YFFFYFFF+++,Y=-FF+XFF-FF++FFF+++Y+++F++XFFFXFFF+++,_a=60,_l=6,f=ff,_n=4",
+    "=SpiralOrNotTile,S=X++X++X++X++|G|X++X++X++X,X=[FX+++++*F/[-----Y]+++++F],Y=[F+++++*F/[-----Y]+++++F],_a=22.5,_m=0.7653668647,_n=6",
+    "=SquareGasket,S=X,F=FF,X=+FXF+FXF+FXF+FXF,_a=90,_n=4",
+    "=Peano3,S=F-F-F-F,F=F-F+F+F+F-F-F-F+F,_a=88,_n=3",
+    "=Notsupported(*)Vlinders6,S=F-[(0.5)-F]F-[(0.5)-F]F-[(0.5)-F]F-[(0.5)-F]F-[(0.5)-F]F--(0.5)F^/f(2)-S,_a=60,_l=160,_m=1.73205080756887729352744,_n=7",
+    "=Vlinders(q3)is*sqrt(3)),S=F-[/-F]F-[/-F]F-[/-F]F-[/-F]F-[/-F]F--/F^(q3)/f*-S,_a=60,_l=160,_m=2,_n=7",
+    "=plant04,S=F,F=FF-[-F+F+F]+[+F-F-F],_a=22.5,_n=4",
+    "S=f+f-fSF+FSF,_n=4",
+    "=strq,S=FS+Sf+fS++SSFf,_n=4",
+    "S=[F+fff+[f,f=F,F=S!Sf+],_n=8,_z=9,_l=3"
+    //'=Lace,S=F++F++F++F,F=F+++F---F+F---F++F--F++F,_a=45,_n=3',
+    //'=man,S=F++F++F++F,F=-F-FF+++F+FF-F,_a=45,_n=5',
+    //'=SnowflakeColor!,S=F,1=1,X=--!F1!F1++F1++F1*|-F1!F1++,F=F1++F1!---/F1*|-F1!F1/|-F1!F1,_a=30,_m=1.732,_n=3',
+    //'=ize4,S=F-F-F-F-F-F-F-F-F-F,F=FF+F+F+F+FF,_a=89.8536,_l=6,_n=4',
+    //'=ize5,S=A,A=FA+B,B=FA-B,F=FA,_a=45,_l=6,_n=13',
+    //'=plant01,S=F,F=F[+F]F[-F]F,_a=25,_l=6,_n=5',
+    //'=plant02,S=F,F=F[+F]F[-F][F],_a=20,_l=6,_n=5',
+    //'=plant03,S=X,F=FF,X=F[+X][-X]FX,_a=25,_l=6,_n=5',
+    //'=plant05,S=X,F=FF,X=F[+X]F[-X]+X,_a=20,_l=6,_n=5',
+    //'=plant06,S=X,F=FF,X=F-[[X]+X]+F[+FX]-X,_a=22,_l=6,_n=5',
+    //'=plant07,S=F,F=FF-[XY]+[XY],X=+FY,Y=-FX,_a=22,_l=6,_n=5',
+    //'=plant08,S=FX,X=*[-FX]+FX,_a=16.3636,_m=0.85,_l=99,_n=6',
+    //'=plant09,S=Z,X=X[-FFF][+FFF]FX,Z=ZFX[+Z][-Z],_a=25,_l=6,_n=5',
+    //'=plant10,S=A,A=F[+X]FB,B=F[-Y]FA,F=*F/,X=A,Y=B,_a=45,_m=1.3,_n=13',
+    //'=plant11,S=A,A=F[+x]Fb,F=*F/,_a=45,_m=1.36,b=F[-y]FA,x=A,y=b,_n=8',
+    //'=plant13,S=[+++Z][---Z]TS,H=-Z[+H]L,L=[-FFF][+FFF]F,T=TL,Z=+H[-Z]L,_a=18,_n=6',
+    //'=plant12,S=A,A=F[////////+A]F/B,B=F[////////-B]F/A,_a=45,_m=1.1,_n=14',
+    //'=Notsupported(*)plant14,S=x,A=c,F=*F/,b=e,c=o,e=h,h=j,j=y,o=p,p=x,x=F[+A(4)]Fy,y=F[-b(4)]Fx,_a=45,_m=1.18,_n=20,_l=1',
+    //'=strt,S=FSF--[+FS]++++-[-],_n=8,_a=90',
+    //'=Penrose2,S=++ZF----XF-YF----WF,F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
+    //'=Penrose3,S=[Y]++[Y]++[Y]++[Y]++[Y],F=,W=YF++ZF----XF[-YF----WF]++,X=+YF--ZF[---WF--XF]+,Y=-WF++XF[+++YF++ZF]-,Z=--YF++++WF[+ZF++++XF]--XF,_a=36,_l=9,_n=4',
+    //'=Notsupported(*)Vlinders2,S=f----f----f,_a=30,_l=160,_m=1.732,f=[F]/[-(2)F]+f--[--F]f[----(2)F]+*,_n=7',
+    //'=Notsupported(*)Vlinders4,S=[--F]f--[--F]f--[--F]f--[--F]f--[--F]f--[--F]f,_a=30,_l=160,_m=1.732,f=/[-(2)F++(0.5)F]+f--[--]f[----(2)F--(0.5)F]+*,_n=4',
+    //'=Notsupported(*)Vlinders5,S=AAAAAA,A=[--F]f--,B=-(2)F,_a=30,_l=160,_m=1.732,f=/[B]+f--f[---B]+*,_n=8',
+    //'=Fass2,S=L,L=LFLF+RFR+FLFL-FRF-LFL-FR+F+RF-LFL-FRFRFR+,R=-LFLFLF+RFR+FL-F-LF+RFR+FLF+RFRF-LFL-FRFR,_a=90,_l=6,_n=4',
+    //'=QuadGosper,S=Fr,F=,L=FLFL-Fr-Fr+FL+FL-Fr-FrFL+Fr+FLFLFr-FL+Fr+FLFL+Fr-FLFr-Fr-FL+FL+FrFr-,_a=90,_l=6,r=+FLFL-Fr-Fr+FL+FLFr+FL-FrFr-FL-Fr+FLFrFr-FL-FrFL+FL+Fr-Fr-FL+FL+FrFr,_n=2',
+  ];
+
+  // src/utils.js
+  var mc = new MessageChannel();
+  function yieldOnce() {
+    return new Promise((resolve) => {
+      mc.port1.onmessage = () => (mc.port1.onmessage = null, resolve());
+      mc.port2.postMessage(null);
+    });
+  }
+  function toggleCustomLog(enable, customLog, _ = console) {
+    if (typeof customLog === "function") {
+      _.oldLog ??= _.log;
+      _.customLog = customLog;
+    }
+    if (_.oldLog && _.customLog) {
+      _.log = enable ? _.customLog : _.oldLog;
+    }
+  }
+  async function wrappedRun(acHolder, progress, fn, arg) {
+    let ac;
+    try {
+      let pleaseStop;
+      if (acHolder) {
+        acHolder.abortController?.abort();
+        acHolder.abortController = ac = new AbortController();
+        progress(0);
+        await yieldOnce();
+        pleaseStop = async (n) => {
+          if (ac.signal.aborted) return acHolder.interrupted;
+          progress(n);
+          await yieldOnce();
+          return void 0;
+        };
+      }
+      return await fn(arg, void 0, pleaseStop);
+    } catch (e) {
+      acHolder && progress(e.message || strings.error);
+    } finally {
+      acHolder && acHolder.abortController === ac && (acHolder.abortController = null);
+    }
+  }
+
+  // src/ruletext.js
+  function getRules(s) {
+    return Object.fromEntries(
+      s.replace(/[\n\r&]+/g, ",").replace(/(^[?#{}]|[}]$|[\r \t\s\u00A0]+)/g, "").split(",").filter((a) => a !== "").map((a) => a.split(/[=:]/)).map((a) => {
+        if (a.length != 2) throw new Error(strings2.shorthelp);
+        return a;
+      }).map((a) => a.map((a2) => a2.replace(/(^["']|["']$)/g, ""))).map(([k, v]) => {
+        if (!/^(|[^"']|_[^"']+|[^"']2)$/.test(k) && /[^"']*/.test(v)) throw new Error(strings2.shorthelp);
+        return [k, v];
+      })
+    );
+  }
+  function addDefaults(R, s) {
+    return {
+      ...R,
+      // _j: 0, _k: 0,
+      // _o: 1,
+      // _l: 9,
+      // _x: '', _y: '', _w: '', _h: '', _z: '',
+      // _cd: '#000', _cc: '#000', _cb: '#fff',
+      ...getRules(s)
+    };
+  }
+  function addVb(s, vb) {
+    return {
+      ...getRules(s),
+      ...vb
+    };
+  }
+  function stringify(rR, isHtml) {
+    if (typeof rR === "string") rR = getRules(rR);
+    const p = (p2) => p2.replace(/^S/, " S").replace(/^_w/, "_y2").replace(/^_h/, "_y3").replace(/^_/, "zz"), sortKeys = (a, b) => a.length - b.length || p(a).localeCompare(p(b));
+    return Object.keys(rR = "string" == typeof rR ? getRules(rR) : rR).sort(sortKeys).map((k) => isHtml ? `<p>${k}=${rR[k]}</p>` : `${k}=${rR[k]}`).join(isHtml ? "" : ",");
+  }
+
+  // src/svgutils.js
+  function addSvgZoom(svg, parentSelector) {
+    function createIfAbsent(t, id) {
+      return document.getElementById(id) || document.body.appendChild(
+        Object.assign(document.createElement(t), { id })
+      );
+    }
+    let isDown = false;
+    let startX, startY, scrollStartX = 0, scrollStartY = 0;
+    const rip = "svgzoomr9fg34gs6h", $rect = createIfAbsent("div", `${rip}rect`);
+    Object.assign($rect.style, { position: "absolute", pointerEvents: "none", display: "none" });
+    createIfAbsent("style", `${rip}css`).sheet.insertRule(`${parentSelector} svg{cursor:zoom-out}`);
+    const getXY = (e) => {
+      const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+      return { x: t.pageX, y: t.pageY };
+    };
+    const start = (e) => {
+      if (e.button) return;
+      const p = getXY(e);
+      startX = p.x;
+      startY = p.y;
+      scrollStartX = window.scrollX;
+      scrollStartY = window.scrollY;
+      isDown = true;
+    };
+    const move = (e) => {
+      if (!isDown || e.button) return;
+      const p = getXY(e);
+      const out = p.x + window.scrollX - 2 < startX;
+      Object.assign($rect.style, {
+        left: `${Math.min(startX, p.x)}px`,
+        top: `${Math.min(startY, p.y)}px`,
+        width: `${Math.abs(p.x - startX)}px`,
+        height: `${Math.abs(p.y - startY)}px`,
+        cursor: out ? "zoom-out" : "zoom-in",
+        display: "block",
+        position: "absolute",
+        pointerEvents: "none",
+        border: `.2rem solid ${out ? "#e82" : "#17d"}`,
+        backgroundColor: out ? "#e823" : "#17d3"
+      });
+    };
+    const end = (e) => {
+      if (!isDown) return;
+      const p = getXY(e);
+      const r = svg.getBoundingClientRect();
+      const v = svg.getAttribute("viewBox").split(" ").map(parseFloat);
+      const x1 = v[0] + v[2] * (startX + scrollStartX - r.left) / r.width;
+      const y1 = v[1] + v[3] * (startY + scrollStartY - r.top) / r.height;
+      const x2 = v[0] + v[2] * (p.x + window.scrollX - r.left) / r.width;
+      const y2 = v[1] + v[3] * (p.y + window.scrollY - r.top) / r.height;
+      svg.setAttribute(
+        "viewBox",
+        p.x + window.scrollX - 2 < startX + scrollStartX ? `${v[0] - v[2]} ${v[1] - v[3]} ${3 * v[2]} ${3 * v[3]}` : `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`
+      );
+      isDown = false;
+      $rect.style.display = "none";
+    };
+    ["mousedown", "touchstart"].forEach((e) => svg.addEventListener(e, start, { passive: true }));
+    ["mousemove", "touchmove"].forEach((e) => svg.addEventListener(e, move, { passive: true }));
+    ["mouseup", "touchend", "touchcancel"].forEach((e) => svg.addEventListener(e, end, { passive: true }));
+    const saveTitle = document.title;
+    svg.addEventListener("mouseleave", () => document.title = saveTitle);
+    svg.addEventListener("mousemove", (e) => {
+      const bcr = svg.getBoundingClientRect(), vb = svg.getAttribute("viewBox").split(" ").map(parseFloat);
+      vb[0] += vb[2] * (e.clientX - bcr.left) / bcr.width;
+      vb[1] += vb[3] * (e.clientY - bcr.top) / bcr.height;
+      document.title = `${vb[0].toFixed(1)} ${vb[1].toFixed(1)}`;
+    });
+    return svg;
+  }
+  async function downloadSvg(svg, isMinimized) {
+    const serializer = new XMLSerializer();
+    const xmlStr = serializer.serializeToString(svg);
+    const uint8Array = new TextEncoder().encode(xmlStr);
+    const blob = new Blob([uint8Array], { type: "image/svg+xml" });
+    const filename = `${svg.querySelector("title")?.textContent ?? strings2.untitled}.svg`;
+    await downloadBlob(blob, filename);
+  }
+  async function downloadPng(svg, m) {
+    let [x, y, w, h] = svg.getAttribute("viewBox").split(" ").map(parseFloat);
+    if (!svg || m === null) return;
+    m = Number(m) || 3840;
+    [w, h] = w < h ? [Math.ceil(m * w / h), m] : [m, Math.ceil(m * h / w)];
+    const img = new Image(), canvas = document.createElement("canvas"), ctx = canvas.getContext("2d");
+    img.src = "data:image/svg+xml;base64," + btoa(new XMLSerializer().serializeToString(svg));
+    await new Promise((resolve) => img.onload = resolve);
+    ctx.drawImage(img, 0, 0, canvas.width = w, canvas.height = h);
+    ctx.getImageData(0, 0, 1, 1);
+    const blob = await new Promise((resolve, reject) => canvas.toBlob(
+      (blob2) => blob2 ? resolve(blob2) : reject(new Error(strings2.error)),
+      "image/png"
+    ));
+    const filename = `${svg.querySelector("title")?.textContent ?? strings2.untitled}.png`;
+    await downloadBlob(blob, filename);
+    return { w, h, s: blob.size, filename };
+  }
+  async function downloadBlob(blob, filename) {
+    let url;
+    try {
+      url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.append(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
+  }
+
+  // src/ismobile.js
+  var mq;
+  var cssvar = "--max-mobile";
+  var bodyclass = "mobile-view";
+  var handler = () => document.body.classList.toggle(bodyclass, mq.matches);
+  var handler2;
+  function initMobile(handler2_) {
+    handler2 = handler2_;
+    const bp = getComputedStyle(document.documentElement).getPropertyValue(cssvar).trim();
+    mq = window.matchMedia(`(max-width: ${bp})`);
+    mq.addEventListener("change", handler);
+    handler();
+    handler2 && mq.addEventListener("change", handler2) && handler2(mq);
+  }
+  function isMobile() {
+    return mq.matches;
+  }
+
+  // src/editor.js
+  function getText() {
+    return el.textarea.innerText;
+  }
+  function clickReset() {
+    localstorageReset();
+    location.href = location.origin + location.pathname;
+  }
+  function clickSubmit() {
+    state.abortController ? state.abortController.abort() : update(getRules(getText()));
+  }
+  function setText(rR) {
+    el.textarea.innerHTML = stringify(rR, 1);
+  }
+  function altNpp(alt, R = getRules(getText())) {
+    update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) })));
+  }
+  function getSvg() {
+    return el.bigsvg.children[0];
+  }
+  function getDot() {
+    return el.buttondot.hasAttribute("data-checked");
+  }
+  function setDot(enabled) {
+    el.buttondot.toggleAttribute("data-checked", enabled);
+  }
+  function updateFromLocation(_, a = location.href.split(/[?#]/)[1]) {
+    return a && (update(decodeURIComponent(a)), 1);
+  }
+  function show(e) {
+    [...el.right.children].forEach((i) => i.classList.toggle("hidden", e !== i));
+  }
+  function copy(t) {
+    navigator.clipboard.writeText(t);
+    console.log(strings2.copied);
+  }
+  async function message(m, delay = 0, short = "") {
+    clearTimeout(state.timer);
+    el.buttonminilog.textContent = short;
+    const f = async () => show(Object.assign(el.message, { innerText: m }));
+    delay ? state.timer = setTimeout(f, delay) : await f();
+  }
+  async function lsystemSvgWrap(R, isInterruptable) {
+    const acHolder = isInterruptable ? state : void 0;
+    const progress = isInterruptable ? (n) => message("Processing...", 0, (n / 1e6).toFixed(1) + " M") : void 0;
+    return wrappedRun(acHolder, progress, lsystemSvg, R);
+  }
+  function createR(o, preserveViewBox) {
+    const R = typeof o === "string" ? getRules(o) : o;
+    const vb = preserveViewBox ? getViewBox() : {};
+    const dot = getDot() ? {
+      _k: R._k ?? 1,
+      _o: R._o ?? 0
+      // _cc: R._cc ?? '#0000',
+    } : {};
+    const tp = el.buttontpbg.hasAttribute("data-checked") ? {
+      _cb: R._cb ?? "#0000"
+    } : {};
+    return { ...R, ...vb, ...dot, ...tp };
+  }
+  async function update(rules) {
+    try {
+      if (rules) {
+        rules = typeof rules === "string" ? getRules(rules) : rules;
+        setText(rules);
+      } else {
+        rules = getRules(getText());
+      }
+      const R = createR(rules);
+      el.buttonsubmit.toggleAttribute("data-checked", 1);
+      const svg = await lsystemSvgWrap(R, true);
+      clearTimeout(state.timer);
+      el.buttonsubmit.toggleAttribute("data-checked", 0);
+      const title = svg.querySelector("title")?.textContent;
+      if (!svg) return;
+      if (!title?.startsWith(state.interrupted) && rules !== "") localstorageSave("R", rules);
+      else console.log(title);
+      try {
+        const stat = JSON.parse(svg.querySelector("desc").textContent).stat;
+        console.log(Object.entries(stat).map(([k, v]) => v + " " + k).join(" "));
+        const t = stat.ms < 1e3 ? ~~stat.ms + " ms" : (stat.ms / 1e3).toPrecision(2) + " s";
+        el.buttonminilog.innerHTML = stat.err ? stat.err + " error<br>" : "" + t;
+      } catch (e) {
+      }
+      el.bigsvg.replaceChildren(svg);
+      addSvgZoom(svg, "#bigsvg");
+      show(el.bigsvg);
+    } catch (e) {
+      message(e.message, 0, strings2.error);
+    }
+  }
+  async function clickDownloadPng() {
+    try {
+      const svg = getSvg();
+      if (!svg) return message(strings2.nothingToExport);
+      const m = prompt(strings2.pngPrompt);
+      if (!m) return;
+      const { w, h, s, filename } = await downloadPng(svg, m);
+      console.log(`saved: ${w}x${h} ${s} bytes ${filename}`);
+    } catch (e) {
+      message(e.message);
+    }
+  }
+  function clickOpenStandaloneSvg(R = getRules(getText()), qs = "?", editor) {
+    const svg = getSvg();
+    if (!svg) return message(strings2.nothingToExport);
+    const s = stringify(createR(R, 1));
+    if (!s) return message(strings2.nothingToExport);
+    const qp = s.replace(/#/g, "%23");
+    Object.assign(document.createElement("a"), {
+      target: "_blank",
+      href: editor ? `${location.origin + location.pathname}${qs}${qp}` : `${strings2.lsystemsvg}${qs}${qp}`
+    }).click();
+  }
+  function altbuttonline(alt) {
+    const svg = getSvg();
+    if (!svg) return message(strings2.nothingToExport);
+    copy(alt ? JSON.stringify(getRules(getText())) : stringify(getText()));
+  }
+  function clickbuttonsvg() {
+    const svg = getSvg();
+    if (!svg) return message(strings2.nothingToExport);
+    downloadSvg(svg);
+  }
+  function ael(elOrQS, listener) {
+    const el2 = typeof elOrQS === "string" ? document.querySelector(elOrQS) : elOrQS;
+    const typ = el2.classList.contains("altclick") ? "altclick" : "click";
+    if (typ === "altclick") {
+      const alternative = (e, i) => listener(i || e.shiftKey || e.type === "pointerdown");
+      el2.addEventListener("click", alternative, { passive: true });
+      let isLongTap = false;
+      const suppressPostLongClick = (e) => {
+        if (isLongTap) {
+          isLongTap = false;
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      };
+      el2.addEventListener("click", suppressPostLongClick, { capture: true, passive: false });
+      let longTapTimer = null;
+      let startX = 0, startY = 0;
+      const MOVE_THRESHOLD = 10;
+      const startLongTap = (e) => {
+        if (e.button && e.button !== 0) return;
+        isLongTap = false;
+        el2.classList.add("long-tap-progress");
+        try {
+          el2.focus && el2.focus({ preventScroll: true });
+        } catch (err) {
+          el2.focus && el2.focus();
+        }
+        const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+        startX = t.pageX;
+        startY = t.pageY;
+        longTapTimer = setTimeout(() => {
+          isLongTap = true;
+          alternative(e, -1);
+          el2.classList.remove("long-tap-progress");
+        }, 200);
+      };
+      const cancelLongTap = () => {
+        if (longTapTimer) {
+          clearTimeout(longTapTimer);
+          longTapTimer = null;
+        }
+        el2.classList.remove("long-tap-progress");
+      };
+      const handlePointerMove = (e) => {
+        if (!longTapTimer) return;
+        const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+        const dx = t.pageX - startX, dy = t.pageY - startY;
+        if (Math.hypot(dx, dy) > MOVE_THRESHOLD) cancelLongTap();
+      };
+      el2.addEventListener("pointerdown", startLongTap, { passive: false });
+      el2.addEventListener("pointerup", cancelLongTap, { passive: true });
+      el2.addEventListener("pointermove", handlePointerMove, { passive: true });
+      el2.addEventListener("pointercancel", cancelLongTap, { passive: true });
+      el2.addEventListener("pointerleave", cancelLongTap, { passive: true });
+    } else {
+      el2.addEventListener(typ, listener, { passive: true });
+    }
+  }
+  function getViewBox(force = 0) {
+    const svg = el.bigsvg.querySelector("svg");
+    if (!svg) return {};
+    const v = svg.getAttribute("viewBox")?.split(" ") || [];
+    return v.length && (force || ["x", "y", "width", "height"].map((attr) => svg.querySelector("rect")?.getAttribute(attr)).join(" ") !== v.join(" ")) ? { _x: v[0], _y: v[1], _w: v[2], _h: v[3] } : {};
+  }
+  function showExample(i = state.eg.i, l = state.eg.a.length) {
+    i = state.eg.i = (i + l) % l;
+    update(state.eg.a[i]);
+    console.log(`[example: ${i + 1} / ${l}]`);
+  }
+  function altPutVbOrDefaults(alt) {
+    setText(alt ? addDefaults(((R) => (lsystemSvg(R), R))({}), getText()) : addVb(getText(), getViewBox(1)));
+  }
+  function altNextExample(alt) {
+    alt = (state.eg.i + (alt ? -1 : 1)) % state.eg.a.length;
+    alt = (alt + state.eg.a.length) % state.eg.a.length;
+    showExample(alt);
+  }
+  async function clickShowExamples() {
+    setText("");
+    el.smallsvgs.replaceChildren();
+    show(el.smallsvgs);
+    const t0 = performance.now();
+    const decN = (eg) => ({
+      ...eg,
+      _n: Math.max(2, parseInt(eg._n) - 1, 1),
+      _k: eg._k ? eg._k : getDot() ? 1 : "",
+      _o: eg._o ? eg._o : getDot() ? 0 : "",
+      //_cc: eg._cc ? eg._cc : getDot() ? '#0000' : '#000',
+      _cb: eg._cb ? eg._cb : el.buttontpbg.hasAttribute("data-checked") ? "#0000" : ""
+    });
+    const ael2 = (r) => {
+      r.el.addEventListener(
+        "click",
+        (e) => e.ctrlKey ? clickOpenStandaloneSvg(state.eg.a[r.i]) : showExample(r.i)
+      );
+      return r.el;
+    };
+    const eg2el = async (eg, i2) => ({ el: await lsystemSvgWrap(createR(decN(eg))), i: i2 });
+    state.eg.a.forEach(async (eg, i2) => el.smallsvgs.append(await ael2(await eg2el(eg, i2))));
+    await yieldOnce();
+    let a, s, m, i, ms = (performance.now() - t0).toFixed(0);
+    try {
+      a = [...el.smallsvgs.querySelectorAll("svg")].map((a2) => JSON.parse(a2.querySelector("desc").textContent).stat.ms);
+      s = a.reduce((p, c) => p + parseFloat(c), 0) | 0;
+      m = Math.max(...a);
+      i = a.indexOf(m);
+    } catch (e) {
+    }
+    console.log(`[${state.eg.a.length} examples ${ms}ms ?${ms - s}ms ${m}@${i + 1}]`);
+  }
+  function toggleTpbg() {
+    const s = el.buttontpbg.toggleAttribute("data-checked");
+    el.right.classList.toggle("tpbg", s);
+    if (!getText()) return clickShowExamples();
+    const R = getRules(getText());
+    s ? R._cb = "#0000" : (delete R._cb, 0);
+    setText(R);
+    update();
+  }
+  function toggleDot() {
+    setDot(!getDot());
+    getText() ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _o: getDot() ? 0 : "" }) : clickShowExamples();
+  }
+  function altCursive(alt) {
+    if (!getText()) return clickShowExamples();
+    if (alt) {
+      const R = getRules(getText());
+      if (!R) return;
+      setText({ ...R, _hand: +R._hand === 1 ? "" : 1 });
+      update();
+    } else {
+      const s = document.body.classList.toggle("cursive");
+      document.body.classList.toggle("cursive", s);
+      el.buttoncursive.toggleAttribute("data-checked", s);
+    }
+  }
+  function toggleExport(s = el.buttonexport.getAttribute("data-checked") === null, isInit) {
+    el.buttonexport.toggleAttribute("data-checked", s);
+    document.querySelectorAll(".export").forEach((e) => e.classList.toggle("hidden", !s));
+    isInit || localstorageSave("export");
+  }
+  function toggleMinilog(s = el.buttonminilog.getAttribute("data-checked") === null, isInit) {
+    el.buttonminilog.toggleAttribute("data-checked", s);
+    el.buttonlog.classList.toggle("hidden", !s);
+    isInit || localstorageSave("minilog");
+  }
+  function setupCustomLog() {
+    toggleCustomLog(true, (...args) => {
+      if (el.buttonlog) {
+        el.buttonlog.replaceChildren(
+          args.flatMap((a) => a && "object" == typeof a ? Object.entries(a) : [["", a]]).map(([k, v]) => `${k}${k && " "}${String(v).replace(/-/g, "\u2011").replace(/Infinity/g, "-")}`).join("\n"),
+          document.createElement("br"),
+          ...[...el.buttonlog.childNodes].slice(0, 7),
+          ...strings2.shorthelp.split("\n").map((s) => Object.assign(document.createElement("a"), { textContent: s }))
+        );
+      } else {
+        console.oldLog(...args);
+      }
+    });
+  }
+  function setupDividers() {
+    const state2 = {
+      isResizing: false,
+      startX: 0,
+      startY: 0,
+      startWidth: 0,
+      startHeight: 0
+    };
+    const startResize = (e) => {
+      if (e.target !== el.divider) return;
+      e.preventDefault();
+      state2.isResizing = true;
+      state2.startX = e.clientX;
+      state2.startY = e.clientY;
+      state2.startWidth = el.left.offsetWidth;
+      state2.startHeight = el.left.offsetHeight;
+      document.addEventListener("pointermove", resize, { passive: false });
+      document.addEventListener("pointerup", stopResize, { passive: false });
+      document.addEventListener("pointercancel", stopResize, { passive: false });
+      el.divider.style.transition = "none";
+    };
+    const resize = (e) => {
+      if (!state2.isResizing) return;
+      e.preventDefault();
+      const a = 50;
+      if (isMobile()) {
+        const newHeight = state2.startHeight + e.clientY - state2.startY;
+        const taMinH = parseFloat(getComputedStyle(el.textarea, null).getPropertyValue("min-height"));
+        const bH = el.buttons.offsetHeight;
+        const dH = el.divider.offsetHeight;
+        const clamped = Math.min(Math.max(newHeight, bH + taMinH + dH), window.innerHeight - a);
+        el.left.style.width = "";
+        el.left.style.height = `${clamped}px`;
+      } else {
+        const newWidth = state2.startWidth + e.clientX - state2.startX;
+        const clamped = Math.min(Math.max(newWidth, a), window.innerWidth - a);
+        el.left.style.width = `${clamped}px`;
+        el.left.style.height = "";
+      }
+    };
+    const stopResize = (e) => {
+      if (!state2.isResizing) return;
+      state2.isResizing = false;
+      document.removeEventListener("pointermove", resize);
+      document.removeEventListener("pointerup", stopResize);
+      document.removeEventListener("pointercancel", stopResize);
+      el.divider.style.transition = "";
+    };
+    el.divider.addEventListener("pointerdown", startResize, { passive: false });
+    el.divider.style.touchAction = "none";
+  }
+  function setupMobileKeyboard() {
+    const updateRightSize = () => {
+      if (document.body.classList.contains("keyboard-active") && window.visualViewport) {
+        el.right.style.height = `${window.visualViewport.height}px`;
+      } else {
+        el.right.style.height = "auto";
+      }
+    };
+    el.textarea.addEventListener("focus", () => {
+      document.body.classList.add("keyboard-active");
+      updateRightSize();
+    });
+    el.textarea.addEventListener("blur", () => {
+      document.body.classList.remove("keyboard-active");
+      el.right.style.height = "auto";
+      el.left.style.background = "transparent";
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", () => {
+        if (Math.abs(window.visualViewport.height - state.lastViewportHeight) > 50) {
+          document.body.classList.toggle("keyboard-active", window.visualViewport.height < state.lastViewportHeight);
+          updateRightSize();
+          state.lastViewportHeight = window.visualViewport.height;
+        }
+      });
+    }
+  }
+  function setupEventListeners() {
+    window.addEventListener("hashchange", updateFromLocation);
+    document.addEventListener("keydown", (e) => e.key === "Shift" && document.body.classList.add("shift-pressed"));
+    document.addEventListener("keyup", (e) => e.key === "Shift" && document.body.classList.remove("shift-pressed"));
+    el.textarea.addEventListener("keydown", (e) => e.ctrlKey && e.key === "Enter" && clickSubmit());
+    el.textarea.addEventListener("input", () => update());
+    el.textarea.addEventListener("blur", () => el.textarea.textContent === "" && (el.textarea.textContent = ""));
+    el.buttontxtclose?.addEventListener("click", () => el.textarea.blur());
+    el.textarea.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = e.clipboardData.getData("text/plain");
+      document.execCommand("insertText", false, text);
+      clickSubmit();
+    });
+    el.textarea.addEventListener(
+      "keydown",
+      (e) => e.ctrlKey && e.key === "c" && !window.getSelection().toString().length && (e.preventDefault(), navigator.clipboard.writeText(stringify(getText())), console.log(strings2.copied))
+    );
+    ael(el.buttonsubmit, clickSubmit);
+    ael(el.buttonnpp, altNpp);
+    ael(el.buttoncursive, altCursive);
+    ael(el.buttondot, toggleDot);
+    ael(el.buttontpbg, toggleTpbg);
+    ael(el.buttonnexteg, altNextExample);
+    ael(el.buttondefs, altPutVbOrDefaults);
+    ael(el.buttonalleg, () => clickShowExamples());
+    ael(el.buttonpng, () => clickDownloadPng());
+    ael(el.buttonjs, () => clickOpenStandaloneSvg());
+    ael(el.buttonsvg, () => clickbuttonsvg());
+    ael(el.buttonline, altbuttonline);
+    ael(el.buttonurleditor, () => clickOpenStandaloneSvg(void 0, "#", 1));
+    ael(el.buttonexport, () => toggleExport());
+    ael(el.buttonminilog, () => toggleMinilog());
+    ael(el.buttonhelp, (alt) => alt ? clickReset() : show(el.readme));
+    initMobile(() => el.left.style[isMobile() ? "width" : "height"] = "initial");
+  }
+  function localstorageReset() {
+    ["export", "minilog", "R"].forEach((k) => localStorage.removeItem(state.lspre + k));
+  }
+  function localstorageSave(s, o) {
+    function set(k, v) {
+      (!s || s === k) && localStorage.setItem(state.lspre + k, v);
+    }
+    try {
+      set("R", stringify(o || getText()));
+    } catch (e) {
+      return;
+    }
+    set("export", el.buttonexport.getAttribute("data-checked") === null);
+    set("minilog", el.buttonminilog.getAttribute("data-checked") === null);
+  }
+  async function localstorageLoad() {
+    let res = 0;
+    function get(k, v = localStorage.getItem(state.lspre + k)) {
+      v === null || res++;
+      return v;
+    }
+    toggleExport(get("export") === "false", 1);
+    toggleMinilog(get("minilog") === "false", 1);
+    const r = get("R");
+    updateFromLocation() || r && r !== "" && r !== "{}" && update(r);
+    return res;
+  }
+  function setupHelp() {
+    try {
+      const sc = document.createElement("script");
+      sc.src = "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js";
+      sc.integrity = "sha512-V6rGY7jjOEUc7q5Ews8mMlretz1Vn2wLdMW/qgABLWunzsLfluM0FwHuGjGQ1lc8jO5vGpGIGFE+rTzB+63HdA==";
+      sc.crossOrigin = "anonymous";
+      sc.referrerpolicy = "no-referrer";
+      sc.async = true;
+      let text = null;
+      document.head.append(sc);
+      const fail = () => {
+        clearTimeout(t);
+        const i = document.createElement("object");
+        i.type = "text/plain";
+        i.style.width = i.style.height = "100%";
+        i.data = el.readme.getAttribute("data-src");
+        el.readme.append(i);
+      };
+      const t = setTimeout(fail, 50);
+      sc.addEventListener("error", fail);
+      sc.addEventListener("load", () => {
+        try {
+          if (text) {
+            clearTimeout(t);
+            el.readme.innerHTML = marked.parse(text);
+          }
+        } catch (e) {
+          fail();
+        }
+      });
+      fetch(el.readme.getAttribute("data-src")).then((r) => r.text()).then((txt) => {
+        clearTimeout(t);
+        if (typeof marked !== "undefined") {
+          el.readme.innerHTML = marked.parse(txt);
+        } else {
+          text = txt;
+        }
+      }).catch(fail);
+    } catch (e) {
+    }
+    ;
+  }
+  function setupConsts() {
+    Object.assign(el, Object.fromEntries([...document.querySelectorAll("[id]")].map((e) => [e.id, e])));
+    Object.assign(state, {
+      interrupted: "interrupted-",
+      eg: {
+        i: 0,
+        a: (typeof examples !== "undefined" ? examples : ["S=f+f-fSF+FSF,_n=4"]).map(
+          (s) => getRules(typeof s === "string" ? s : stringify(s))
+        ).filter((s) => s)
+      },
+      divider: { active: null, startX: 0, startY: 0, startWidth: 0, startHeight: 0 },
+      lastViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
+      lspre: "lsystem_"
+    });
+    el.textarea.dataset.placeholder = strings2.placeholder;
+  }
+  async function init() {
+    setupConsts();
+    setupCustomLog();
+    setupHelp();
+    setupDividers();
+    setupMobileKeyboard();
+    setupEventListeners();
+    await localstorageLoad() || show(el.readme);
+    el.textarea.setAttribute("contenteditable", true);
+  }
+  var el = {};
+  var state = {};
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+  <style>/* src/editor.css */
+.cursive object,
+.cursive svg,
+.cursive img,
+.cursive #buttoncursive {
+  filter: url('data:image/svg+xml,    <svg xmlns="http://www.w3.org/2000/svg">        <filter id="waves" x="-20%" y="-20%" width="140%" height="140%"         filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"         color-interpolation-filters="linearRGB">            <feTurbulence type="turbulence" baseFrequency="0.03 0.03" numOctaves="3"             seed="1" stitchTiles="noStitch" result="turbulence" />            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="6"             xChannelSelector="G" yChannelSelector="A" result="displacementMap" />            <feGaussianBlur stdDeviation=".15" />        </filter>    </svg>#waves');
+}
+:root,
+#readme {
+  --max-mobile: 45rem;
+  --o: #000;
+  --oa: #000a;
+  --d: #777;
+  --e: #eee;
+  --f: #fff;
+  --fd: #fffd;
+  --err: #d22;
+  --font:
+    system-ui,
+    Arial,
+    Helvetica,
+    sans-serif;
+  overflow: hidden;
+  height: 100%;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    filter: hue-rotate(180deg) invert();
+  }
+}
+body {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  background-color: var(--f);
+  margin: 0;
+  height: 100%;
+  font-family: var(--font);
+}
+#left {
+  background-color: var(--f);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 24rem;
+  max-width: 90vw;
+  min-width: 3rem;
+  position: relative;
+  z-index: 1;
+  height: auto;
+}
+.tpbg {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      var(--f) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--f) 75%,
+      var(--f)),
+    repeating-linear-gradient(
+      45deg,
+      var(--f) 25%,
+      var(--e) 25%,
+      var(--e) 75%,
+      var(--f) 75%,
+      var(--f));
+  background-position: 0 0, 2rem 2rem;
+  background-size: 4rem 4rem;
+}
+.buttons {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr));
+  gap: .5rem;
+  user-select: none;
+  padding: .5rem;
+}
+.buttons#export {
+  padding-top: 0;
+}
+button {
+  flex: 1;
+  color: var(--o);
+  border-radius: .3125rem;
+  border: none;
+  background-color: var(--e);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+button.dropdown {
+  position: relative;
+}
+button.dropdown::after {
+  content: "V";
+  position: absolute;
+  bottom: 0;
+  transform: scaleX(12);
+  font-size: .3rem;
+}
+button.dropdown[data-checked]::after {
+  transform: rotate(180deg) scaleX(12);
+  bottom: .1rem;
+}
+button:not([disabled]) {
+  cursor: pointer;
+}
+button,
+button > object {
+  height: 2.5rem;
+}
+button > object {
+  pointer-events: none;
+}
+button:hover {
+  filter: brightness(80%) contrast(150%);
+}
+.shift-pressed button.altclick > .a,
+button > .b {
+  opacity: .2;
+}
+.checked1 {
+  display: block;
+  position: absolute;
+  opacity: 0;
+}
+.checked0 {
+  display: block;
+  position: absolute;
+  opacity: 1;
+}
+[data-checked] .checked1 {
+  opacity: 1;
+}
+[data-checked] .checked0 {
+  opacity: 0;
+}
+.shift-pressed button.altclick > .b,
+button > .a {
+  display: block;
+  opacity: 1;
+  position: absolute;
+}
+[data-checked] {
+  color: var(--d);
+}
+hr {
+  border: none;
+  border-top: .2rem solid var(--d);
+  max-width: 9rem;
+  margin: .2rem .5rem 0 .5rem;
+}
+#buttonlog {
+  grid-column: 1 / -1;
+  transition: height .1s ease;
+  overflow: auto;
+  user-select: text;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+#buttonlog:focus {
+  height: 10rem;
+}
+#textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 4rem;
+  max-width: 100%;
+  padding: 0 0.7rem;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  overflow: auto;
+  border: none;
+  word-break: break-all;
+}
+#textarea > p {
+  text-indent: -2.2ch;
+  padding-left: 2.2ch;
+  margin: .4rem 0;
+  letter-spacing: .1ch;
+}
+@-moz-document url-prefix() {
+  #textarea > p::first-letter {
+    font-weight: 900;
+    font-size: 1.2rem;
+  }
+}
+#divider {
+  width: 0;
+  height: 100%;
+  max-width: 0;
+  margin: auto 0;
+  padding: 0.25rem;
+  touch-action: none;
+  user-select: none;
+  z-index: 9;
+  background-color: var(--f);
+}
+#divider:hover {
+  cursor: ew-resize;
+}
+body.mobile-view > #divider {
+  width: 20%;
+  max-width: initial;
+  max-height: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+  background-color: var(--e);
+  border: .3rem solid var(--f);
+}
+body.mobile-view > #divider:hover {
+  cursor: ns-resize;
+}
+#right {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  overflow: auto;
+  padding: 0;
+  z-index: 0;
+}
+#right > * {
+  width: 100%;
+  height: 100%;
+}
+#smallsvgs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(8rem, 15%), 1fr));
+  height: auto;
+}
+#smallsvgs > * {
+  display: flex;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+svg {
+  display: block;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+div[contenteditable=true]:empty:not(:focus):before {
+  display: block;
+  font-family: var(--font);
+  content: attr(data-placeholder);
+  color: var(--oa);
+  word-break: normal;
+}
+.long-tap-progress {
+  background:
+    linear-gradient(
+      180deg,
+      var(--oa) 50%,
+      var(--e) 50%);
+  background-size: 400% 400%;
+  animation: slide .5s linear forwards;
+}
+@keyframes slide {
+  to {
+    background-position: 0 100%;
+  }
+}
+.hidden {
+  display: none !important;
+}
+.error {
+  background: var(--e);
+}
+#buttontxtclose {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: none;
+  z-index: 4;
+}
+body.keyboard-active #buttontxtclose {
+  display: block;
+}
+#readme {
+  overflow: auto;
+}
+#readme p {
+  margin: 0;
+}
+pre,
+code {
+  background-color: var(--e);
+  border-radius: .3125rem;
+}
+@media only screen and (max-width: 45rem) {
+  body {
+    flex-direction: column;
+  }
+  #left {
+    max-width: 100%;
+    width: 100%;
+  }
+  .buttons {
+    padding: .2rem;
+    grid-template-columns: repeat(auto-fill, minmax(3.7rem, 1fr));
+    gap: .2rem;
+  }
+  #textarea {
+    padding: .2rem;
+    min-height: 30%;
+    min-width: 9rem;
+  }
+  body.keyboard-active #textarea {
+    max-height: initial;
+    width: fit-content;
+    height: fit-content;
+  }
+  #right {
+    height: auto;
+    min-height: 30%;
+  }
+  #smallsvgs {
+    grid-template-columns: repeat(auto-fit, minmax(max(4rem, 15%), 1fr));
+  }
+  body.keyboard-active .buttons,
+  body.keyboard-active #buttonlog {
+    display: none;
+  }
+  body.keyboard-active #left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 0 0;
+    z-index: 2;
+  }
+  body.keyboard-active #textarea {
+    background: var(--fd);
+    position: relative;
+    z-index: 3;
+  }
+  body.keyboard-active #right {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+}
+@media only screen and (min-width: 45.001rem) {
+  #buttontxtclose {
+    display: none !important;
+  }
+}
+</style>
+  <script>try { navigator.serviceWorker.register("service-worker.js"); } catch (e) { }</script>
+</head>
+
+<body>
+  <div id="left">
+    <div id="buttons" class="buttons">
+      <button id="buttonhelp" title="Help / Shift: Clears localstorage and reloads without urlparams" class="altclick">
+        <div class="a">&nbsp;<br><b>?</b></div>
+        <div class="b">reset<br>&nbsp;</div>
+      </button>
+      <button id="buttonsubmit" title="Update (Ctrl+Enter)">
+        <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cc=%23000f,_cb=%230000,_z=3">Update</object>
+        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">stop</object>
+      </button>
+      <button id="buttontpbg" title="Highlights transparency">checked bg</button>
+      <button id="buttondot" title="Show endpoints only">
+        <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%23000f,_cb=%230000,_l=8,_z=6">line</object>
+        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_0=0,_cb=%230000,_l=8,_z=6,_k=2">dot</object>
+      </button>
+      <button id="buttonalleg" title="Show all examples">all examples</button>
+      <button id="buttonnexteg" class="altclick" title="Shift: prev. example">
+        <div class="a">&nbsp;<br>next e.g.</div>
+        <div class="b">prev e.g.<br>&nbsp;</div>
+      </button>
+      <button id="buttonnpp" class="altclick" title="Shift: increase. CAREFUL!">
+        <div class="a">&nbsp;<br>n--</div>
+        <div class="b">n++<br>&nbsp;</div>
+      </button>
+      <button id="buttondefs" class="altclick" title="Shift: put defaults; put viewbox Into textarea">
+        <div class="a">&nbsp;<br>viewBox</div>
+        <div class="b">defs<br>&nbsp;</div>
+      </button>
+      <button id="buttoncursive" class="altclick" title="Shift: alternative; experiment, adds turbulence into svg or whole page">
+        <div class="a">&nbsp;<br>_hand</div>
+        <div class="b">shake<br>&nbsp;</div>
+      </button>
+      <button id="buttonreserved1" title="buttonreserved1"></button>
+      <button id="buttonminilog" class="dropdown" data-checked title="Log and shorthelp">log</button>
+      <button id="buttonexport" class="dropdown" title="Show available exports">export</button>
+      <button id="buttonreserved2" class="export hidden altclick" title="buttonreserved2"></button>
+      <button id="buttonjs" class="export hidden" title="Link to small, parametrizable svg">
+        <div class="a">url<br>svg</div>
+        <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object>
+      </button>
+      <button id="buttonurleditor" class="export hidden" title="Link to this editor with url parameters">
+        <div class="a">url<br>editor</div>
+        <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object>
+      </button>
+      <button id="buttonsvg" class="export hidden" title="Download big, generated .svg">
+        <div class="a">SVG<br>&nbsp;</div>
+        <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=[A]!----A,A=-FFFFF---FF++FFFFFF--FF,_a=45,_l=1,_n=2,_z=1.4,_cb=%230000,_cc=%23000f">svg</object>
+      </button>
+      <button id="buttonpng" class="export hidden" title="Download PNG">
+        <div class="a">png<br>&nbsp;</div>
+        <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=[A]!----A,A=-FFFFF---FF++FFFFFF--FF,_a=45,_l=1,_n=2,_z=1.4,_cb=%230000,_cc=%23000f">svg</object>
+      </button>
+      <button id="buttonline" class="export hidden altclick" title="To clipboard - Shif: json - For multiline: ctrl+c without selection">
+        <div class="a">&nbsp;<br>copy</div>
+        <div class="b">json<br>&nbsp;</div>
+      </button>
+      <button tabindex="0" id="buttonlog" class="hidden" title="expand"></button>
+    </div>
+    <div id="textarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+    <button id="buttontxtclose" class="close" title="Close keyboard" tabindex="-1">&times;</button>
+  </div>
+  <button id="divider" tabindex="-1" title="moveable divider"></button>
+  <div id="right">
+    <div id="message" class="hidden"></div>
+    <div id="smallsvgs" class="hidden"></div>
+    <div id="bigsvg" class="hidden"></div>
+    <div id="readme" class="hidden" data-src="README.md"></div>
+  </div>
+</body>
+
+</html>

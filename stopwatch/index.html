@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+    <meta name="description" content="Stopwatch">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Stopwatch">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#111">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <!-- link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" -->
+    <!-- link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF" -->
+    <title>Stopwatch</title>
+
+    <style>
+        html,
+        body,
+        body>div {
+            height: 100%;
+        }
+
+        body>div,
+        span {
+            background-color: #fff;
+        }
+
+        body>div>div:first-child {
+            font-size: 1.6rem;
+            height: 1.6rem;
+        }
+
+        body>div>div:first-child body>div:empty:after {
+            content: 'tap on white or press any key';
+            color: #aaa;
+        }
+
+        body {
+            margin: 0;
+            user-select: none;
+            overflow: hidden;
+            font-family: monospace;
+            font-size: 1.2rem;
+            background-color: #e7f0e7;
+        }
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: .4rem;
+            margin: .4rem;
+            width: 4rem;
+            height: 4rem;
+            font-size: 2.5rem;
+        }
+
+        .invert {
+            filter: invert();
+        }
+
+        body>span:nth-child(1):after {
+            content: '↺';
+        }
+
+        body>span:nth-child(2):after {
+            content: '📋';
+        }
+
+        body>span:nth-child(3):after {
+            content: '👇';
+        }
+
+        body>span:nth-child(3).invert:after {
+            content: '🖐️';
+        }
+
+        body>span:nth-child(4):after {
+            content: '📊';
+        }
+
+        body>span:nth-child(5):after {
+            content: '⏸';
+        }
+
+        body>span:nth-child(5).invert:after {
+            content: '▶';
+        }
+
+        .flash {
+            background-color: #285;
+            transition: background-color .2s ease;
+        }
+    </style>
+    <script>
+        function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, '/'); }
+        function setBase() {
+            const base = document.createElement('base');
+            base.href = getBase();
+            document.head.insertBefore(base, document.head.firstChild);
+            chSw = new BroadcastChannel('chSw');
+            chSw.onmessage = (a) => { addRow('[chSw', ...a.data, ']'); };
+        }
+        function pad(s, n = 2) { return String(s).padStart(n, '0'); }
+        function handleCopy(event) {
+            window.navigator.clipboard.writeText(domLaps.innerText)
+                .then(() => flash(event.target, 1400))
+                .catch(() => { });
+        }
+        function addRow(...s) {
+            domLaps || alert('no domLaps');
+            domLapRow = domLapRow || window.document.createElement('div');
+            if (s) domLapRow.textContent = s.join(' ');
+            domLaps.prepend(domLapRow = window.document.createElement('div'));
+        }
+        function update() {
+            const t = last;
+            if (!(t > 0)) return;
+            let lapTime = Date.now() - t;
+            domLapRow.textContent = fmtTime(sum1 + lapTime) + ' ' + fmtTime(lapTime);
+            timerA = requestAnimationFrame(update);
+        }
+        function fmtTime(ms) {
+            let msPart = Math.floor(ms % 1e3),
+                sec = Math.floor(ms / 1e3 % 60),
+                min = Math.floor(ms / 6e4 % 60);
+            return (pad(Math.floor(ms / 36e5))
+                + ':' + pad(min)
+                + ':' + pad(sec)
+                + '.' + pad(msPart, 3)).replace(/^[0:]+([0-9])/, '$1');
+        }
+        function fmtDate(d) {
+            return d.getFullYear() +
+                '-' + pad(d.getMonth() + 1) +
+                '-' + pad(d.getDate()) +
+                ' ' + pad(d.getHours()) +
+                ':' + pad(d.getMinutes()) +
+                ':' + pad(d.getSeconds()) +
+                '.' + pad(d.getMilliseconds());
+        }
+        function printLap(lapTime, src, avg = sum1 / laps) {
+            addRow(
+                String(laps),
+                fmtTime(sum1),
+                fmtTime(lapTime),
+                ...(domStat.classList.contains('invert') ? [
+                    fmtTime(avg),
+                    fmtTime(laps ? Math.sqrt(sum2 / laps - avg * avg) : 0)] : []),
+                src.replace(/^pointerdown/, 'm')
+            );
+        }
+        function resetStopwatch() {
+            last = sum2 = sum1 = laps = 0;
+            at = []; as = [];
+            domLaps.replaceChildren();
+            domPause.classList.add('invert');
+        }
+        function doLap(event) {
+            const now = Date.now();
+            let paused = !(last > 0);
+            let oldpaused = paused;
+            let req;
+            if (!paused && event.target === domPause) {
+                domPause.classList.add('invert');
+                cancelAnimationFrame(timerA);
+                paused = true;
+            } else if (paused) {
+                domPause.classList.remove('invert');
+                req = timerA = requestAnimationFrame(update);
+                paused = false;
+            }
+            let src;
+            if (event.type === 'touchstart') {
+                src = '👇' + event.touches.length;
+            } else if (event.target === domPause) {
+                src = '⏸';
+            } else {
+                src = event.code || (event.type + event.button);
+            }
+            as.push(src);
+            at.push(now);
+            if (laps) {
+                if (!oldpaused) {
+                    let lapTime = now - last;
+                    sum1 += lapTime;
+                    sum2 += lapTime * lapTime;
+                    printLap(lapTime, src);
+                }
+            } else {
+                addRow();
+                addRow('# clock laptime avg stddev key');
+                addRow(0, fmtDate(new Date(now)), src.replace(/^pointerdown/, 'm'));
+                req || (timerA = requestAnimationFrame(update));
+            }
+            if (!oldpaused || !laps) laps++;
+            last = paused ? -now : now;
+            flash(window.document.body, 80);
+        }
+        function flash(el, t) {
+            el.classList.add('flash');
+            clearTimeout(el.getAttribute('data-flash-timer'));
+            el.setAttribute('data-flash-timer', setTimeout(() => el.classList.remove('flash'), t));
+        }
+        function ce(fn) { const e = window.document.createElement('span'); e.onclick = fn; window.document.body.prepend(e); return e; }
+        function save() { localStorage.setItem('state', JSON.stringify({ now, last, laps, sum1, sum2, as, at, ver, content: domLaps.innerHTML })); }
+        function load() { ({ now=0, last=0, laps=0, sum1=0, sum2=0, as=[], at=[], ver, content: domLaps.innerHTML = '' } = JSON.parse(localStorage.getItem('state') || '{}')); }
+        function init() {
+            domLaps = window.document.createElement('div');
+            window.document.body.prepend(domLaps);
+            domPause = ce(doLap);
+            domStat = ce((e) => (e.target.classList.toggle('invert')));
+            domMulti = ce((e) => { window.document[(e.target.classList.toggle('invert') ? 'add' : 'remove') + 'EventListener']('touchstart', doLap, { passive: true }); });
+            domCopy = ce(handleCopy);
+            domReset = ce(resetStopwatch);
+            //domLaps.addEventListener('touchstart', doLap, { passive: true });
+            domLaps.addEventListener('pointerdown', doLap);
+            window.document.body.addEventListener('keydown', doLap);
+            load();
+            domLapRow = domLaps.firstChild;
+            if (last > 0) {
+                timerA = requestAnimationFrame(update);
+                domPause.classList.remove('invert');
+            }
+            //addRow('ver', (ver || '?'));
+            swMess(updateBefore, updateAfter);
+        }
+
+        function updateBefore(newWorker) { };
+        function updateAfter(newVer) { ver !== newVer && addRow('ver new', ver = newVer); }
+        function swMess(updateBefore, updateAfter) {
+            if (!('serviceWorker' in window.navigator)) return;
+            window.navigator.serviceWorker.register(getBase() + 'sw.js').then((reg) => {
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () =>
+                        newWorker.state === 'installed' &&
+                        window.navigator.serviceWorker.controller &&
+                        updateBefore(newWorker)
+                    );
+                });
+            }).catch(e => domLaps.textContent = e);
+            window.navigator.serviceWorker.addEventListener('controllerchange', (refreshing => () => refreshing || (refreshing = !window.location.reload()))());
+            const uuid = crypto.randomUUID();
+            const chClient = new BroadcastChannel('chClient');
+            chClient.postMessage({ q: 'ver', respondAt: uuid });
+            const chClientResp = new BroadcastChannel(uuid);
+            chClientResp.onmessage = ({ data }) => {
+                updateAfter(data.ver);
+                chClientResp.close();
+                chClient.close();
+            };
+        }
+
+        function setApp() {
+            window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+            window.addEventListener('beforeunload', save);
+            window.document.addEventListener('DOMContentLoaded', init);
+            window.document.addEventListener('visibilitychange', (e) => window.document.visibilityState === 'hidden' && save());
+        }
+        // transient
+        let timerA, domPause, domStat, domCopy, dom, domLaps, domLapRow, chSw;
+        // persisted
+        let now, last, laps, sum1, sum2, at, as, ver; // domLaps.innerHTML
+        setBase();
+        setApp();
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
