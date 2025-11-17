@@ -105,8 +105,9 @@ export const examples = [
   "=Vlinders(q3)is*sqrt(3)),S=F-[/-F]F-[/-F]F-[/-F]F-[/-F]F-[/-F]F--/F^(q3)/f*-S,_a=60,_l=160,_m=2,_n=7",
   "=plant04,S=F,F=FF-[-F+F+F]+[+F-F-F],_a=22.5,_n=4",
   "S=f+f-fSF+FSF,_n=4",
+  "=hex,S=F,F=-F+F+A[+F+F]-,A=AA,_a=60,_n=5",
   "=strq,S=FS+Sf+fS++SSFf,_n=4",
-  "S=[F+fff+[f,f=F,F=S!Sf+],_n=8,_z=9,_l=3"
+  "=abc,S=[F+fff+[f,f=F,F=S!Sf+],_n=8,_z=9,_l=3",
   //'=Lace,S=F++F++F++F,F=F+++F---F+F---F++F--F++F,_a=45,_n=3',
   //'=man,S=F++F++F++F,F=-F-FF+++F+FF-F,_a=45,_n=5',
   //'=SnowflakeColor!,S=F,1=1,X=--!F1!F1++F1++F1*|-F1!F1++,F=F1++F1!---/F1*|-F1!F1/|-F1!F1,_a=30,_m=1.732,_n=3',

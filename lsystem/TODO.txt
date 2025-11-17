@@ -1,8 +1,8 @@
-- Force mobile
-? Mobile back button: ?undo?example->all
-- Mobile opened in keyboard mode w/o actual keyboard
-- R=_hand=1 ch/fx
+- Force mobile/desktop
+? Mobile back button
++ Mobile pinchzoom, dragmouse ? pointer vs touch
 + Turbulence in svg? (no use if segments have same turb at path joints)
+  R=S=+F,_a=11,_hand=1 ; ch:turbulenced outside ov vb ; fx:better
 - If only dots and gaussianblured: draw once each (aka. path from grid)
 + Replace longtap ? button: [<|>]
 ? Performance: SegmentSet
@@ -14,8 +14,6 @@
 + Colored fill
 ? Webkit blur bug/feGaussianBlur?
 + 3D, HigherDImensionalProjections (IFS?)
-+ Pinchzoom, dragmouse ? pointer vs touch
 + Canvas
 + ?webgl ? copy UI from typical threejs
 - Dropdown arrow: make proper lines
-- Where readme

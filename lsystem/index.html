@@ -152,9 +152,9 @@ _hand turbulenceTBD, 1`,
       ) : "",
       R._hand ? C(
         "filter",
-        { id: id[1], x: "-20%", y: "-20%", width: "140%", height: "140%", filterUnits: "objectBoundingBox", primitiveUnits: "userSpaceOnUse", "color-interpolation-filters": "linearRGB" },
-        C("feGaussianBlur", { stdDeviation: "0.15" }),
-        C("feDisplacementMap", { in: "SourceGraphic", in2: "turbulence", scale: "6", xChannelSelector: "G", yChannelSelector: "A", result: "displacementMap" }),
+        { id: id[1], x: "-50%", y: "-50%", width: "200%", height: "200%", filterUnits: "objectBoundingBox", primitiveUnits: "userSpaceOnUse", "color-interpolation-filters": "linearRGB" },
+        C("feGaussianBlur", { stdDeviation: "0.05" }),
+        C("feDisplacementMap", { in: "SourceGraphic", in2: "turbulence", scale: "1", xChannelSelector: "G", yChannelSelector: "A", result: "displacementMap" }),
         C("feTurbulence", { type: "turbulence", baseFrequency: "0.03 0.03", numOctaves: "3", seed: "1", stitchTiles: "noStitch", result: "turbulence" })
       ) : "",
       C("path", {
@@ -278,8 +278,9 @@ _hand turbulenceTBD, 1`,
     "=Vlinders(q3)is*sqrt(3)),S=F-[/-F]F-[/-F]F-[/-F]F-[/-F]F-[/-F]F--/F^(q3)/f*-S,_a=60,_l=160,_m=2,_n=7",
     "=plant04,S=F,F=FF-[-F+F+F]+[+F-F-F],_a=22.5,_n=4",
     "S=f+f-fSF+FSF,_n=4",
+    "=hex,S=F,F=-F+F+A[+F+F]-,A=AA,_a=60,_n=5",
     "=strq,S=FS+Sf+fS++SSFf,_n=4",
-    "S=[F+fff+[f,f=F,F=S!Sf+],_n=8,_z=9,_l=3"
+    "=abc,S=[F+fff+[f,f=F,F=S!Sf+],_n=8,_z=9,_l=3"
     //'=Lace,S=F++F++F++F,F=F+++F---F+F---F++F--F++F,_a=45,_n=3',
     //'=man,S=F++F++F++F,F=-F-FF+++F+FF-F,_a=45,_n=5',
     //'=SnowflakeColor!,S=F,1=1,X=--!F1!F1++F1++F1*|-F1!F1++,F=F1++F1!---/F1*|-F1!F1/|-F1!F1,_a=30,_m=1.732,_n=3',
@@ -530,7 +531,7 @@ _hand turbulenceTBD, 1`,
   function setText(rR) {
     el.textarea.innerHTML = stringify(rR, 1);
   }
-  function altNpp(alt, R = getRules(getText())) {
+  function altNIncDec(alt, R = getRules(getText())) {
     update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) })));
   }
   function getSvg() {
@@ -897,7 +898,7 @@ _hand turbulenceTBD, 1`,
       (e) => e.ctrlKey && e.key === "c" && !window.getSelection().toString().length && (e.preventDefault(), navigator.clipboard.writeText(stringify(getText())), console.log(strings2.copied))
     );
     ael(el.buttonsubmit, clickSubmit);
-    ael(el.buttonnpp, altNpp);
+    ael(el.buttonnpp, altNIncDec);
     ael(el.buttoncursive, altCursive);
     ael(el.buttondot, toggleDot);
     ael(el.buttontpbg, toggleTpbg);
@@ -911,8 +912,13 @@ _hand turbulenceTBD, 1`,
     ael(el.buttonurleditor, () => clickOpenStandaloneSvg(void 0, "#", 1));
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
+    ael(el.buttonangleinc, altAngleIncDec);
     ael(el.buttonhelp, (alt) => alt ? clickReset() : show(el.readme));
     initMobile(() => el.left.style[isMobile() ? "width" : "height"] = "initial");
+  }
+  function altAngleIncDec(alt) {
+    const R = getRules(getText());
+    update(setText(Object.assign(R, { _a: Math.max(0, (alt ? -1 : 1) + +(R._a ?? 0)) })));
   }
   function localstorageReset() {
     ["export", "minilog", "R"].forEach((k) => localStorage.removeItem(state.lspre + k));
@@ -1019,7 +1025,7 @@ _hand turbulenceTBD, 1`,
 .cursive svg,
 .cursive img,
 .cursive #buttoncursive {
-  filter: url('data:image/svg+xml,    <svg xmlns="http://www.w3.org/2000/svg">        <filter id="waves" x="-20%" y="-20%" width="140%" height="140%"         filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"         color-interpolation-filters="linearRGB">            <feTurbulence type="turbulence" baseFrequency="0.03 0.03" numOctaves="3"             seed="1" stitchTiles="noStitch" result="turbulence" />            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="6"             xChannelSelector="G" yChannelSelector="A" result="displacementMap" />            <feGaussianBlur stdDeviation=".15" />        </filter>    </svg>#waves');
+  filter: url('data:image/svg+xml,    <svg xmlns="http://www.w3.org/2000/svg">        <filter id="waves" x="-50%" y="-50%" width="200%" height="200%"         filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"         color-interpolation-filters="linearRGB">            <feTurbulence type="turbulence" baseFrequency="0.03 0.03" numOctaves="3"             seed="1" stitchTiles="noStitch" result="turbulence" />            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="6"             xChannelSelector="G" yChannelSelector="A" result="displacementMap" />            <feGaussianBlur stdDeviation=".15" />        </filter>    </svg>#waves');
 }
 :root,
 #readme {
@@ -1406,6 +1412,10 @@ code {
         <div class="a">&nbsp;<br>n--</div>
         <div class="b">n++<br>&nbsp;</div>
       </button>
+      <button id="buttonangleinc" class="altclick" title="Angle inc/dec">
+        <div class="a">&nbsp;<br>a++</div>
+        <div class="b">a--<br>&nbsp;</div>
+      </button>
       <button id="buttondefs" class="altclick" title="Shift: put defaults; put viewbox Into textarea">
         <div class="a">&nbsp;<br>viewBox</div>
         <div class="b">defs<br>&nbsp;</div>
@@ -1414,7 +1424,6 @@ code {
         <div class="a">&nbsp;<br>_hand</div>
         <div class="b">shake<br>&nbsp;</div>
       </button>
-      <button id="buttonreserved1" title="buttonreserved1"></button>
       <button id="buttonminilog" class="dropdown" data-checked title="Log and shorthelp">log</button>
       <button id="buttonexport" class="dropdown" title="Show available exports">export</button>
       <button id="buttonreserved2" class="export hidden altclick" title="buttonreserved2"></button>

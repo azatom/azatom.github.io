@@ -10,7 +10,7 @@ function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.href = location.origin + location.pathname; }
 function clickSubmit() { state.abortController ? state.abortController.abort() : update(getRules(getText())); }
 function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
-function altNpp(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
+function altNIncDec(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
 function getSvg() { return el.bigsvg.children[0]; }
 function getDot() { return el.buttondot.hasAttribute('data-checked'); }
 function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
@@ -59,7 +59,7 @@ async function update(rules) {
     el.buttonsubmit.toggleAttribute('data-checked', 0);
     const title = svg.querySelector('title')?.textContent;
     if (!svg) return;
-    if (!title?.startsWith(state.interrupted)&&rules!=='') localstorageSave('R', rules);
+    if (!title?.startsWith(state.interrupted) && rules !== '') localstorageSave('R', rules);
     else console.log(title);
     try {
       const stat = JSON.parse(svg.querySelector('desc').textContent).stat;
@@ -385,7 +385,7 @@ function setupEventListeners() {
     )
   );
   ael(el.buttonsubmit, clickSubmit);
-  ael(el.buttonnpp, altNpp);
+  ael(el.buttonnpp, altNIncDec);
   ael(el.buttoncursive, altCursive);
   ael(el.buttondot, toggleDot);
   ael(el.buttontpbg, toggleTpbg);
@@ -399,8 +399,13 @@ function setupEventListeners() {
   ael(el.buttonurleditor, () => clickOpenStandaloneSvg(undefined, '#', 1));
   ael(el.buttonexport, () => toggleExport());
   ael(el.buttonminilog, () => toggleMinilog());
+  ael(el.buttonangleinc, altAngleIncDec);
   ael(el.buttonhelp, alt => alt ? clickReset() : show(el.readme));
   initMobile(() => el.left.style[isMobile() ? 'width' : 'height'] = 'initial');
+}
+function altAngleIncDec(alt) {
+  const R = getRules(getText());
+  update(setText(Object.assign(R, { _a: Math.max(0, (alt ? -1 : 1) + +(R._a ?? 0)) })));
 }
 
 function localstorageReset() { ['export', 'minilog', 'R'].forEach(k => localStorage.removeItem(state.lspre + k)); }

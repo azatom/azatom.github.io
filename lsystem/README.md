@@ -1,7 +1,5 @@
-## L-System Fractals
-### Logo Turtle with Context-Free Grammar - Lindenmayer System Fractals
-
-- Just click **`all examples`** / **`next e.g.`** buttons.
+## LSystem.svg - Logo Turtle with Context-Free Grammar - Lindenmayer System Fractals
+### Just click **`all examples`** / **`next e.g.`** buttons.
 - Standalone editor html/PWA: [editor](https://azatom.github.io/lsystem)
 - Standalone SVG file, with example parameters: [lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3](https://azatom.github.io/lsystem/lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 - If textarea behaves oddly (after pasting), use the `Update` / Triangle / `Ctrl+Enter` for re-format
