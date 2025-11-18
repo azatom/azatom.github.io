@@ -1,3 +1,5 @@
+- start/stop correct debounce
++ animeate on angle (_a _l _m?) increase
 - Force mobile/desktop
 ? Mobile back button
 + Mobile pinchzoom, dragmouse ? pointer vs touch
@@ -11,10 +13,12 @@
 - Make R mutable: addDefaults get from lsystemSvg
 + Add IFS guessing: show first iter rectangles?
 + Add iteration overlay or multi svg?
-+ Colored fill
 ? Webkit blur bug/feGaussianBlur?
 + 3D, HigherDImensionalProjections (IFS?)
 + Canvas
 + ?webgl ? copy UI from typical threejs
 - Dropdown arrow: make proper lines
 - divider shall move if click on dropdown button
++ colored fill <> ()
++ multiple/arbitrary angle <> ()
++ ... length <> ()

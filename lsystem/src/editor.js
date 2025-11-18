@@ -10,7 +10,6 @@ function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.href = location.origin + location.pathname; }
 function clickSubmit() { state.abortController ? state.abortController.abort() : update(undefined, 1); }
 function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
-function altNIncDec(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
 function getSvg() { return el.bigsvg.children[0]; }
 function getDot() { return el.buttondot.hasAttribute('data-checked'); }
 function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
@@ -115,18 +114,32 @@ function clickbuttonsvg() {
   downloadSvg(svg);
 }
 
+function altNIncDec(alt, R = getRules(getText())) {
+  update(setText(Object.assign(R, { _n: Math.max(0, (alt ? -1 : +1) + +(R._n ?? 0)) })));
+}
+
+function altAngleIncDec(alt) {
+  const R = getRules(getText());
+  let a = +(R._a ?? 0);
+  let inc = [1, -1, .1, -.1][alt];
+  update(setText(Object.assign(R, { _a: Math.max(0, inc + a) })));
+}
+
 function ael(elOrQS, listener) {
   const el = typeof elOrQS === 'string' ? document.querySelector(elOrQS) : elOrQS;
   const typ = el.classList.contains('altclick') ? 'altclick' : 'click';
   if (typ === 'altclick') {
-    const alternative = (e, i) => listener(i || e.shiftKey || e.type === 'pointerdown');
-    el.addEventListener('click', alternative, { passive: true });
+    const MOVE_THRESHOLD = 10;
     let isLongTap = false;
-    const suppressPostLongClick = e => { if (isLongTap) { isLongTap = false; e.stopPropagation(); e.preventDefault(); } };
-    el.addEventListener('click', suppressPostLongClick, { capture: true, passive: false });
     let longTapTimer = null;
     let startX = 0, startY = 0;
-    const MOVE_THRESHOLD = 10;
+    const alternative = (e, i) => {
+      const isKeyboardClick = e.type === 'keydown' && (e.key === 'Enter' || e.key === ' ');
+      if (!i && !isKeyboardClick && e.type !== 'click') return;
+      if (isKeyboardClick) e.preventDefault();
+      listener((e.ctrlKey * 2 + (i || e.shiftKey)));
+    };
+    const suppressPostLongClick = e => { if (isLongTap) { isLongTap = false; e.stopPropagation(); e.preventDefault(); } };
     const startLongTap = e => {
       if (e.button && e.button !== 0) return;
       isLongTap = false;
@@ -136,7 +149,7 @@ function ael(elOrQS, listener) {
       startX = t.pageX; startY = t.pageY;
       longTapTimer = setTimeout(() => {
         isLongTap = true;
-        alternative(e, -1);
+        alternative(e, 1);
         el.classList.remove('long-tap-progress');
       }, 200);
     };
@@ -150,6 +163,9 @@ function ael(elOrQS, listener) {
       const dx = t.pageX - startX, dy = t.pageY - startY;
       if (Math.hypot(dx, dy) > MOVE_THRESHOLD) cancelLongTap();
     };
+    el.addEventListener('click', suppressPostLongClick, { capture: true, passive: false });
+    el.addEventListener('click', alternative, { passive: true });
+    el.addEventListener('keydown', alternative, { passive: false });
     el.addEventListener('pointerdown', startLongTap, { passive: false });
     el.addEventListener('pointerup', cancelLongTap, { passive: true });
     el.addEventListener('pointermove', handlePointerMove, { passive: true });
@@ -368,7 +384,7 @@ function setupEventListeners() {
   el.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && clickSubmit());
   el.textarea.addEventListener('input', () => update());
   el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
-  el.buttontxtclose?.addEventListener('click', () => (el.textarea.focus(),el.textarea.blur()));
+  el.buttontxtclose?.addEventListener('click', () => (el.textarea.focus(), el.textarea.blur()));
   el.textarea.addEventListener('paste', e => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
@@ -401,10 +417,6 @@ function setupEventListeners() {
   ael(el.buttonangleinc, altAngleIncDec);
   ael(el.buttonhelp, alt => alt ? clickReset() : show(el.readme));
   initMobile(() => el.left.style[isMobile() ? 'width' : 'height'] = 'initial');
-}
-function altAngleIncDec(alt) {
-  const R = getRules(getText());
-  update(setText(Object.assign(R, { _a: Math.max(0, (alt ? -1 : 1) + +(R._a ?? 0)) })));
 }
 
 function localstorageReset() { ['export', 'minilog', 'R'].forEach(k => localStorage.removeItem(state.lspre + k)); }
@@ -486,6 +498,7 @@ function setupConsts() {
 }
 
 async function init() {
+  document.title += ' ' + (location.host === '' ? location.origin : location.host);
   setupConsts();
   // datasvg = ...; [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
   setupCustomLog();

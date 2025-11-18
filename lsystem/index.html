@@ -528,9 +528,6 @@ _hand turbulenceTBD, 1`,
   function setText(rR) {
     el.textarea.innerHTML = stringify(rR, 1);
   }
-  function altNIncDec(alt, R = getRules(getText())) {
-    update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) })));
-  }
   function getSvg() {
     return el.bigsvg.children[0];
   }
@@ -637,13 +634,29 @@ _hand turbulenceTBD, 1`,
     if (!svg) return message(strings2.nothingToExport);
     downloadSvg(svg);
   }
+  function altNIncDec(alt, R = getRules(getText())) {
+    update(setText(Object.assign(R, { _n: Math.max(0, (alt ? -1 : 1) + +(R._n ?? 0)) })));
+  }
+  function altAngleIncDec(alt) {
+    const R = getRules(getText());
+    let a = +(R._a ?? 0);
+    let inc = [1, -1, 0.1, -0.1][alt];
+    update(setText(Object.assign(R, { _a: Math.max(0, inc + a) })));
+  }
   function ael(elOrQS, listener) {
     const el2 = typeof elOrQS === "string" ? document.querySelector(elOrQS) : elOrQS;
     const typ = el2.classList.contains("altclick") ? "altclick" : "click";
     if (typ === "altclick") {
-      const alternative = (e, i) => listener(i || e.shiftKey || e.type === "pointerdown");
-      el2.addEventListener("click", alternative, { passive: true });
+      const MOVE_THRESHOLD = 10;
       let isLongTap = false;
+      let longTapTimer = null;
+      let startX = 0, startY = 0;
+      const alternative = (e, i) => {
+        const isKeyboardClick = e.type === "keydown" && (e.key === "Enter" || e.key === " ");
+        if (!i && !isKeyboardClick && e.type !== "click") return;
+        if (isKeyboardClick) e.preventDefault();
+        listener(e.ctrlKey * 2 + (i || e.shiftKey));
+      };
       const suppressPostLongClick = (e) => {
         if (isLongTap) {
           isLongTap = false;
@@ -651,10 +664,6 @@ _hand turbulenceTBD, 1`,
           e.preventDefault();
         }
       };
-      el2.addEventListener("click", suppressPostLongClick, { capture: true, passive: false });
-      let longTapTimer = null;
-      let startX = 0, startY = 0;
-      const MOVE_THRESHOLD = 10;
       const startLongTap = (e) => {
         if (e.button && e.button !== 0) return;
         isLongTap = false;
@@ -669,7 +678,7 @@ _hand turbulenceTBD, 1`,
         startY = t.pageY;
         longTapTimer = setTimeout(() => {
           isLongTap = true;
-          alternative(e, -1);
+          alternative(e, 1);
           el2.classList.remove("long-tap-progress");
         }, 200);
       };
@@ -686,6 +695,9 @@ _hand turbulenceTBD, 1`,
         const dx = t.pageX - startX, dy = t.pageY - startY;
         if (Math.hypot(dx, dy) > MOVE_THRESHOLD) cancelLongTap();
       };
+      el2.addEventListener("click", suppressPostLongClick, { capture: true, passive: false });
+      el2.addEventListener("click", alternative, { passive: true });
+      el2.addEventListener("keydown", alternative, { passive: false });
       el2.addEventListener("pointerdown", startLongTap, { passive: false });
       el2.addEventListener("pointerup", cancelLongTap, { passive: true });
       el2.addEventListener("pointermove", handlePointerMove, { passive: true });
@@ -912,10 +924,6 @@ _hand turbulenceTBD, 1`,
     ael(el.buttonhelp, (alt) => alt ? clickReset() : show(el.readme));
     initMobile(() => el.left.style[isMobile() ? "width" : "height"] = "initial");
   }
-  function altAngleIncDec(alt) {
-    const R = getRules(getText());
-    update(setText(Object.assign(R, { _a: Math.max(0, (alt ? -1 : 1) + +(R._a ?? 0)) })));
-  }
   function localstorageReset() {
     ["export", "minilog", "R"].forEach((k) => localStorage.removeItem(state.lspre + k));
   }
@@ -1002,6 +1010,7 @@ _hand turbulenceTBD, 1`,
     el.textarea.dataset.placeholder = strings2.placeholder;
   }
   async function init() {
+    document.title += " " + (location.host === "" ? location.origin : location.host);
     setupConsts();
     setupCustomLog();
     setupHelp();
@@ -1407,9 +1416,9 @@ code {
         <div class="a">&nbsp;<br>next e.g.</div>
         <div class="b">prev e.g.<br>&nbsp;</div>
       </button>
-      <button id="buttonnpp" class="altclick" title="Shift: increase. CAREFUL!">
-        <div class="a">&nbsp;<br>n--</div>
-        <div class="b">n++<br>&nbsp;</div>
+      <button id="buttonnpp" class="altclick" title="Shift: decrease CAREFUL!">
+        <div class="a">&nbsp;<br>n++</div>
+        <div class="b">n--<br>&nbsp;</div>
       </button>
       <button id="buttonangleinc" class="altclick" title="Angle inc/dec">
         <div class="a">&nbsp;<br>a++</div>
