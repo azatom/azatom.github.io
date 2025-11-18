@@ -2,9 +2,11 @@
 ### Just click **`all examples`** / **`next e.g.`** buttons.
 - Standalone editor html/PWA with params: [editor#...](.#=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_z=1.5)
 - Standalone SVG file, with params: [lsystem.svg?...](lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
-- If textarea behaves oddly (after pasting), use the `Update` / Triangle / `Ctrl+Enter` for re-format
-- Buttons with alternative feautres: press `shift` key or long click
-- Save: `export` `url editor` than bookmark it
+- Re-formatting rules (e.g. after pasting): `Update` (Triangle) or `Ctrl+Enter`
+- Buttons with alternative feautres: press `shift` key or 'long click'
+- Manual save: `export` / `url editor` than bookmark it
+- Auto save: last valid rules aka. the textarea is saved in localstorage
+- Practical usage:) look for button images in source
 
 ### How It Works:
 - Start with a sentence 'S'

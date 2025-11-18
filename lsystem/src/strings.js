@@ -1,10 +1,7 @@
 export const strings = {
   lsystemsvg: "lsystem.svg",
   placeholder: `Type here: S=S+F,_n=3 or click 'next'.
-Practical usage: see button images in source.
-MiniHelp: in the 'log'.
 Reformat, tidy text: Ctrl+Enter or Triangle.
-Autosave: localstorage.
 Shift/LongTap reverses '++', 'next', or alters fun.`,
   shorthelp: `_n Number of iterations, 0+
 _m Line length multiplier, +

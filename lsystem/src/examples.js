@@ -12,7 +12,7 @@ export const examples = [
   "=KiteDart3,S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],_a=36,_k=4,_l=199,_m=1.6180339887498948,_n=5,_z=9,_hand=1",
   "=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5",
   /*{
-      '': 'AperiodicMirrorMonoTile-Hat',
+      '': 'AperiodicMirroredMonoTile-Hat',
       S: 'U+V+W+V+R',
       R: 'V+R+U+V+W+V+R-W',
       U: 'V+R+U+V+W+V+R-U+V+W+V+R+U-V',
@@ -28,7 +28,7 @@ export const examples = [
       _n: 3
   },*/
   {
-    "": "AperiodicMirrorMonoTile-Spectre",
+    "": "AperiodicMirroredMonoTile-Spectre",
     S: "U+V+W+V+R",
     R: "V+R+U+V+W+V+R-W",
     U: "V+R+U+V+W+V+R-U+V+W+V+R+U-V",
@@ -105,7 +105,7 @@ export const examples = [
   "=Vlinders(q3)is*sqrt(3)),S=F-[/-F]F-[/-F]F-[/-F]F-[/-F]F-[/-F]F--/F^(q3)/f*-S,_a=60,_l=160,_m=2,_n=7",
   "=plant04,S=F,F=FF-[-F+F+F]+[+F-F-F],_a=22.5,_n=4",
   "S=f+f-fSF+FSF,_n=4",
-  "=hex,S=F,F=-F+F+A[+F+F]-,A=AA,_a=60,_n=5",
+  "=hex,S=F,F=-F+F+[+F+F]-,_a=60,_n=5",
   "=strq,S=FS+Sf+fS++SSFf,_n=4",
   "=abc,S=[F+fff+[f,f=F,F=S!Sf+],_n=8,_z=9,_l=3",
   //'=Lace,S=F++F++F++F,F=F+++F---F+F---F++F--F++F,_a=45,_n=3',
