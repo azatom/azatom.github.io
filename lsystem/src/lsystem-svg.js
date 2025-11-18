@@ -74,7 +74,7 @@ export async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
   }; ar[0] = R.S; while (i = next(R._n))
     /**/ {
     ++cnt;
-    if (pleaseStop && cnt % 1e5 === 0 && (ir = await pleaseStop(cnt))) break;
+    if (pleaseStop && cnt % 1e4 === 0 && (ir = await pleaseStop(cnt))) break;
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
       '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 0 + 2) % 4 :
         '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :

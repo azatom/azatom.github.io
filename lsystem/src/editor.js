@@ -8,13 +8,13 @@ import { initMobile, isMobile, forceMobile, isMobileAgent } from './ismobile.js'
 
 function getText() { return el.textarea.innerText; }
 function clickReset() { localstorageReset(); location.href = location.origin + location.pathname; }
-function clickSubmit() { state.abortController ? state.abortController.abort() : update(getRules(getText())); }
+function clickSubmit() { state.abortController ? state.abortController.abort() : update(undefined, 1); }
 function setText(rR) { el.textarea.innerHTML = stringify(rR, 1); }
 function altNIncDec(alt, R = getRules(getText())) { update(setText(Object.assign(R, { _n: Math.max(0, (alt ? 1 : -1) + +(R._n ?? 0)) }))); }
 function getSvg() { return el.bigsvg.children[0]; }
 function getDot() { return el.buttondot.hasAttribute('data-checked'); }
 function setDot(enabled) { el.buttondot.toggleAttribute('data-checked', enabled); }
-function updateFromLocation(_, a = location.href.split(/[?#]/)[1]) { return a && (update(decodeURIComponent(a)), 1); }
+function updateFromLocation(_, a = location.href.split(/[?#]/)[1]) { return a && (update(decodeURIComponent(a), 1), 1); }
 function show(e) { [...el.right.children].forEach(i => i.classList.toggle('hidden', e !== i)); }
 function copy(t) { navigator.clipboard.writeText(t); console.log(strings.copied); }
 
@@ -36,7 +36,7 @@ function createR(o, preserveViewBox) {
   const vb = preserveViewBox ? getViewBox() : {};
   const dot = getDot() ? {
     _k: R._k ?? 1,
-    _o: R._o ?? 0, // _cc: R._cc ?? '#0000',
+    _o: R._o ?? 0,
   } : {};
   const tp = el.buttontpbg.hasAttribute('data-checked') ? {
     _cb: R._cb ?? '#0000',
@@ -44,11 +44,11 @@ function createR(o, preserveViewBox) {
   return { ...R, ...vb, ...dot, ...tp };
 }
 
-async function update(rules) {
+async function update(rules, textToo) {
   try {
     if (rules) {
       rules = typeof rules === 'string' ? getRules(rules) : rules;
-      setText(rules);
+      if (textToo) setText(rules);
     } else {
       rules = getRules(getText());
     }
@@ -173,7 +173,7 @@ function getViewBox(force = 0) {
 
 function showExample(i = state.eg.i, l = state.eg.a.length) {
   i = state.eg.i = (i + l) % l;
-  update(state.eg.a[i]);
+  update(state.eg.a[i], 1);
   console.log(`[example: ${i + 1} / ${l}]`);
 }
 
@@ -236,8 +236,7 @@ function toggleTpbg() {
 function toggleDot() {
   setDot(!getDot());
   getText()
-    ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _o: getDot() ? 0 : '' })
-    //? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _cc: getDot() ? '#0000' : '' })
+    ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _o: getDot() ? 0 : '' }, 1)
     : clickShowExamples();
 }
 
@@ -369,7 +368,7 @@ function setupEventListeners() {
   el.textarea.addEventListener('keydown', e => e.ctrlKey && e.key === 'Enter' && clickSubmit());
   el.textarea.addEventListener('input', () => update());
   el.textarea.addEventListener('blur', () => el.textarea.textContent === '' && (el.textarea.textContent = ''));
-  el.buttontxtclose?.addEventListener('click', () => el.textarea.blur());
+  el.buttontxtclose?.addEventListener('click', () => (el.textarea.focus(),el.textarea.blur()));
   el.textarea.addEventListener('paste', e => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
@@ -421,7 +420,7 @@ async function localstorageLoad() {
   toggleExport(get('export') === 'false', 1);
   toggleMinilog(get('minilog') === 'false', 1);
   const r = get('R');
-  updateFromLocation() || r && r !== '' && r !== '{}' && update(r);
+  updateFromLocation() || r && r !== '' && r !== '{}' && update(r, 1);
   return res;
 }
 

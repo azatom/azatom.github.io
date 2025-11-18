@@ -77,7 +77,6 @@ const [onload, exportLsystemSvg] = (await Promise.all([
 if (onload.match(/["&<]/)) throw new Error('bad onload: ["&<]');
 const m = exportLsystemSvg.match(/([^(]*\s)([^(\s]+)(\(.*)export\{.* as (.*)\}.*/);
 const lsystemSvg = `${m[1]}${m[4]}${m[3]}`;
-const svg = `<svg onload="${onload.trim().replace(/;$/, '')}" xmlns="http://www.w3.org/2000/svg"><script>//<![CDATA[
-${lsystemSvg.trim()}//]]></script></svg>`;
+const svg = `<svg onload="${onload.trim().replace(/;$/, '')}" xmlns="http://www.w3.org/2000/svg"><script>/*<![CDATA[*/${lsystemSvg.trim()}//]]></script></svg>`;
 writeIfChange('lsystem.svg', svg);
 writeIfChange('src/lsystem.svg', svg);

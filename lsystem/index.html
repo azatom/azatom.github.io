@@ -121,7 +121,7 @@ _hand turbulenceTBD, 1`,
     ar[0] = R.S;
     while (i = next(R._n)) {
       ++cnt;
-      if (pleaseStop && cnt % 1e5 === 0 && (ir = await pleaseStop(cnt))) break;
+      if (pleaseStop && cnt % 1e4 === 0 && (ir = await pleaseStop(cnt))) break;
       "F" === i || "f" === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), "F" === i) : "+" === i ? a += p : "*" === i ? q++ : "|" === i ? b = (b + 0 + 2) % 4 : "-" === i ? a -= p : "/" === i ? q-- : "^" === i ? b = (b + p + 4) % 4 : "!" === i ? p = -p : "[" === i ? z.push([x, y, a, b, q]) : "]" === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
     }
     [x, y, a, b] = d.length ? D.vb(O(R._z, 2)).map(o) : [0, 0, 0, 0];
@@ -523,7 +523,7 @@ _hand turbulenceTBD, 1`,
     location.href = location.origin + location.pathname;
   }
   function clickSubmit() {
-    state.abortController ? state.abortController.abort() : update(getRules(getText()));
+    state.abortController ? state.abortController.abort() : update(void 0, 1);
   }
   function setText(rR) {
     el.textarea.innerHTML = stringify(rR, 1);
@@ -541,7 +541,7 @@ _hand turbulenceTBD, 1`,
     el.buttondot.toggleAttribute("data-checked", enabled);
   }
   function updateFromLocation(_, a = location.href.split(/[?#]/)[1]) {
-    return a && (update(decodeURIComponent(a)), 1);
+    return a && (update(decodeURIComponent(a), 1), 1);
   }
   function show(e) {
     [...el.right.children].forEach((i) => i.classList.toggle("hidden", e !== i));
@@ -567,18 +567,17 @@ _hand turbulenceTBD, 1`,
     const dot = getDot() ? {
       _k: R._k ?? 1,
       _o: R._o ?? 0
-      // _cc: R._cc ?? '#0000',
     } : {};
     const tp = el.buttontpbg.hasAttribute("data-checked") ? {
       _cb: R._cb ?? "#0000"
     } : {};
     return { ...R, ...vb, ...dot, ...tp };
   }
-  async function update(rules) {
+  async function update(rules, textToo) {
     try {
       if (rules) {
         rules = typeof rules === "string" ? getRules(rules) : rules;
-        setText(rules);
+        if (textToo) setText(rules);
       } else {
         rules = getRules(getText());
       }
@@ -704,7 +703,7 @@ _hand turbulenceTBD, 1`,
   }
   function showExample(i = state.eg.i, l = state.eg.a.length) {
     i = state.eg.i = (i + l) % l;
-    update(state.eg.a[i]);
+    update(state.eg.a[i], 1);
     console.log(`[example: ${i + 1} / ${l}]`);
   }
   function altPutVbOrDefaults(alt) {
@@ -759,7 +758,7 @@ _hand turbulenceTBD, 1`,
   }
   function toggleDot() {
     setDot(!getDot());
-    getText() ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _o: getDot() ? 0 : "" }) : clickShowExamples();
+    getText() ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _o: getDot() ? 0 : "" }, 1) : clickShowExamples();
   }
   function altCursive(alt) {
     if (!getText()) return clickShowExamples();
@@ -883,7 +882,7 @@ _hand turbulenceTBD, 1`,
     el.textarea.addEventListener("keydown", (e) => e.ctrlKey && e.key === "Enter" && clickSubmit());
     el.textarea.addEventListener("input", () => update());
     el.textarea.addEventListener("blur", () => el.textarea.textContent === "" && (el.textarea.textContent = ""));
-    el.buttontxtclose?.addEventListener("click", () => el.textarea.blur());
+    el.buttontxtclose?.addEventListener("click", () => (el.textarea.focus(), el.textarea.blur()));
     el.textarea.addEventListener("paste", (e) => {
       e.preventDefault();
       const text = e.clipboardData.getData("text/plain");
@@ -941,7 +940,7 @@ _hand turbulenceTBD, 1`,
     toggleExport(get("export") === "false", 1);
     toggleMinilog(get("minilog") === "false", 1);
     const r = get("R");
-    updateFromLocation() || r && r !== "" && r !== "{}" && update(r);
+    updateFromLocation() || r && r !== "" && r !== "{}" && update(r, 1);
     return res;
   }
   function setupHelp() {
