@@ -275,8 +275,8 @@ function setupCustomLog() {
           .map(([k, v]) => `${k}${k && ' '}${String(v).replace(/-/g, '‑').replace(/Infinity/g, '-')}`)
           .join('\n')
         , document.createElement('br')
-        , ...[...el.buttonlog.childNodes].slice(0, 7)
-        , ...strings.shorthelp.split('\n').map(s => Object.assign(document.createElement('a'), { textContent: s }))
+        , ...[...el.buttonlog.childNodes].slice(0, 13)
+        //, ...strings.shorthelp.split('\n').map(s => Object.assign(document.createElement('a'), { textContent: s }))
       );
     } else { console.oldLog(...args); }
   });

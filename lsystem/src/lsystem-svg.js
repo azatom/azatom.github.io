@@ -102,9 +102,9 @@ export async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
         fill: O(R._cd, '#000'),
         style: R._j ? `filter:blur(${R._j}px)` : ''
       }))
-    ) : '', R._hand ? C('filter', { id: id[1], x: '-50%', y: '-50%', width: '200%', height: '200%', filterUnits: 'objectBoundingBox', primitiveUnits: 'userSpaceOnUse', 'color-interpolation-filters': 'linearRGB' },
-      C('feGaussianBlur', { stdDeviation: '0.05' }),
-      C('feDisplacementMap', { in: 'SourceGraphic', in2: 'turbulence', scale: '1', xChannelSelector: 'G', yChannelSelector: 'A', result: 'displacementMap' }),
+    ) : '', R._hand ? C('filter', { id: id[1], x: '-20%', y: '-20%', width: '140%', height: '140%', filterUnits: 'objectBoundingBox', primitiveUnits: 'userSpaceOnUse', 'color-interpolation-filters': 'linearRGB' },
+      C('feGaussianBlur', { stdDeviation: '0.15' }),
+      C('feDisplacementMap', { in: 'SourceGraphic', in2: 'turbulence', scale: '6', xChannelSelector: 'G', yChannelSelector: 'A', result: 'displacementMap' }),
       C('feTurbulence', { type: 'turbulence', baseFrequency: '0.03 0.03', numOctaves: '3', seed: '1', stitchTiles: 'noStitch', result: 'turbulence' }),
     ) : '', C('path', {
       stroke: O(R._cc, '#000'),

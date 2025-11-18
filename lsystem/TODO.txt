@@ -17,3 +17,4 @@
 + Canvas
 + ?webgl ? copy UI from typical threejs
 - Dropdown arrow: make proper lines
+- divider shall move if click on dropdown button

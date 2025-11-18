@@ -58,17 +58,22 @@ const singleQuotes = {
   }
 };
 
-const { outputFiles } = await build({
-  entryPoints: ['src/lsystem.svg.onload.js', 'src/lsystem-svg.js'],
-  bundle: true,
-  format: 'esm',
-  minify: true,
-  write: false,
-  outdir: 'dist',
-  // mangleQuoted: true,
-  // plugins: [singleQuotes],
-});
-const [onload, exportLsystemSvg] = outputFiles.map(a => a.text);
+// mangleQuoted: true,
+// plugins: [singleQuotes],
+const [onload, exportLsystemSvg] = (await Promise.all([
+  build({
+    entryPoints: ['src/lsystem.svg.onload.js'],
+    format: 'esm',
+    minify: true,
+    write: false,
+  }),
+  build({
+    entryPoints: ['src/lsystem-svg.js'],
+    format: 'esm',
+    minify: true,
+    write: false,
+  })
+])).map(a => a.outputFiles[0].text);
 if (onload.match(/["&<]/)) throw new Error('bad onload: ["&<]');
 const m = exportLsystemSvg.match(/([^(]*\s)([^(\s]+)(\(.*)export\{.* as (.*)\}.*/);
 const lsystemSvg = `${m[1]}${m[4]}${m[3]}`;

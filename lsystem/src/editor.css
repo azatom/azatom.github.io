@@ -339,6 +339,7 @@ pre,
 code {
   background-color: var(--e);
   border-radius: .3125rem;
+  font-size: 1.2rem;
 }
 
 @media only screen and (max-width: 45rem) {
