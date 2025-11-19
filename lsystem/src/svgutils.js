@@ -1,22 +1,23 @@
 import { strings } from "./strings.js";
-
 export function addSvgZoom(svg, parentSelector = '') {
   svg.tabIndex = 0;
-  svg.style.touchAction = 'none';
   let isPanning = false;
-  let startX, startY;
+  let isZoomGesture = false;
+  let panStartX, panStartY;
   let panStartViewBox = null;
+  let zoomGestureStartX, zoomGestureStartY;
+  let zoomGestureBaseViewBox = null;
   let lastTapTime = 0;
   let lastTapX = 0, lastTapY = 0;
-  const rip = "svgzoomr9fg34gs6h";
-  const style = document.getElementById(`${rip}css`) || (() => {
+  (frid => document.getElementById(`${frid}css`) || (() => {
     const el = document.createElement("style");
-    el.id = `${rip}css`;
+    el.id = `${frid}css`;
     document.head.appendChild(el);
-    el.sheet.insertRule(`${parentSelector} svg { cursor: grab; user-select: none; }`);
-    el.sheet.insertRule(`${parentSelector} svg.panning { cursor: grabbing !important; }`);
+    el.sheet.insertRule(`${parentSelector} svg { cursor: grab; user-select: none; touch-action: none; }`);
+    el.sheet.insertRule(`${parentSelector} svg.panning { cursor: grabbing; }`);
     return el;
-  })();
+  })())("fixedRandomId9fg34gs6h");
+  const a = 6;
   const getXY = e => {
     const t = e.touches ? e.touches[0] : e;
     return { x: t.clientX, y: t.clientY };
@@ -26,24 +27,47 @@ export function addSvgZoom(svg, parentSelector = '') {
   const startPan = e => {
     if (e.button && e.button !== 0) return;
     const p = getXY(e);
-    startX = p.x; startY = p.y;
+    panStartX = p.x; panStartY = p.y;
     panStartViewBox = vb();
     isPanning = true;
+    isZoomGesture = false;
     svg.classList.add('panning');
   };
   const move = e => {
-    if (!isPanning) return;
+    if (!isPanning && !isZoomGesture) return;
     e.preventDefault();
     const p = getXY(e);
     const r = rect();
-    const v = panStartViewBox;
-    const scale = Math.min(r.width / v[2], r.height / v[3]);
-    const dx = (p.x - startX) / scale;
-    const dy = (p.y - startY) / scale;
-    svg.setAttribute("viewBox", `${v[0] - dx} ${v[1] - dy} ${v[2]} ${v[3]}`);
+    if (isPanning) {
+      const v = panStartViewBox;
+      const scale = Math.min(r.width / v[2], r.height / v[3]);
+      const dx = (p.x - panStartX) / scale;
+      const dy = (p.y - panStartY) / scale;
+      svg.setAttribute("viewBox", `${v[0] - dx} ${v[1] - dy} ${v[2]} ${v[3]}`);
+      return;
+    }
+    if (isZoomGesture) {
+      const deltaYrem = (p.y - zoomGestureStartY) / parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const base = zoomGestureBaseViewBox;
+      const cx = base[0] + base[2] * (zoomGestureStartX - r.left) / r.width;
+      const cy = base[1] + base[3] * (zoomGestureStartY - r.top) / r.height;
+      let factor;
+      if (deltaYrem >= 0) {
+        factor = 1 + deltaYrem / a;
+      } else {
+        factor = Math.pow(2, deltaYrem / a);
+      }
+      factor = Math.max(0.02, Math.min(100, factor));
+      const newW = base[2] / factor;
+      const newH = base[3] / factor;
+      const newX = cx - (cx - base[0]) / factor;
+      const newY = cy - (cy - base[1]) / factor;
+      svg.setAttribute("viewBox", `${newX} ${newY} ${newW} ${newH}`);
+    }
   };
   const end = () => {
     isPanning = false;
+    isZoomGesture = false;
     svg.classList.remove('panning');
   };
   const zoomAtPoint = (cx, cy, factor) => {
@@ -65,37 +89,43 @@ export function addSvgZoom(svg, parentSelector = '') {
     const factor = e.deltaY < 0 ? 1.3 : 1 / 1.3;
     zoomAtPoint(cx, cy, factor);
   }, { passive: false });
-  const handleTap = e => {
+  const handlePotentialDoubleTap = e => {
+    if (e.touches && e.touches.length > 1) return;
     const now = Date.now();
     const p = getXY(e);
-    if (now - lastTapTime < 400 &&
-      Math.abs(p.x - lastTapX) < 30 &&
-      Math.abs(p.y - lastTapY) < 30) {
+    if (now - lastTapTime < 450 && Math.hypot(p.x - lastTapX, p.y - lastTapY) < 40) {
       e.preventDefault();
-      const r = rect();
-      const v = vb();
-      const cx = v[0] + v[2] * (p.x - r.left) / r.width;
-      const cy = v[1] + v[3] * (p.y - r.top) / r.height;
-      zoomAtPoint(cx, cy, 2);
+      zoomGestureStartX = p.x;
+      zoomGestureStartY = p.y;
+      zoomGestureBaseViewBox = vb();
+      isZoomGesture = true;
+      return;
     }
     lastTapTime = now;
     lastTapX = p.x;
     lastTapY = p.y;
   };
+  svg.addEventListener("dblclick", e => {
+    e.preventDefault();
+    const r = rect();
+    const v = vb();
+    const cx = v[0] + v[2] * (e.clientX - r.left) / r.width;
+    const cy = v[1] + v[3] * (e.clientY - r.top) / r.height;
+    zoomAtPoint(cx, cy, 2);
+  });
   svg.addEventListener("keydown", e => {
-    if (e.key === "+" || e.key === "=") {
+    if (e.key === "+" || e.key === "=" || e.key === "-") {
       e.preventDefault();
       const v = vb();
-      zoomAtPoint(v[0] + v[2] / 2, v[1] + v[3] / 2, 1.3);
-    } else if (e.key === "-") {
-      e.preventDefault();
-      const v = vb();
-      zoomAtPoint(v[0] + v[2] / 2, v[1] + v[3] / 2, 1 / 1.3);
+      const factor = e.key === "-" ? 1 / 1.3 : 1.3;
+      zoomAtPoint(v[0] + v[2] / 2, v[1] + v[3] / 2, factor);
     }
   });
   svg.addEventListener("mousedown", startPan);
   svg.addEventListener("touchstart", e => {
-    if (e.touches.length === 1) startPan(e);
+    if (e.touches.length !== 1) return;
+    handlePotentialDoubleTap(e);
+    if (!isZoomGesture) startPan(e);
   }, { passive: false });
   svg.addEventListener("mousemove", move);
   svg.addEventListener("touchmove", move, { passive: false });
@@ -103,8 +133,6 @@ export function addSvgZoom(svg, parentSelector = '') {
   svg.addEventListener("mouseleave", end);
   svg.addEventListener("touchend", end);
   svg.addEventListener("touchcancel", end);
-  svg.addEventListener("dblclick", handleTap);
-  svg.addEventListener("touchstart", handleTap);
   const saveTitle = document.title;
   svg.addEventListener("mousemove", e => {
     const r = rect();
@@ -114,238 +142,6 @@ export function addSvgZoom(svg, parentSelector = '') {
     document.title = `${x.toFixed(1)}, ${y.toFixed(1)}`;
   });
   svg.addEventListener("mouseleave", () => document.title = saveTitle);
-  svg._cleanupSvgZoom = () => {
-  };
-  return svg;
-}
-
-export function addSvgZoom0(svg, parentSelector = '') {
-  svg.tabIndex = 0;
-  function createIfAbsent(t, id) {
-    return document.getElementById(id) || document.body.appendChild(
-      Object.assign(document.createElement(t), { id })
-    );
-  }
-  let isPanning = false;
-  let isPinching = false;
-  let startX, startY;
-  let panStartViewBox = null;
-  let pinchInitialDist = 0;
-  let pinchInitialMidX = 0, pinchInitialMidY = 0;
-  let pinchInitialViewBox = null;
-  let lastTouchCount = 0;
-  const rip = "svgzoomr9fg34gs6h";
-  const $style = createIfAbsent("style", `${rip}css`);
-  if (!$style.sheet.cssRules.length) {
-    $style.sheet.insertRule(`${parentSelector} svg { cursor: grab; user-select: none; }`);
-    $style.sheet.insertRule(`${parentSelector} svg.panning { cursor: grabbing !important; }`);
-  }
-  const getXY = (e) => {
-    const t = e.touches ? (e.touches[0] || e.changedTouches[0]) : e;
-    return { x: t.pageX, y: t.pageY };
-  };
-  const getCurrentViewBox = () => svg.getAttribute("viewBox").split(/\s+/).map(parseFloat);
-  const startPan = (e) => {
-    if (e.button !== 0 && !e.touches) return;
-    const p = getXY(e);
-    startX = p.x;
-    startY = p.y;
-    panStartViewBox = getCurrentViewBox();
-    isPanning = true;
-    svg.classList.add('panning');
-  };
-  const move = (e) => {
-    if (!isPanning && !isPinching) return;
-    if ((e.type === 'touchmove') && (isPanning || isPinching)) e.preventDefault();
-    const p = getXY(e);
-    const r = svg.getBoundingClientRect();
-    if (isPanning) {
-      const dx = p.x - startX;
-      const dy = p.y - startY;
-      const vb = panStartViewBox;
-      const scaleX = r.width / vb[2];
-      const scaleY = r.height / vb[3];
-      const scale = Math.min(scaleX, scaleY);
-      const deltaXWorld = dx / scale;
-      const deltaYWorld = dy / scale;
-      const newX = vb[0] - deltaXWorld;
-      const newY = vb[1] - deltaYWorld;
-      svg.setAttribute("viewBox", `${newX} ${newY} ${vb[2]} ${vb[3]}`);
-    }
-    if (isPinching && e.touches && e.touches.length === 2) {
-      const t1 = e.touches[0], t2 = e.touches[1];
-      const curDist = Math.hypot(t1.pageX - t2.pageX, t1.pageY - t2.pageY);
-      const curMidX = (t1.pageX + t2.pageX) / 2;
-      const curMidY = (t1.pageY + t2.pageY) / 2;
-      const v = pinchInitialViewBox;
-      const deltaScale = curDist / pinchInitialDist;
-      if (deltaScale === 0) return;
-      const newW = v[2] / deltaScale;
-      const newH = v[3] / deltaScale;
-      const cx = v[0] + v[2] * (pinchInitialMidX - r.left) / r.width;
-      const cy = v[1] + v[3] * (pinchInitialMidY - r.top) / r.height;
-      const newX = cx - (cx - v[0]) / deltaScale;
-      const newY = cy - (cy - v[1]) / deltaScale;
-      const deltaMidX = curMidX - pinchInitialMidX;
-      const deltaMidY = curMidY - pinchInitialMidY;
-      const panX = - (deltaMidX / r.width) * newW;
-      const panY = - (deltaMidY / r.height) * newH;
-      const finalX = newX + panX;
-      const finalY = newY + panY;
-      svg.setAttribute("viewBox", `${finalX} ${finalY} ${newW} ${newH}`);
-    }
-  };
-  const end = (e) => {
-    if (isPanning) {
-      isPanning = false;
-      panStartViewBox = null;
-      svg.classList.remove('panning');
-    }
-    if (isPinching) {
-      isPinching = false;
-      svg.classList.remove('panning');
-    }
-  };
-  const handleTouch = (e) => {
-    const touchCount = e.touches.length;
-    if (touchCount >= 2) e.preventDefault();
-    if (touchCount === 2 && lastTouchCount !== 2) {
-      const t1 = e.touches[0], t2 = e.touches[1];
-      pinchInitialDist = Math.hypot(t1.pageX - t2.pageX, t1.pageY - t2.pageY);
-      pinchInitialMidX = (t1.pageX + t2.pageX) / 2;
-      pinchInitialMidY = (t1.pageY + t2.pageY) / 2;
-      pinchInitialViewBox = getCurrentViewBox();
-      isPinching = true;
-      svg.classList.add('panning');
-    } else if (touchCount < 2 && lastTouchCount === 2) {
-      end(e);
-    }
-    lastTouchCount = touchCount;
-  };
-  const onKeyDown = (e) => {
-    if (e.key === '+' || e.key === '=' || e.key === '-') {
-      e.preventDefault();
-      const v = getCurrentViewBox();
-      const cx = v[0] + v[2] / 2;
-      const cy = v[1] + v[3] / 2;
-      const scale = (e.key === '-' ? 1 / 1.2 : 1.2);
-      const newW = v[2] / scale;
-      const newH = v[3] / scale;
-      const newX = cx - (cx - v[0]) / scale;
-      const newY = cy - (cy - v[1]) / scale;
-      svg.setAttribute("viewBox", `${newX} ${newY} ${newW} ${newH}`);
-    }
-  };
-  svg.addEventListener("mousedown", startPan);
-  svg.addEventListener("touchstart", (e) => {
-    handleTouch(e);
-    if (e.touches.length === 1 && !isPinching) startPan(e);
-  }, { passive: false });
-  ["mousemove", "touchmove"].forEach(ev => svg.addEventListener(ev, move, { passive: false }));
-  ["mouseup", "touchend", "touchcancel"].forEach(ev => svg.addEventListener(ev, end));
-  svg.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    const r = svg.getBoundingClientRect();
-    const v = getCurrentViewBox();
-    const mx = e.clientX - r.left;
-    const my = e.clientY - r.top;
-    const cx = v[0] + v[2] * mx / r.width;
-    const cy = v[1] + v[3] * my / r.height;
-    const scale = e.deltaY < 0 ? 1.2 : 1 / 1.2;
-    const newW = v[2] / scale;
-    const newH = v[3] / scale;
-    const newX = cx - (cx - v[0]) / scale;
-    const newY = cy - (cy - v[1]) / scale;
-    svg.setAttribute("viewBox", `${newX} ${newY} ${newW} ${newH}`);
-  }, { passive: false });
-  svg.addEventListener("keydown", onKeyDown);
-  const saveTitle = document.title;
-  svg.addEventListener("mousemove", (e) => {
-    const bcr = svg.getBoundingClientRect();
-    const vb = getCurrentViewBox();
-    const x = vb[0] + vb[2] * (e.clientX - bcr.left) / bcr.width;
-    const y = vb[1] + vb[3] * (e.clientY - bcr.top) / bcr.height;
-    document.title = `${x.toFixed(1)}, ${y.toFixed(1)}`;
-  });
-  svg.addEventListener("mouseleave", () => document.title = saveTitle);
-  svg._cleanupSvgZoom = () => {
-    svg.removeEventListener("keydown", onKeyDown);
-  };
-  return svg;
-}
-
-export function addSvgZoomOld(svg, parentSelector) {
-  function createIfAbsent(t, id) {
-    return document.getElementById(id) || document.body.appendChild(
-      Object.assign(document.createElement(t), { id })
-    );
-  }
-  let isDown = false;
-  let startX, startY, scrollStartX = 0, scrollStartY = 0;
-  const rip = "svgzoomr9fg34gs6h", $rect = createIfAbsent("div", `${rip}rect`);
-  Object.assign($rect.style, { position: 'absolute', pointerEvents: 'none', display: 'none' });
-  createIfAbsent("style", `${rip}css`).sheet.insertRule(`${parentSelector} svg{cursor:zoom-out}`);
-  const getXY = (e) => {
-    const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
-    return { x: t.pageX, y: t.pageY };
-  };
-  const start = (e) => {
-    if (e.button) return;
-    const p = getXY(e);
-    startX = p.x;
-    startY = p.y;
-    scrollStartX = window.scrollX;
-    scrollStartY = window.scrollY;
-    isDown = true;
-  };
-  const move = (e) => {
-    if (!isDown || e.button) return;
-    const p = getXY(e);
-    const out = p.x + window.scrollX - 2 < startX;
-    Object.assign($rect.style, {
-      left: `${Math.min(startX, p.x)}px`,
-      top: `${Math.min(startY, p.y)}px`,
-      width: `${Math.abs(p.x - startX)}px`,
-      height: `${Math.abs(p.y - startY)}px`,
-      cursor: out ? "zoom-out" : "zoom-in",
-      display: "block",
-      position: "absolute",
-      pointerEvents: "none",
-      border: `.2rem solid ${out ? "#e82" : "#17d"}`,
-      backgroundColor: out ? "#e823" : "#17d3"
-    });
-  };
-  const end = (e) => {
-    if (!isDown) return;
-    const p = getXY(e);
-    const r = svg.getBoundingClientRect();
-    const v = svg.getAttribute("viewBox").split(" ").map(parseFloat);
-    const x1 = v[0] + v[2] * (startX + scrollStartX - r.left) / r.width;
-    const y1 = v[1] + v[3] * (startY + scrollStartY - r.top) / r.height;
-    const x2 = v[0] + v[2] * (p.x + window.scrollX - r.left) / r.width;
-    const y2 = v[1] + v[3] * (p.y + window.scrollY - r.top) / r.height;
-    svg.setAttribute("viewBox",
-      p.x + window.scrollX - 2 < startX + scrollStartX
-        ? `${v[0] - v[2]} ${v[1] - v[3]} ${3 * v[2]} ${3 * v[3]}`
-        : `${x1} ${Math.min(y1, y2)} ${x2 - x1} ${Math.abs(y2 - y1)}`
-    );
-    isDown = false;
-    $rect.style.display = "none";
-  };
-  ["mousedown", "touchstart"].forEach((e) => svg.addEventListener(e, start, { passive: true }));
-  ["mousemove", "touchmove"].forEach((e) => svg.addEventListener(e, move, { passive: true }));
-  ["mouseup", "touchend", "touchcancel"].forEach(e => svg.addEventListener(e, end, { passive: true }));
-  // ["pointerdown"].forEach((e) => svg.addEventListener(e, start), { passive: true });
-  // ["pointermove"].forEach((e) => svg.addEventListener(e, move), { passive: true });
-  // ["pointerup", "pointercancel"].forEach((e) => svg.addEventListener(e, end), { passive: true });
-  const saveTitle = document.title;
-  svg.addEventListener("mouseleave", () => document.title = saveTitle);
-  svg.addEventListener("mousemove", (e) => {
-    const bcr = svg.getBoundingClientRect(), vb = svg.getAttribute("viewBox").split(" ").map(parseFloat);
-    vb[0] += vb[2] * (e.clientX - bcr.left) / bcr.width;
-    vb[1] += vb[3] * (e.clientY - bcr.top) / bcr.height;
-    document.title = `${vb[0].toFixed(1)} ${vb[1].toFixed(1)}`;
-  });
   return svg;
 }
 

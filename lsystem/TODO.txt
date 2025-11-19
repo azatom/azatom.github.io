@@ -1,4 +1,3 @@
-- regression: Mobile pinchzoom
 - start/stop correct debounce
 + animeate on (_a _l _m?) inc/dec
 + reqestanoimationframe instead of "processing..."
