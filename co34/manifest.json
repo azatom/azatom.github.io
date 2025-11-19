@@ -1,0 +1,37 @@
+{
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "navigation_color": "#ff0000",
+  "lang": "en",
+  "name": "c3nameManifest",
+  "orientation": "portrait",
+  "prefer_related_applications": false,
+  "scope": ".",
+  "short_name": "c3ShortManifest",
+  "start_url": "./index.html",
+  "description": "c3DescManifest",
+  "dir": "ltr",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "categories": [
+    "games",
+    "puzzle"
+  ],
+  "features": [
+    "Cross-Platform",
+    "User-Friendly",
+    "Strategic Gameplay"
+  ],
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "192x192.png",
+      "type": "image/png"
+    }
+  ]
+}

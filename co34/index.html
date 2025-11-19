@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="c3desc">
+    <meta name="theme-color" content="#111111">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="c3title">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#111111">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <!-- link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" -->
+    <!-- link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF" -->
+    <title>c34</title>
+    <script>
+        function getBase() { return document.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+        function setBase() {
+            /**/
+            document.write(`<base href="${getBase()}">`);
+            /*/
+            const base = document.createElement('base');
+            base.href = getBase();
+            document.head.insertBefore(base, document.head.firstChild);
+            /**/
+        }
+        setBase();
+        window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+    </script>
+    <script src="./cdn.js"></script>
+    <script src="./saves.js"></script>
+    <script src="./script.js"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <div class="container hidden">
+        <div class="header togglemodal">
+            <div class="flex">
+                <!--div>
+                    <h2>BEST</h2>
+                    <div id="best">0</div>
+                </div-->
+                <div>
+                    <h2>SCORE</h2>
+                    <div id="score">0</div>
+                </div>
+                <div>
+                    <h2>HV</h2>
+                    <div id="hv">-</div>
+                </div>
+                <div>
+                    <h2>HV</h2>
+                    <div id="ver">@</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal hidden">
+            <div class="modalinner">
+                <div class="togglemodal close">x</div>
+                <div id="msg">hi</div>
+            </div>
+        </div>
+
+        <div id="points"></div>
+        <div id="board"></div>
+        <div id="pieces">
+            <div id="piece" class="vertical">
+                <div class="first" data-typ="1"><span class="second" data-typ="2"></span></div>
+            </div>
+        </div>
+        <div id="gameover" class="hidden">
+            <h1>GAME OVER</h1>
+            <button onclick="restart()" id="restart">PLAY AGAIN</button>
+        </div>
+        <div class="modal hidden">
+            <div class="modalinner">
+                <div class="togglemodal close">x</div>
+                <div><span id="xyc">0</span> best</div>
+                <div><span id="xyd">1</span> streak</div>
+                <div><span id="xyr"></span> score</div>
+                <div><span id="xyhv"></span> hv</div>
+                <div><span id="xylog"></span> log</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
