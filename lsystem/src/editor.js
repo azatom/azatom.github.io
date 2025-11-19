@@ -111,6 +111,7 @@ function altbuttonline(alt) {
 function clickbuttonsvg() {
   const svg = getSvg();
   if (!svg) return message(strings.nothingToExport);
+  svg.removeAttribute('tabindex');
   downloadSvg(svg);
 }
 

@@ -267,6 +267,10 @@ body.mobile-view>#divider:hover {
   height: 100%;
 }
 
+#bigsvg>svg:focus {
+  outline: none;
+}
+
 #smallsvgs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(max(8rem, 15%), 1fr));
