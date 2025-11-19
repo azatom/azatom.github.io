@@ -32,7 +32,7 @@
 }
 
 #readme {
-  overflow: clip;
+  overflow: auto;
 }
 
 @media (prefers-color-scheme: dark) {
