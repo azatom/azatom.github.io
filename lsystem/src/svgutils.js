@@ -1,6 +1,7 @@
 import { strings } from "./strings.js";
 export function addSvgZoom(svg, parentSelector = '') {
   svg.tabIndex = 0;
+  const zoomConstant = 6;
   let isPanning = false;
   let isZoomGesture = false;
   let panStartX, panStartY;
@@ -9,15 +10,12 @@ export function addSvgZoom(svg, parentSelector = '') {
   let zoomGestureBaseViewBox = null;
   let lastTapTime = 0;
   let lastTapX = 0, lastTapY = 0;
-  (frid => document.getElementById(`${frid}css`) || (() => {
-    const el = document.createElement("style");
-    el.id = `${frid}css`;
-    document.head.appendChild(el);
-    el.sheet.insertRule(`${parentSelector} svg { cursor: grab; user-select: none; touch-action: none; }`);
-    el.sheet.insertRule(`${parentSelector} svg.panning { cursor: grabbing; }`);
-    return el;
-  })())("fixedRandomId9fg34gs6h");
-  const a = 6;
+  (id => document.getElementById(id) ||
+    ((sh = document.head.appendChild(Object.assign(document.createElement("style"), { id })).sheet) => (
+      sh.insertRule(`${parentSelector} svg { cursor: grab; user-select: none; touch-action: none; }`),
+      sh.insertRule(`${parentSelector} svg.panning { cursor: grabbing; }`)
+    )())
+  )('fixedRandomId9ghLisp4TWg');
   const getXY = e => {
     const t = e.touches ? e.touches[0] : e;
     return { x: t.clientX, y: t.clientY };
@@ -53,9 +51,9 @@ export function addSvgZoom(svg, parentSelector = '') {
       const cy = base[1] + base[3] * (zoomGestureStartY - r.top) / r.height;
       let factor;
       if (deltaYrem >= 0) {
-        factor = 1 + deltaYrem / a;
+        factor = 1 + deltaYrem / zoomConstant;
       } else {
-        factor = Math.pow(2, deltaYrem / a);
+        factor = Math.pow(2, deltaYrem / zoomConstant);
       }
       factor = Math.max(0.02, Math.min(100, factor));
       const newW = base[2] / factor;
