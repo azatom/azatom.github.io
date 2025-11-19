@@ -437,7 +437,7 @@ async function localstorageLoad() {
   return res;
 }
 
-function setupHelp() {
+function setupHelpOverkillStillBuggy() {
   try {
     const sc = document.createElement("script");
     sc.src = "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js";
@@ -456,13 +456,11 @@ function setupHelp() {
       el.readme.append(i);
     };
     const t = setTimeout(fail, 50);
+    const tt = (t, f) => t && (clearTimeout(t), f());
     sc.addEventListener('error', fail);
     sc.addEventListener('load', () => {
       try {
-        if (text) {
-          clearTimeout(t);
-          el.readme.innerHTML = marked.parse(text);
-        }
+        tt(text, () => el.readme.innerHTML = marked.parse(text));
       } catch (e) {
         fail();
       }
@@ -471,11 +469,9 @@ function setupHelp() {
       .then(r => r.text())
       .then(txt => {
         clearTimeout(t);
-        if (typeof marked !== 'undefined') {
-          el.readme.innerHTML = marked.parse(txt);
-        } else {
-          text = txt;
-        }
+        typeof marked !== 'undefined'
+          ? el.readme.innerHTML = marked.parse(txt)
+          : text = txt
       })
       .catch(fail);
   } catch (e) { };
@@ -503,7 +499,7 @@ async function init() {
   setupConsts();
   // datasvg = ...; [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
   setupCustomLog();
-  setupHelp();
+  setupHelpOverkillStillBuggy();
   setupDividers();
   setupMobileKeyboard();
   setupEventListeners();

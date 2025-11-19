@@ -7,6 +7,7 @@
 - Manual save: `export` / `url editor` than bookmark it
 - Auto save: last valid rules aka. the textarea is saved in localstorage
 - Practical usage:) look for button images in source
+- Zoom: tap-tap-drag / scroll / +-
 
 ### How It Works:
 - Start with a sentence 'S'

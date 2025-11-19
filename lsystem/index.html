@@ -4,6 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
   <title>L-System Fractals</title>
   <link rel="manifest" href="manifest.json">
   <script>(() => {
@@ -1021,7 +1023,7 @@ _hand turbulenceTBD, 1`,
     updateFromLocation() || r && r !== "" && r !== "{}" && update(r, 1);
     return res;
   }
-  function setupHelp() {
+  function setupHelpOverkillStillBuggy() {
     try {
       const sc = document.createElement("script");
       sc.src = "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js";
@@ -1040,24 +1042,18 @@ _hand turbulenceTBD, 1`,
         el.readme.append(i);
       };
       const t = setTimeout(fail, 50);
+      const tt = (t2, f) => t2 && (clearTimeout(t2), f());
       sc.addEventListener("error", fail);
       sc.addEventListener("load", () => {
         try {
-          if (text) {
-            clearTimeout(t);
-            el.readme.innerHTML = marked.parse(text);
-          }
+          tt(text, () => el.readme.innerHTML = marked.parse(text));
         } catch (e) {
           fail();
         }
       });
       fetch(el.readme.getAttribute("data-src")).then((r) => r.text()).then((txt) => {
         clearTimeout(t);
-        if (typeof marked !== "undefined") {
-          el.readme.innerHTML = marked.parse(txt);
-        } else {
-          text = txt;
-        }
+        typeof marked !== "undefined" ? el.readme.innerHTML = marked.parse(txt) : text = txt;
       }).catch(fail);
     } catch (e) {
     }
@@ -1083,7 +1079,7 @@ _hand turbulenceTBD, 1`,
     document.title += " " + (location.host === "" ? location.origin : location.host);
     setupConsts();
     setupCustomLog();
-    setupHelp();
+    setupHelpOverkillStillBuggy();
     setupDividers();
     setupMobileKeyboard();
     setupEventListeners();
