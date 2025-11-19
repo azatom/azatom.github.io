@@ -32,7 +32,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root,iframe,object
+  :root,iframe,object.darkable
   {
     filter: hue-rotate(180deg) invert();
   }
