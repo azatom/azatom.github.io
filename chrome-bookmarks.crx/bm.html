@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bm</title>
+    <style>
+        body {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            font-size: 100%;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 28rem;
+            min-width: 800px;
+        }
+
+        .hide {display: none !important;}
+        .click {cursor: pointer;}
+
+        a {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        a {color: #000;}
+        a:hover {color: #00e;}
+        a:target {background-color: #f3f3a9;}
+
+        .tree>* {
+            overflow-x: hidden;
+            padding: 0;
+            display: block;
+            align-items: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #000;
+            height: 2rem;
+            line-height: 1.9rem;
+        }
+
+        .tree>.fld,
+        .tree>.path {font-weight: bold;}
+
+        .tree>.path {
+            background-color: #ddd;
+            display: flex;
+            flex-wrap: wrap;
+            white-space: normal;
+            min-height: 2rem;
+            height: auto;
+            overflow-wrap: anywhere;
+        }
+
+        .tree:not(.ordered)>.path::before,
+        .tree:not(.ordered)>.fld::before,
+        .tree:not(.ordered)>.bm::before {
+            text-align: center;
+            display: inline-block;
+            content: attr(data-da);
+            font-size: 80%;
+            padding-right: .3rem;
+            width: 3rem;
+        }
+
+        .tree>.path:hover::before,
+        .tree>.fld:hover::before,
+        .tree>.bm:hover::before {content: '^';}
+
+        .tree>.path:target:hover::before,
+        .tree>.fld:target:hover::before,
+        .tree>.bm:target:hover::before {content: '\B6';}
+
+        .tree>.path[id=_0]:hover::before {content: 'paths';}
+
+        .tree>.bm::after {content: attr(href);}
+
+        .tree>.bm:empty:after {content: '\2025 ' attr(href);}
+
+        .tree>.fld::after,
+        .tree>.path::after {content: attr(data-cnt);}
+
+        .tree>.fld:empty::after {content: '\2025 ' attr(data-cnt);}
+
+        .ico-ps::before,
+        .tree>.path>a::before,
+        .tree>.path>a:empty::before {margin: 0 .1rem 0 .1rem;}
+
+        .ico-ps::before,
+        .tree>.path>a::before {content: '❯';}
+
+        .tree>.path>a:empty::before {content: '❯..';}
+
+        .tree>.path>a {padding-right: .4rem;}
+
+        .tree>.path>a:focus,
+        .tree>.path>a:hover {
+            background-color: #fff;
+            border-radius: .3rem;
+        }
+
+        .tree>.path::after,
+        a::after {
+            font-weight: lighter;
+            font-size: 83%;
+            padding-left: .5rem;
+        }
+
+        /* ::marker {margin-right: 3rem;}
+
+        .tree.ordered>* {
+            display: list-item;
+            list-style-type: decimal;
+            overflow-x: initial;
+            margin-left: 3rem;
+        } */
+
+        .tree.ordered {counter-reset: section;}
+
+        .tree.ordered>*::before {
+            display: inline-block;
+            counter-increment: section;
+            text-align: right;
+            content: counter(section);
+            width: 2.7rem;
+            margin-right: .6rem;
+        }
+
+        .tree>.fld.newpid,
+        .tree>.bm.newpid {border-top: .05rem dotted #aaa;}
+
+        .panel {
+            position: sticky;
+            top: 0;
+            display: flex;
+            font-size: 83%;
+            box-shadow: 0 .5rem .5rem .2rem #0002;
+            background-color: #eee;
+            user-select: none;
+        }
+
+        .panel>table {user-select: text;}
+
+        .panel>table>tbody>tr>td.left {text-align: left;}
+
+        .panel input {
+            width: 10ch;
+            box-sizing: border-box;
+            border: 0;
+            font-size: 120%;
+            margin: .2rem;
+        }
+
+        .panel input.error {
+            background-color: rgb(255, 187, 175);
+            outline: .1rem dotted red;
+        }
+
+        .panel input.errosr:focus {outline: .2rem dotted red;}
+
+        .panel>* {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            align-content: center;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: right;
+            vertical-align: top;
+            margin: .2rem;
+        }
+
+
+        .panel>.asdf .txt {
+            white-space: pre;
+            justify-content: flex-end;
+        }
+
+        .panel>.asdf>* {
+            max-height: 1.4rem;
+            display: flex;
+            padding: 0 .4rem .2rem .4rem;
+        }
+
+        .panel>.asdf>a {
+            background-color: #fff;
+            border-radius: .3rem;
+            margin: .2rem;
+        }
+
+        .panel a:active,
+        .panel a.on {
+            background-color: #aaa;
+            color: #fff;
+            box-shadow: inset 0.1rem 0.1rem 0.2rem 0.01rem #000;
+        }
+
+        .panel table {
+            position: absolute;
+            top: 2rem;
+            padding: 0.2rem;
+            margin-top: 0.2rem;
+            display: inline-block;
+            background-color: #fff;
+            border-radius: .5rem;
+            border-collapse: collapse;
+            box-shadow: 0 .5rem .5rem .2rem #0002;
+        }
+
+        .panel table tr>* {padding: 0 0.3rem 0 0.3rem;}
+        .panel table caption {font-weight: bold;}
+
+        body>div.ruler {
+            box-sizing: border-box;
+            position: fixed;
+            width: 3rem;
+            height: 100%;
+            pointer-events: none;
+            border-right: .05rem solid #0002;
+        }
+
+        input[type=file] {display: none;}
+        .tree>a.ml {background-color: #dce3de;}
+
+        .tree>a.ml.opened {
+            height: auto;
+            background-color: #eef;
+            white-space: initial;
+        }
+
+        html.rot,
+        html.rot>body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        html.rot>body {
+            transform: rotate(-90deg) translateX(-100vh);
+            transform-origin: top left;
+            width: calc(100vw-160px);
+            height: 100vh;
+            overflow-x: auto;
+        }
+
+        a:visited {
+            color: forestgreen;
+            text-decoration-color: hotpink;
+        }
+
+        .ps {color: #777;}
+        :root{background-color:#fff;scroll-padding-top: 4.3rem;}
+        :root.dark{filter:hue-rotate(180deg) invert(1) contrast(.85) brightness(0.8);}
+        :root.dark .tree>.path::after, :root.dark a::after{font-weight:initial;}
+        :root.dark img, :root.dark video {filter:hue-rotate(180deg) invert(1) contrast(.85) brightness(0.8);}
+    </style>
+    <script src="bm.js"></script>
+</head>
+
+<body></body>
+
+</html>

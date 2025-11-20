@@ -1,0 +1,9 @@
+{
+  "name": "bm",
+  "version": "0.3",
+  "manifest_version": 3,
+  "permissions": ["bookmarks"],
+  "host_permissions": ["file://*/*"],
+  "action": {"default_popup": "bm.html"},
+  "incognito": "split"
+}
