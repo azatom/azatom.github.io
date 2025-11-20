@@ -15,6 +15,7 @@ Safety: this extension only reads your Chrome bookmarks, does not modify.
 * Fast, simple bookmark browsing
 * Search using regular expressions
 * Minimal, confusing UI
+* Export into standalone html (as archive and works on mobile)
 
 ### License
 
