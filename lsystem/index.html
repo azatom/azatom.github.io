@@ -1026,13 +1026,11 @@ _hand turbulenceTBD, 1`,
   function setupHelp() {
     fetch(el.readme.getAttribute("data-src")).then((r) => r.text()).then((txt) => {
       el.readme.innerHTML = marked.parse(txt);
-    }).catch(((e) => {
-      const i = document.createElement("object");
-      i.type = "text/plain";
-      i.style.width = i.style.height = "100%";
-      i.data = el.readme.getAttribute("data-src");
-      el.readme.append(i);
-    }));
+    }).catch((_) => el.readme.append(Object.assign(document.createElement("object"), {
+      type: "text/plain",
+      style: { width: "100%", height: "100%" },
+      data: el.readme.getAttribute("data-src")
+    })));
   }
   function setupConsts() {
     Object.assign(el, Object.fromEntries([...document.querySelectorAll("[id]")].map((e) => [e.id, e])));
@@ -1437,7 +1435,7 @@ code {
 }
 </style>
   <script>try { navigator.serviceWorker.register("service-worker.js"); } catch (e) { }</script>
-  <script async src="ht tps://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
