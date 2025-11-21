@@ -1023,41 +1023,16 @@ _hand turbulenceTBD, 1`,
     updateFromLocation() || r && r !== "" && r !== "{}" && update(r, 1);
     return res;
   }
-  function setupHelpOverkillStillBuggy() {
-    try {
-      const sc = document.createElement("script");
-      sc.src = "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js";
-      sc.integrity = "sha512-V6rGY7jjOEUc7q5Ews8mMlretz1Vn2wLdMW/qgABLWunzsLfluM0FwHuGjGQ1lc8jO5vGpGIGFE+rTzB+63HdA==";
-      sc.crossOrigin = "anonymous";
-      sc.referrerpolicy = "no-referrer";
-      sc.async = true;
-      let text = null;
-      document.head.append(sc);
-      const fail = () => {
-        clearTimeout(t);
-        const i = document.createElement("object");
-        i.type = "text/plain";
-        i.style.width = i.style.height = "100%";
-        i.data = el.readme.getAttribute("data-src");
-        el.readme.append(i);
-      };
-      const t = setTimeout(fail, 50);
-      const tt = (t2, f) => t2 && (clearTimeout(t2), f());
-      sc.addEventListener("error", fail);
-      sc.addEventListener("load", () => {
-        try {
-          tt(text, () => el.readme.innerHTML = marked.parse(text));
-        } catch (e) {
-          fail();
-        }
-      });
-      fetch(el.readme.getAttribute("data-src")).then((r) => r.text()).then((txt) => {
-        clearTimeout(t);
-        typeof marked !== "undefined" ? el.readme.innerHTML = marked.parse(txt) : text = txt;
-      }).catch(fail);
-    } catch (e) {
-    }
-    ;
+  function setupHelp() {
+    fetch(el.readme.getAttribute("data-src")).then((r) => r.text()).then((txt) => {
+      el.readme.innerHTML = marked.parse(txt);
+    }).catch(((e) => {
+      const i = document.createElement("object");
+      i.type = "text/plain";
+      i.style.width = i.style.height = "100%";
+      i.data = el.readme.getAttribute("data-src");
+      el.readme.append(i);
+    }));
   }
   function setupConsts() {
     Object.assign(el, Object.fromEntries([...document.querySelectorAll("[id]")].map((e) => [e.id, e])));
@@ -1079,7 +1054,7 @@ _hand turbulenceTBD, 1`,
     document.title += " " + (location.host === "" ? location.origin : location.host);
     setupConsts();
     setupCustomLog();
-    setupHelpOverkillStillBuggy();
+    setupHelp();
     setupDividers();
     setupMobileKeyboard();
     setupEventListeners();
@@ -1462,6 +1437,8 @@ code {
 }
 </style>
   <script>try { navigator.serviceWorker.register("service-worker.js"); } catch (e) { }</script>
+  <script async src="ht tps://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -1506,7 +1483,7 @@ code {
       <button id="buttonreserved2" class="export hidden altclick" title="buttonreserved2"></button>
       <button id="buttonjs" class="export hidden" title="Link to small, parametrizable svg">
         <div class="a">url<br>svg</div>
-        <div class="o"><object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object></div>
+        <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object>
       </button>
       <button id="buttonurleditor" class="export hidden" title="Link to this editor with url parameters">
         <div class="a">url<br>editor</div>

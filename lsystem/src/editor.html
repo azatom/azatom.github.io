@@ -11,6 +11,8 @@
   <script type="module" src="editor.js"></script>
   <link rel="stylesheet" href="editor.css">
   <script>try { navigator.serviceWorker.register("service-worker.js"); } catch (e) { }</script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -55,7 +57,7 @@
       <button id="buttonreserved2" class="export hidden altclick" title="buttonreserved2"></button>
       <button id="buttonjs" class="export hidden" title="Link to small, parametrizable svg">
         <div class="a">url<br>svg</div>
-        <div class="o"><object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object></div>
+        <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object>
       </button>
       <button id="buttonurleditor" class="export hidden" title="Link to this editor with url parameters">
         <div class="a">url<br>editor</div>

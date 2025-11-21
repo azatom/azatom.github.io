@@ -437,44 +437,17 @@ async function localstorageLoad() {
   return res;
 }
 
-function setupHelpOverkillStillBuggy() {
-  try {
-    const sc = document.createElement("script");
-    sc.src = "https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js";
-    sc.integrity = "sha512-V6rGY7jjOEUc7q5Ews8mMlretz1Vn2wLdMW/qgABLWunzsLfluM0FwHuGjGQ1lc8jO5vGpGIGFE+rTzB+63HdA==";
-    sc.crossOrigin = "anonymous";
-    sc.referrerpolicy = "no-referrer";
-    sc.async = true;
-    let text = null;
-    document.head.append(sc);
-    const fail = () => {
-      clearTimeout(t);
-      const i = document.createElement('object');
-      i.type = 'text/plain';
-      i.style.width = i.style.height = '100%';
-      i.data = el.readme.getAttribute('data-src');
-      el.readme.append(i);
-    };
-    const t = setTimeout(fail, 50);
-    const tt = (t, f) => t && (clearTimeout(t), f());
-    sc.addEventListener('error', fail);
-    sc.addEventListener('load', () => {
-      try {
-        tt(text, () => el.readme.innerHTML = marked.parse(text));
-      } catch (e) {
-        fail();
-      }
-    });
-    fetch(el.readme.getAttribute('data-src'))
-      .then(r => r.text())
-      .then(txt => {
-        clearTimeout(t);
-        typeof marked !== 'undefined'
-          ? el.readme.innerHTML = marked.parse(txt)
-          : text = txt
-      })
-      .catch(fail);
-  } catch (e) { };
+function setupHelp() {
+  fetch(el.readme.getAttribute('data-src'))
+    .then(r => r.text())
+    .then(txt => {
+      el.readme.innerHTML = marked.parse(txt);
+    })
+    .catch(_ => el.readme.append(Object.assign(document.createElement('object'), {
+      type: 'text/plain',
+      style: { width: '100%', height: '100%' },
+      data: el.readme.getAttribute('data-src'),
+    })));
 }
 
 function setupConsts() {
@@ -499,7 +472,7 @@ async function init() {
   setupConsts();
   // datasvg = ...; [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
   setupCustomLog();
-  setupHelpOverkillStillBuggy();
+  setupHelp();
   setupDividers();
   setupMobileKeyboard();
   setupEventListeners();
