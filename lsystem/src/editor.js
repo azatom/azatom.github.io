@@ -351,6 +351,8 @@ function setupDividers() {
 }
 
 function setupMobileKeyboard() {
+  if (!isMobileAgent()) return;
+  console.log('[mobile keyboard handling enabled]');
   const updateRightSize = () => {
     if (document.body.classList.contains('keyboard-active') && window.visualViewport) {
       el.right.style.height = `${window.visualViewport.height}px`;
@@ -440,13 +442,18 @@ async function localstorageLoad() {
 function setupHelp() {
   fetch(el.readme.getAttribute('data-src'))
     .then(r => r.text())
-    .then(txt => {
-      el.readme.innerHTML = marked.parse(txt);
+    .then((txt, t) => {
+      try {
+        el.readme.innerHTML = marked.parse(txt);
+      } catch (e) {
+        t < 5e3 && typeof marked === 'undefined' && setTimeout(() => setText(txt, t * 1.9 + 50), t);
+        t || (el.readme.innerText = txt);
+      }
     })
-    .catch(_ => el.readme.append(Object.assign(document.createElement('object'), {
+    .catch(_ => el.readme.append(Object.assign(document.createElement('iframe'), {
       type: 'text/plain',
-      style: { width: '100%', height: '100%' },
-      data: el.readme.getAttribute('data-src'),
+      src: el.readme.getAttribute('data-src'),
+      frameBorder: 0,
     })));
 }
 
