@@ -71,7 +71,7 @@ body {
 button {
   flex: 1;
   color: var(--o);
-  border-radius: .3125rem;
+  border-radius: .45rem;
   border: none;
   background-color: var(--e);
   padding: 0;
@@ -259,6 +259,10 @@ body.mobile-view>#divider:hover {
   height: 100%
 }
 
+#bigsvg {
+  height: 100%;
+}
+
 #bigsvg>svg:focus {
   outline: none
 }
@@ -329,7 +333,8 @@ pre,
 code {
   background-color: var(--e);
   border-radius: .3125rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  padding: 0 .5rem;
   margin-block: initial
 }
 

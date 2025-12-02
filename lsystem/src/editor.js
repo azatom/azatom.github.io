@@ -440,21 +440,23 @@ async function localstorageLoad() {
 }
 
 function setupHelp() {
+  const setHelpText = (txt, t = 0) => {
+    try {
+      el.readme.innerHTML = marked.parse(txt);
+    } catch (e) {
+      t < 5e4 && typeof marked === 'undefined' && setTimeout(() => setHelpText(txt, t * 1.9 + 50), t);
+      t || (el.readme.innerText = txt);
+    }
+  };
+  const createFailsafeIframe = () => Object.assign(document.createElement('iframe'), {
+    type: 'text/plain',
+    src: el.readme.getAttribute('data-src'),
+    frameBorder: 0,
+  });
   fetch(el.readme.getAttribute('data-src'))
     .then(r => r.text())
-    .then((txt, t) => {
-      try {
-        el.readme.innerHTML = marked.parse(txt);
-      } catch (e) {
-        t < 5e3 && typeof marked === 'undefined' && setTimeout(() => setText(txt, t * 1.9 + 50), t);
-        t || (el.readme.innerText = txt);
-      }
-    })
-    .catch(_ => el.readme.append(Object.assign(document.createElement('iframe'), {
-      type: 'text/plain',
-      src: el.readme.getAttribute('data-src'),
-      frameBorder: 0,
-    })));
+    .then(setHelpText)
+    .catch(_ => el.readme.append(createFailsafeIframe()));
 }
 
 function setupConsts() {
