@@ -695,7 +695,7 @@ _hand turbulenceTBD, 1`,
     if (!svg) return message(strings2.nothingToExport);
     const s = stringify(createR(R, 1));
     if (!s) return message(strings2.nothingToExport);
-    const qp = s.replace(/#/g, "%23");
+    const qp = s.replace(/&/g, "%26").replace(/\?/g, "%3F").replace(/#/g, "%23");
     Object.assign(document.createElement("a"), {
       target: "_blank",
       href: editor ? `${location.origin + location.pathname}${qs}${qp}` : `${strings2.lsystemsvg}${qs}${qp}`
@@ -1185,7 +1185,7 @@ button.dropdown[data-checked]:after {
   transform: rotate(180deg) scaleX(12);
   bottom: .1rem;
 }
-button:not([disabled]) {
+button:not(:empty):not([disabled]) {
   cursor: pointer;
 }
 button,
@@ -1195,7 +1195,7 @@ button > object {
 button > object {
   pointer-events: none;
 }
-button:hover {
+button:not(:empty):hover {
   filter: brightness(80%) contrast(150%);
 }
 .shift-pressed button.altclick > .a,

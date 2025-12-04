@@ -98,7 +98,7 @@ button.dropdown[data-checked]:after {
   bottom: .1rem
 }
 
-button:not([disabled]) {
+button:not(:empty):not([disabled]) {
   cursor: pointer
 }
 
@@ -111,7 +111,7 @@ button>object {
   pointer-events: none
 }
 
-button:hover {
+button:not(:empty):hover {
   filter: brightness(80%) contrast(150%)
 }
 

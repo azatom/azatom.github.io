@@ -92,8 +92,10 @@ function clickOpenStandaloneSvg(R = getRules(getText()), qs = '?', editor) {
   if (!svg) return message(strings.nothingToExport);
   const s = stringify(createR(R, 1));
   if (!s) return message(strings.nothingToExport);
-  const qp = s.replace(/#/g, '%23');
-  // TODO const qp = encodeURIComponent(s) except safes;
+  const qp = s//encodeURIComponent(s);
+    .replace(/&/g, '%26')
+    .replace(/\?/g, '%3F')
+    .replace(/#/g, '%23');
   Object.assign(document.createElement('a'), {
     target: '_blank',
     href: editor
