@@ -78,8 +78,8 @@ async function clickDownloadPng() {
   try {
     const svg = getSvg();
     if (!svg) return message(strings.nothingToExport);
-    const m = prompt(strings.pngPrompt);
-    if (!m) return;
+    const m = parseInt(prompt(strings.pngPrompt, strings.pngDefaultSize));
+    if (isNaN(m) || m < 1 || m > 65536) return;
     const { w, h, s, filename } = await downloadPng(svg, m);
     console.log(`saved: ${w}x${h} ${s} bytes ${filename}`);
   } catch (e) {

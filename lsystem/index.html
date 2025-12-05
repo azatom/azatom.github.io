@@ -32,7 +32,8 @@ _z Padding, 0+
 _hand turbulenceTBD, 1`,
     error: "error",
     copied: "copied",
-    pngPrompt: "Larger size [px]? max.safe: 16384, def.: 3840",
+    pngDefaultSize: 3840,
+    pngPrompt: "Larger size [px]? (max.safe: 16384)",
     untitled: "untitled",
     processing: "Processing...",
     nothingToExport: "Nothing to export"
@@ -682,8 +683,8 @@ _hand turbulenceTBD, 1`,
     try {
       const svg = getSvg();
       if (!svg) return message(strings2.nothingToExport);
-      const m = prompt(strings2.pngPrompt);
-      if (!m) return;
+      const m = parseInt(prompt(strings2.pngPrompt, strings2.pngDefaultSize));
+      if (isNaN(m) || m < 1 || m > 65536) return;
       const { w, h, s, filename } = await downloadPng(svg, m);
       console.log(`saved: ${w}x${h} ${s} bytes ${filename}`);
     } catch (e) {
@@ -1453,7 +1454,6 @@ code {
   }
 }
 </style>
-    
 </head>
 
 <body>

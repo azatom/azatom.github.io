@@ -2,7 +2,7 @@
 import { build } from 'esbuild';
 import { readFile, writeFile } from 'node:fs/promises';
 
-// const forWoCdataPluginSingleQuotes = {name: 'singleQuotes',setup(build) {build.onEnd(result =>result.outputFiles.forEach(file =>file.contents = Buffer.from(file.text.replace(/"([^"\\]|\\.)*"/g, m =>"'" + m.slice(1, -1).replace(/'/g, "\\'") + "'"))));}};
+// a plugin for svg without cdata, prefer single quotes in attr: {name: 'singleQuotes',setup(build) {build.onEnd(result =>result.outputFiles.forEach(file =>file.contents = Buffer.from(file.text.replace(/"([^"\\]|\\.)*"/g, m =>"'" + m.slice(1, -1).replace(/'/g, "\\'") + "'"))));}};
 
 const buildSafe = async (options) => {
   const result = await build({ write: false, ...options });
@@ -17,10 +17,12 @@ const [js, css, onload, lsystemSvg] = await Promise.all([{
   entryPoints: ['src/editor.js'],
   format: 'iife',
   bundle: true,
+  // minify: true,
 }, {
   entryPoints: ['src/editor.css'],
   loader: { '.css': 'css' },
   bundle: true,
+  // minify: true,
 }, {
   entryPoints: ['src/lsystem.svg.onload.js'],
   format: 'esm',
@@ -47,7 +49,7 @@ const writeIfChanged = async (filename, data) => {
 };
 
 await Promise.all([
-  ['index.html', html],
-  ['lsystem.svg', svg],
-  ['src/lsystem.svg', svg],
+  ['index.html', html], // optional standalone html file
+  ['src/lsystem.svg', svg], // needed for both
+  ['lsystem.svg', svg], // dupe
 ].map(e => writeIfChanged(...e)));
