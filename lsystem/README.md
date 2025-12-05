@@ -5,9 +5,9 @@
 - Re-formatting rules (e.g. after pasting): `Update` (Triangle) or `Ctrl+Enter`
 - Buttons with alternative feautres: press `shift` key or 'long click'
 - Manual save: `export` / `url editor` than bookmark it
-- Auto save: last valid rules aka. the textarea is saved in localstorage
+- Auto save: last valid rules
+- MobileZoom: onefingered tap-tap-drag,  desktop: scroll or +-
 - Practical usage:) look for button images in source
-- Zoom: tap-tap-drag / scroll / +-
 
 ### How It Works:
 - Start with a sentence 'S'

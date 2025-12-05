@@ -2,25 +2,16 @@
 import { build } from 'esbuild';
 import { readFile, writeFile } from 'node:fs/promises';
 
-async function writeIfChanged(filename, data, _buf = Buffer.from(data), _old) {
-  try { _old = await readFile(filename); } catch (e) { if (e.code !== 'ENOENT') throw e; }
-  if (_old && Buffer.compare(_buf, _old) === 0) return;
-  await writeFile(filename, _buf);
-  console.log(`builded - ${filename}`);
-}
-
 // const forWoCdataPluginSingleQuotes = {name: 'singleQuotes',setup(build) {build.onEnd(result =>result.outputFiles.forEach(file =>file.contents = Buffer.from(file.text.replace(/"([^"\\]|\\.)*"/g, m =>"'" + m.slice(1, -1).replace(/'/g, "\\'") + "'"))));}};
 
-async function buildSafe(options) {
+const buildSafe = async (options) => {
   const result = await build({ write: false, ...options });
-  const messages = [...result.warnings, ...result.errors];
-  if (messages.length) {
-    messages.forEach(e => console.error(e.text));
-    process.exit(1);
-  }
+  [...result.warnings, ...result.errors]
+    .map(e => console.error(e.text))
+    .some(() => process.exit(1));
   const text = result.outputFiles[0].text;
   return options?.minify ? text.trim() : text;
-}
+};
 
 const [js, css, onload, lsystemSvg] = await Promise.all([{
   entryPoints: ['src/editor.js'],
@@ -43,14 +34,20 @@ const [js, css, onload, lsystemSvg] = await Promise.all([{
 
 if (onload.match(/["&<\n]/)) throw new Error('bad svg: /["&<\\n]/');
 
-const htmlTemplate = await readFile('src/editor.html', 'utf8');
-const html = htmlTemplate
+const html = (await readFile('src/editor.html', 'utf8'))
   .replace(/<script[^>]*src="editor\.js"[^>]*><\/script>/, `<script>${js}</script>`)
   .replace(/<link[^>]*href="editor\.css"[^>]*>/, `<style>${css}</style>`);
 const svg = `<svg onload="${onload}" xmlns="http://www.w3.org/2000/svg"><script>/*<![CDATA[*/${lsystemSvg}//]]></script></svg>`;
 
+const writeIfChanged = async (filename, data) => {
+  let buf = Buffer.from(data), old;
+  try { old = await readFile(filename); }
+  catch (e) { if (e.code !== 'ENOENT') throw e; }
+  if (!old || buf.compare(old)) return writeFile(filename, buf);
+};
+
 await Promise.all([
-  writeIfChanged('index.html', html),
-  writeIfChanged('lsystem.svg', svg),
-  writeIfChanged('src/lsystem.svg', svg),
-]);
+  ['index.html', html],
+  ['lsystem.svg', svg],
+  ['src/lsystem.svg', svg],
+].map(e => writeIfChanged(...e)));

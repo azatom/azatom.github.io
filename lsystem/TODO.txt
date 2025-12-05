@@ -1,7 +1,9 @@
-- start/stop correct debounce
-+ animeate on (_a _l _m?) inc/dec
-+ reqestanoimationframe instead of "processing..."
-- Force mobile/desktop
++ Pinch-zoom
+- Mobile immediate exit from "keyboard mode" on outside tap of textarea
+- Start/stop correct debounce
++ Animeate on (_a _l _m?) inc/dec
+? Reqestanimationframe instead of "processing..."
++ Force mobile/desktop, dark/light modes
 ? Mobile back button
 + Turbulence in svg? (no use if segments have same turb at path joints)
   R=S=+F,_a=11,_hand=1 ; ch:turbulenced outside ov vb ; fx:better
@@ -18,7 +20,8 @@
 + Canvas
 + ?webgl ? copy UI from typical threejs
 - Dropdown arrow: make proper lines
-- divider shall move if click on dropdown button
-+ colored fill <> ()
-+ multiple/arbitrary angle <> ()
+- Divider shall move if click on dropdown button
++ Colored fill <> ()
++ Multiple/arbitrary angle <> ()
 + ... length <> ()
+- Readme in one place!
