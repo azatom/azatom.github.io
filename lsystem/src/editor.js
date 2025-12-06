@@ -424,7 +424,7 @@ function setupEventListeners() {
   ael(el.buttonexport, () => toggleExport());
   ael(el.buttonminilog, () => toggleMinilog());
   ael(el.buttonangleinc, altAngleIncDec);
-  ael(el.buttonreserved2, toggleFull);
+  // ael(el.buttonreserved2, toggleFull);
   ael(el.buttonhelp, alt => alt ? clickReset() : show(el.readme));
   initMobile(() => el.left.style[isMobile() ? 'width' : 'height'] = 'initial');
 }
@@ -484,7 +484,6 @@ function setupConsts() {
 }
 
 async function init() {
-  document.title += ' ' + (location.host === '' ? location.origin : location.host);
   setupConsts();
   // datasvg = ...; [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
   setupCustomLog();
@@ -494,6 +493,7 @@ async function init() {
   setupEventListeners();
   await localstorageLoad() || show(el.readme);
   el.textarea.setAttribute('contenteditable', true);
+  el.buttonreserved2.textContent += location.host === '' ? location.origin : location.host;
 }
 
 /* end of fun */

@@ -856,9 +856,6 @@ _hand turbulenceTBD, 1`,
     setText(R);
     update();
   }
-  function toggleFull() {
-    el.bigsvg.classList.toggle("full");
-  }
   function toggleDot() {
     setDot(!getDot());
     getText() ? update({ ...getRules(getText()), _k: getDot() ? 1 : 0, _o: getDot() ? 0 : "" }, 1) : clickShowExamples();
@@ -1014,7 +1011,6 @@ _hand turbulenceTBD, 1`,
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
     ael(el.buttonangleinc, altAngleIncDec);
-    ael(el.buttonreserved2, toggleFull);
     ael(el.buttonhelp, (alt) => alt ? clickReset() : show(el.readme));
     initMobile(() => el.left.style[isMobile() ? "width" : "height"] = "initial");
   }
@@ -1078,7 +1074,6 @@ _hand turbulenceTBD, 1`,
     el.textarea.dataset.placeholder = strings2.placeholder;
   }
   async function init() {
-    document.title += " " + (location.host === "" ? location.origin : location.host);
     setupConsts();
     setupCustomLog();
     setupHelp();
@@ -1087,6 +1082,7 @@ _hand turbulenceTBD, 1`,
     setupEventListeners();
     await localstorageLoad() || show(el.readme);
     el.textarea.setAttribute("contenteditable", true);
+    el.buttonreserved2.textContent += location.host === "" ? location.origin : location.host;
   }
   var el = {};
   var state = {};
