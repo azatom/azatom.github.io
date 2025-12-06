@@ -2,7 +2,7 @@
 .cursive svg,
 .cursive img,
 .cursive #buttoncursive {
-  filter: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="waves" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="linearRGB"><feTurbulence type="turbulence" baseFrequency="0.03 0.03" numOctaves="3" seed="1" stitchTiles="noStitch" result="turbulence"/><feDisplacementMap in="SourceGraphic" in2="turbulence" scale="6" xChannelSelector="G" yChannelSelector="A" result="displacementMap"/><feGaussianBlur stdDeviation=".15"/></filter></svg>#waves')
+  filter: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="waves" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="linearRGB"><feTurbulence type="turbulence" baseFrequency="0.03 0.03" numOctaves="3" seed="1" stitchTiles="noStitch" result="turbulence"/><feDisplacementMap in="SourceGraphic" in2="turbulence" scale="6" xChannelSelector="G" yChannelSelector="A" result="displacementMap"/><feGaussianBlur stdDeviation=".15"/></filter></svg>#waves');
 }
 
 :root {
@@ -15,7 +15,7 @@
   --fd: #fffd;
   --err: #d22;
   --font: system-ui, Arial, Helvetica, sans-serif;
-  height: 100%
+  height: 100%;
 }
 
 @media(prefers-color-scheme: dark) {
@@ -23,7 +23,7 @@
   :root,
   iframe,
   object.darkable {
-    filter: hue-rotate(180deg) invert()
+    filter: hue-rotate(180deg) invert();
   }
 }
 
@@ -33,7 +33,7 @@ body {
   background-color: var(--f);
   margin: 0;
   height: 100%;
-  font-family: var(--font)
+  font-family: var(--font);
 }
 
 #left {
@@ -47,13 +47,13 @@ body {
   min-width: 3rem;
   position: relative;
   z-index: 1;
-  height: auto
+  height: auto;
 }
 
 .tpbg {
   background-image: repeating-linear-gradient(45deg, var(--f) 25%, transparent 25%, transparent 75%, var(--f) 75%, var(--f)), repeating-linear-gradient(45deg, var(--f) 25%, var(--e) 25%, var(--e) 75%, var(--f) 75%, var(--f));
   background-position: 0 0, 2rem 2rem;
-  background-size: 4rem 4rem
+  background-size: 4rem 4rem;
 }
 
 .buttons {
@@ -62,11 +62,11 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr));
   gap: .5rem;
   user-select: none;
-  padding: .5rem
+  padding: .5rem;
 }
 
 .buttons#export {
-  padding-top: 0
+  padding-top: 0;
 }
 
 button {
@@ -79,11 +79,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden
+  overflow: hidden;
 }
 
 button.dropdown {
-  position: relative
+  position: relative;
 }
 
 button.dropdown:after {
@@ -91,72 +91,72 @@ button.dropdown:after {
   position: absolute;
   bottom: 0;
   transform: scaleX(12);
-  font-size: .3rem
+  font-size: .3rem;
 }
 
 button.dropdown[data-checked]:after {
   transform: rotate(180deg) scaleX(12);
-  bottom: .1rem
+  bottom: .1rem;
 }
 
 button:not(:empty):not([disabled]) {
-  cursor: pointer
+  cursor: pointer;
 }
 
 button,
 button>object {
-  height: 2.5rem
+  height: 2.5rem;
 }
 
 button>object {
-  pointer-events: none
+  pointer-events: none;
 }
 
 button:not(:empty):hover {
-  filter: brightness(80%) contrast(150%)
+  filter: brightness(80%) contrast(150%);
 }
 
 .shift-pressed button.altclick>.a,
 button>.b {
-  opacity: .2
+  opacity: .2;
 }
 
 .checked1 {
   display: block;
   position: absolute;
-  opacity: 0
+  opacity: 0;
 }
 
 .checked0 {
   display: block;
   position: absolute;
-  opacity: 1
+  opacity: 1;
 }
 
 [data-checked] .checked1 {
-  opacity: 1
+  opacity: 1;
 }
 
 [data-checked] .checked0 {
-  opacity: 0
+  opacity: 0;
 }
 
 .shift-pressed button.altclick>.b,
 button>.a {
   display: block;
   opacity: 1;
-  position: absolute
+  position: absolute;
 }
 
 [data-checked] {
-  color: var(--d)
+  color: var(--d);
 }
 
 hr {
   border: none;
   border-top: .2rem solid var(--d);
   max-width: 9rem;
-  margin: .2rem .5rem 0
+  margin: .2rem .5rem 0;
 }
 
 #buttonlog {
@@ -168,13 +168,13 @@ hr {
   justify-content: flex-start;
   text-align: left;
   display: flex;
-  flex-direction: column
+  flex-direction: column;
 }
 
 #buttonlog:focus {
   max-height: 12rem;
   min-height: 2.5rem;
-  height: fit-content
+  height: fit-content;
 }
 
 #textarea {
@@ -208,7 +208,7 @@ hr {
 @-moz-document url-prefix() {
   #textarea>p:first-letter {
     font-weight: 900;
-    font-size: 1.2rem
+    font-size: 1.2rem;
   }
 }
 
@@ -226,7 +226,7 @@ hr {
 }
 
 #divider:hover {
-  cursor: ew-resize
+  cursor: ew-resize;
 }
 
 body.mobile-view>#divider {
@@ -236,11 +236,11 @@ body.mobile-view>#divider {
   margin: 0 auto;
   box-sizing: border-box;
   background-color: var(--e);
-  border: .3rem solid var(--f)
+  border: .3rem solid var(--f);
 }
 
 body.mobile-view>#divider:hover {
-  cursor: ns-resize
+  cursor: ns-resize;
 }
 
 #right {
@@ -250,7 +250,7 @@ body.mobile-view>#divider:hover {
   overflow: auto;
   z-index: 0;
   min-width: 0;
-  min-height: 0
+  min-height: 0;
 }
 
 #readme {
@@ -259,12 +259,7 @@ body.mobile-view>#divider:hover {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  width: 100%
-}
-
-#readme>* {
-  /*width: 100%;
-  height: 100%*/
+  width: 100%;
 }
 
 #bigsvg {
@@ -279,27 +274,27 @@ body.mobile-view>#divider:hover {
 }
 
 #bigsvg>svg:focus {
-  outline: none
+  outline: none;
 }
 
 #smallsvgs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(max(8rem, 15%), 1fr));
-  height: auto
+  height: auto;
 }
 
 #smallsvgs>* {
   display: flex;
   overflow: hidden;
   aspect-ratio: 1;
-  cursor: pointer
+  cursor: pointer;
 }
 
 svg {
   display: block;
   object-fit: contain;
   width: 100%;
-  height: 100%
+  height: 100%;
 }
 
 div[contenteditable=true]:empty:not(:focus):before {
@@ -307,27 +302,27 @@ div[contenteditable=true]:empty:not(:focus):before {
   font-family: var(--font);
   content: attr(data-placeholder);
   color: var(--oa);
-  word-break: normal
+  word-break: normal;
 }
 
 .long-tap-progress {
   background: linear-gradient(180deg, var(--oa) 50%, var(--e) 50%);
   background-size: 400% 400%;
-  animation: slide .5s linear forwards
+  animation: slide .5s linear forwards;
 }
 
 @keyframes slide {
   to {
-    background-position: 0 100%
+    background-position: 0 100%;
   }
 }
 
 .hidden {
-  display: none !important
+  display: none !important;
 }
 
 .error {
-  background: var(--e)
+  background: var(--e);
 }
 
 #buttontxtclose {
@@ -337,11 +332,11 @@ div[contenteditable=true]:empty:not(:focus):before {
   width: 1.5rem;
   height: 1.5rem;
   display: none;
-  z-index: 4
+  z-index: 4;
 }
 
 body.keyboard-active #buttontxtclose {
-  display: block
+  display: block;
 }
 
 pre,
@@ -350,49 +345,49 @@ code {
   border-radius: .3125rem;
   font-size: 1rem;
   padding: 0 .3rem;
-  margin-block: initial
+  margin-block: initial;
 }
 
 @media only screen and (max-width: 45rem) {
   body {
-    flex-direction: column
+    flex-direction: column;
   }
 
   #left {
     max-width: 100%;
-    width: 100%
+    width: 100%;
   }
 
   .buttons {
     padding: .2rem;
     grid-template-columns: repeat(auto-fill, minmax(3.7rem, 1fr));
-    gap: .2rem
+    gap: .2rem;
   }
 
   #textarea {
     padding: .2rem;
     min-height: 30%;
-    min-width: 9rem
+    min-width: 9rem;
   }
 
   body.keyboard-active #textarea {
     max-height: initial;
     width: fit-content;
-    height: fit-content
+    height: fit-content;
   }
 
   #right {
     height: auto;
-    min-height: 30%
+    min-height: 30%;
   }
 
   #smallsvgs {
-    grid-template-columns: repeat(auto-fit, minmax(max(4rem, 15%), 1fr))
+    grid-template-columns: repeat(auto-fit, minmax(max(4rem, 15%), 1fr));
   }
 
   body.keyboard-active .buttons,
   body.keyboard-active #buttonlog {
-    display: none
+    display: none;
   }
 
   body.keyboard-active #left {
@@ -402,13 +397,13 @@ code {
     width: 100%;
     height: 100%;
     background: 0 0;
-    z-index: 2
+    z-index: 2;
   }
 
   body.keyboard-active #textarea {
     background: var(--fd);
     position: relative;
-    z-index: 3
+    z-index: 3;
   }
 
   body.keyboard-active #right {
@@ -417,12 +412,12 @@ code {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1
+    z-index: 1;
   }
 }
 
 @media only screen and (min-width: 45.001rem) {
   #buttontxtclose {
-    display: none !important
+    display: none !important;
   }
 }
