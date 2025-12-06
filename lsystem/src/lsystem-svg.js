@@ -118,4 +118,4 @@ export async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
   );
   return svg;
 }
-export default { lsystemSvg };
+// export default { lsystemSvg };
