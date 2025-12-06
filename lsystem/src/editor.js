@@ -87,7 +87,7 @@ async function clickDownloadPng() {
   }
 }
 
-function clickOpenStandaloneSvg(R = getRules(getText()), qs = '?', editor) {
+function clickOpenStandaloneSvg(R = getRules(getText()), qs = '#', editor) {
   const svg = getSvg();
   if (!svg) return message(strings.nothingToExport);
   const s = stringify(createR(R, 1));
@@ -250,6 +250,10 @@ function toggleTpbg() {
   s ? (R._cb = '#0000') : (delete R._cb, 0);
   setText(R);
   update();
+}
+
+function toggleFull() {
+  el.bigsvg.classList.toggle('full');
 }
 
 function toggleDot() {
@@ -420,6 +424,7 @@ function setupEventListeners() {
   ael(el.buttonexport, () => toggleExport());
   ael(el.buttonminilog, () => toggleMinilog());
   ael(el.buttonangleinc, altAngleIncDec);
+  ael(el.buttonreserved2, toggleFull);
   ael(el.buttonhelp, alt => alt ? clickReset() : show(el.readme));
   initMobile(() => el.left.style[isMobile() ? 'width' : 'height'] = 'initial');
 }

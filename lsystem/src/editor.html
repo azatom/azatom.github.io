@@ -6,10 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>L-System Fractals</title>
-  <link rel="manifest" href="manifest.json">
-  <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script>try { navigator.serviceWorker.register("service-worker.js"); } catch (e) { }</script>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+    function setBase() {
+      const base = document.createElement('base');
+      base.href = getBase();
+      document.head.insertBefore(base, document.head.firstChild);
+    }
+    setBase();
+    window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+  </script>
   <script type="module" src="editor.js"></script>
   <link rel="stylesheet" href="editor.css">
 </head>
@@ -23,12 +35,12 @@
       </button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
         <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cc=%23000f,_cb=%230000,_z=3">Update</object>
-        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">stop</object>
+        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">Stop</object>
       </button>
       <button id="buttontpbg" title="Highlights transparency">checked bg</button>
       <button id="buttondot" title="Show endpoints only">
-        <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%23000f,_cb=%230000,_l=8,_z=6">line</object>
-        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_0=0,_cb=%230000,_l=8,_z=6,_k=2">dot</object>
+        <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%23000f,_cb=%230000,_l=8,_z=6">Line</object>
+        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_0=0,_cb=%230000,_l=8,_z=6,_k=2">Dots</object>
       </button>
       <button id="buttonalleg" title="Show all examples">all examples</button>
       <button id="buttonnexteg" class="altclick" title="Shift: prev. example">
@@ -53,7 +65,8 @@
       </button>
       <button id="buttonminilog" class="dropdown" data-checked title="Log">log</button>
       <button id="buttonexport" class="dropdown" title="Show available exports">export</button>
-      <button id="buttonreserved2" class="export hidden altclick" title="buttonreserved2"></button>
+      <button id="buttonreserved2" class="export hidden" title="buttonreserved2">
+      </button>
       <button id="buttonjs" class="export hidden" title="Link to small, parametrizable svg">
         <div class="a">url<br>svg</div>
         <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object>

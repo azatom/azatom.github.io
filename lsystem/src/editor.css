@@ -38,6 +38,7 @@ body {
 
 #left {
   background-color: var(--f);
+  background-color: #fff7;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -188,14 +189,20 @@ hr {
   white-space: pre-wrap;
   overflow: auto;
   border: none;
-  word-break: break-all
+  word-break: break-all;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 #textarea>p {
   text-indent: -2.2ch;
   padding-left: 2.2ch;
-  margin: .4rem 0;
-  letter-spacing: .1ch
+  margin: .2rem 0;
+  letter-spacing: .1ch;
+  background-color: #fff;
+  width: fit-content;
 }
 
 @-moz-document url-prefix() {
@@ -214,7 +221,8 @@ hr {
   touch-action: none;
   user-select: none;
   z-index: 9;
-  background-color: var(--f)
+  background-color: var(--f);
+  background-color: #fff7;
 }
 
 #divider:hover {
@@ -260,7 +268,14 @@ body.mobile-view>#divider:hover {
 }
 
 #bigsvg {
-  height: 100%;
+  height: 100vh;
+}
+
+.full {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  left: 0;
 }
 
 #bigsvg>svg:focus {

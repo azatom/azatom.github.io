@@ -1,4 +1,5 @@
 import { strings } from "./strings.js";
+
 export function addSvgZoom(svg, parentSelector = '') {
   svg.tabIndex = 0;
   const zoomConstant = 6;
@@ -131,15 +132,12 @@ export function addSvgZoom(svg, parentSelector = '') {
   svg.addEventListener("mouseleave", end);
   svg.addEventListener("touchend", end);
   svg.addEventListener("touchcancel", end);
-  const saveTitle = document.title;
   svg.addEventListener("mousemove", e => {
     const r = rect();
     const v = vb();
     const x = v[0] + v[2] * (e.clientX - r.left) / r.width;
     const y = v[1] + v[3] * (e.clientY - r.top) / r.height;
-    document.title = `${x.toFixed(1)}, ${y.toFixed(1)}`;
   });
-  svg.addEventListener("mouseleave", () => document.title = saveTitle);
   return svg;
 }
 
@@ -184,7 +182,7 @@ async function downloadBlob(blob, filename) {
     a.click();
     document.body.removeChild(a);
   } catch (e) {
-    alert(e.message);
+    message(e.message);
   } finally {
     setTimeout(() => URL.revokeObjectURL(url), 100);
   }

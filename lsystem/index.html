@@ -6,10 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>L-System Fractals</title>
-  <link rel="manifest" href="manifest.json">
-  <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script>try { navigator.serviceWorker.register("service-worker.js"); } catch (e) { }</script>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+    function setBase() {
+      const base = document.createElement('base');
+      base.href = getBase();
+      document.head.insertBefore(base, document.head.firstChild);
+    }
+    setBase();
+    window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+  </script>
   <script>(() => {
   // src/strings.js
   var strings2 = {
@@ -517,15 +529,12 @@ _hand turbulenceTBD, 1`,
     svg.addEventListener("mouseleave", end);
     svg.addEventListener("touchend", end);
     svg.addEventListener("touchcancel", end);
-    const saveTitle = document.title;
     svg.addEventListener("mousemove", (e) => {
       const r = rect();
       const v = vb();
       const x = v[0] + v[2] * (e.clientX - r.left) / r.width;
       const y = v[1] + v[3] * (e.clientY - r.top) / r.height;
-      document.title = `${x.toFixed(1)}, ${y.toFixed(1)}`;
     });
-    svg.addEventListener("mouseleave", () => document.title = saveTitle);
     return svg;
   }
   async function downloadSvg(svg, isMinimized) {
@@ -565,7 +574,7 @@ _hand turbulenceTBD, 1`,
       a.click();
       document.body.removeChild(a);
     } catch (e) {
-      alert(e.message);
+      message(e.message);
     } finally {
       setTimeout(() => URL.revokeObjectURL(url), 100);
     }
@@ -625,7 +634,7 @@ _hand turbulenceTBD, 1`,
     navigator.clipboard.writeText(t);
     console.log(strings2.copied);
   }
-  async function message(m, delay = 0, short = "") {
+  async function message2(m, delay = 0, short = "") {
     clearTimeout(state.timer);
     el.buttonminilog.textContent = short;
     const f = async () => show(Object.assign(el.message, { innerText: m }));
@@ -633,7 +642,7 @@ _hand turbulenceTBD, 1`,
   }
   async function lsystemSvgWrap(R, isInterruptable) {
     const acHolder = isInterruptable ? state : void 0;
-    const progress = isInterruptable ? (n) => message("Processing...", 0, (n / 1e6).toFixed(1) + " M") : void 0;
+    const progress = isInterruptable ? (n) => message2("Processing...", 0, (n / 1e6).toFixed(1) + " M") : void 0;
     return wrappedRun(acHolder, progress, lsystemSvg, R);
   }
   function createR(o, preserveViewBox) {
@@ -676,26 +685,26 @@ _hand turbulenceTBD, 1`,
       addSvgZoom(svg, "#bigsvg");
       show(el.bigsvg);
     } catch (e) {
-      message(e.message, 0, strings2.error);
+      message2(e.message, 0, strings2.error);
     }
   }
   async function clickDownloadPng() {
     try {
       const svg = getSvg();
-      if (!svg) return message(strings2.nothingToExport);
+      if (!svg) return message2(strings2.nothingToExport);
       const m = parseInt(prompt(strings2.pngPrompt, strings2.pngDefaultSize));
       if (isNaN(m) || m < 1 || m > 65536) return;
       const { w, h, s, filename } = await downloadPng(svg, m);
       console.log(`saved: ${w}x${h} ${s} bytes ${filename}`);
     } catch (e) {
-      message(e.message);
+      message2(e.message);
     }
   }
-  function clickOpenStandaloneSvg(R = getRules(getText()), qs = "?", editor) {
+  function clickOpenStandaloneSvg(R = getRules(getText()), qs = "#", editor) {
     const svg = getSvg();
-    if (!svg) return message(strings2.nothingToExport);
+    if (!svg) return message2(strings2.nothingToExport);
     const s = stringify(createR(R, 1));
-    if (!s) return message(strings2.nothingToExport);
+    if (!s) return message2(strings2.nothingToExport);
     const qp = s.replace(/&/g, "%26").replace(/\?/g, "%3F").replace(/#/g, "%23");
     Object.assign(document.createElement("a"), {
       target: "_blank",
@@ -704,12 +713,12 @@ _hand turbulenceTBD, 1`,
   }
   function altbuttonline(alt) {
     const svg = getSvg();
-    if (!svg) return message(strings2.nothingToExport);
+    if (!svg) return message2(strings2.nothingToExport);
     copy(alt ? JSON.stringify(getRules(getText())) : stringify(getText()));
   }
   function clickbuttonsvg() {
     const svg = getSvg();
-    if (!svg) return message(strings2.nothingToExport);
+    if (!svg) return message2(strings2.nothingToExport);
     svg.removeAttribute("tabindex");
     downloadSvg(svg);
   }
@@ -846,6 +855,9 @@ _hand turbulenceTBD, 1`,
     s ? R._cb = "#0000" : (delete R._cb, 0);
     setText(R);
     update();
+  }
+  function toggleFull() {
+    el.bigsvg.classList.toggle("full");
   }
   function toggleDot() {
     setDot(!getDot());
@@ -1002,6 +1014,7 @@ _hand turbulenceTBD, 1`,
     ael(el.buttonexport, () => toggleExport());
     ael(el.buttonminilog, () => toggleMinilog());
     ael(el.buttonangleinc, altAngleIncDec);
+    ael(el.buttonreserved2, toggleFull);
     ael(el.buttonhelp, (alt) => alt ? clickReset() : show(el.readme));
     initMobile(() => el.left.style[isMobile() ? "width" : "height"] = "initial");
   }
@@ -1120,6 +1133,7 @@ body {
 }
 #left {
   background-color: var(--f);
+  background-color: #fff7;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -1263,12 +1277,17 @@ hr {
   overflow: auto;
   border: none;
   word-break: break-all;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 #textarea > p {
   text-indent: -2.2ch;
   padding-left: 2.2ch;
-  margin: .4rem 0;
+  margin: .2rem 0;
   letter-spacing: .1ch;
+  background-color: #fff;
+  width: fit-content;
 }
 @-moz-document url-prefix() {
   #textarea > p:first-letter {
@@ -1286,6 +1305,7 @@ hr {
   user-select: none;
   z-index: 9;
   background-color: var(--f);
+  background-color: #fff7;
 }
 #divider:hover {
   cursor: ew-resize;
@@ -1322,7 +1342,13 @@ body.mobile-view > #divider:hover {
 #readme > * {
 }
 #bigsvg {
-  height: 100%;
+  height: 100vh;
+}
+.full {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  left: 0;
 }
 #bigsvg > svg:focus {
   outline: none;
@@ -1465,12 +1491,12 @@ code {
       </button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
         <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cc=%23000f,_cb=%230000,_z=3">Update</object>
-        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">stop</object>
+        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">Stop</object>
       </button>
       <button id="buttontpbg" title="Highlights transparency">checked bg</button>
       <button id="buttondot" title="Show endpoints only">
-        <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%23000f,_cb=%230000,_l=8,_z=6">line</object>
-        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_0=0,_cb=%230000,_l=8,_z=6,_k=2">dot</object>
+        <object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_cc=%23000f,_cb=%230000,_l=8,_z=6">Line</object>
+        <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++++++F++++F,_a=20,_0=0,_cb=%230000,_l=8,_z=6,_k=2">Dots</object>
       </button>
       <button id="buttonalleg" title="Show all examples">all examples</button>
       <button id="buttonnexteg" class="altclick" title="Shift: prev. example">
@@ -1495,7 +1521,8 @@ code {
       </button>
       <button id="buttonminilog" class="dropdown" data-checked title="Log">log</button>
       <button id="buttonexport" class="dropdown" title="Show available exports">export</button>
-      <button id="buttonreserved2" class="export hidden altclick" title="buttonreserved2"></button>
+      <button id="buttonreserved2" class="export hidden" title="buttonreserved2">
+      </button>
       <button id="buttonjs" class="export hidden" title="Link to small, parametrizable svg">
         <div class="a">url<br>svg</div>
         <object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object>
