@@ -226,6 +226,7 @@ hr {
 
 #divider:hover {
   cursor: ew-resize;
+  background-color: var(--e);
 }
 
 body.mobile-view>#divider {

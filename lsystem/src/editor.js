@@ -358,7 +358,6 @@ function setupDividers() {
 
 function setupMobileKeyboard() {
   if (!isMobileAgent()) return;
-  console.log('[mobile keyboard handling enabled]');
   const updateRightSize = () => {
     if (document.body.classList.contains('keyboard-active') && window.visualViewport) {
       el.right.style.height = `${window.visualViewport.height}px`;
@@ -493,7 +492,7 @@ async function init() {
   setupEventListeners();
   await localstorageLoad() || show(el.readme);
   el.textarea.setAttribute('contenteditable', true);
-  el.buttonreserved2.textContent += location.host === '' ? location.origin : location.host;
+  console.log(location.host || location.origin);
 }
 
 /* end of fun */
