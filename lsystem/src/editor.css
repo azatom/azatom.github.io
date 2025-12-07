@@ -190,10 +190,7 @@ hr {
   overflow: auto;
   border: none;
   word-break: break-all;
-
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  line-height: 1;
 }
 
 #textarea>p {
@@ -201,8 +198,6 @@ hr {
   padding-left: 2.2ch;
   margin: .2rem 0;
   letter-spacing: .1ch;
-  background-color: var(--f);
-  width: fit-content;
 }
 
 @-moz-document url-prefix() {
@@ -266,12 +261,12 @@ body.mobile-view>#divider:hover {
   height: 100vh;
 }
 
-.full {
+/* .full {
   height: 100vh;
   width: 100vw;
   position: fixed;
   left: 0;
-}
+} */
 
 #bigsvg>svg:focus {
   outline: none;
@@ -319,10 +314,6 @@ div[contenteditable=true]:empty:not(:focus):before {
 
 .hidden {
   display: none !important;
-}
-
-.error {
-  background: var(--e);
 }
 
 #buttontxtclose {
@@ -396,7 +387,6 @@ code {
     left: 0;
     width: 100%;
     height: 100%;
-    /* background: 0 0; */
     z-index: 2;
   }
 

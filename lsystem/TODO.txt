@@ -26,3 +26,4 @@
 + ... length <> ()
 - Readme in one place!
 + export lsystem.svg
++ svg strip: metadata, accuracy ~pixelscale
