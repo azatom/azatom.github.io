@@ -2,13 +2,19 @@
 import { build } from 'esbuild';
 import { readFile, writeFile } from 'node:fs/promises';
 
-const inJs = 'src/editor.js';
-const inHelperJs = 'src/lsystem.svg.onload.js';
-const inCss = 'src/editor.css';
-const inHtml = 'src/editor.html';
-const outSvg = 'src/lsystem.svg';
-const outHtmlSvg = 'lsystem.svg';
+const srcHtml = 'src/editor.html';
+const outSrcSvg = 'src/lsystem.svg';
+const outSvg = 'lsystem.svg';
 const outHtml = 'index.html';
+const srcs = [{
+  entryPoints: ['src/editor.js'],
+  format: 'iife',
+}, {
+  entryPoints: ['src/lsystem.svg.onload.js'],
+  format: 'esm',
+}, {
+  entryPoints: ['src/editor.css'],
+}]
 
 const failOnWarning = async (options) => {
   const result = await build({
@@ -23,15 +29,7 @@ const failOnWarning = async (options) => {
   return result.outputFiles[0].text.trim();
 };
 
-const [js, onload, css] = await Promise.all([{
-  entryPoints: [inJs],
-  format: 'iife',
-}, {
-  entryPoints: [inHelperJs],
-  format: 'esm',
-}, {
-  entryPoints: [inCss],
-}].map(failOnWarning));
+const [js, onload, css] = await Promise.all(srcs.map(failOnWarning));
 
 // TODO: use terser(?): unfavor '&&' and '"'
 const escaped = onload
@@ -43,7 +41,7 @@ const escaped = onload
 
 const svg = `<svg onload="${escaped}" xmlns="http://www.w3.org/2000/svg"></svg>`;
 
-const html = (await readFile(inHtml, 'utf8'))
+const html = (await readFile(srcHtml, 'utf8'))
   .replace(/<script[^>]*src="editor\.js"[^>]*><\/script>/, `<script>${js}</script>`)
   .replace(/<link[^>]*href="editor\.css"[^>]*>/, `<style>${css}</style>`);
 
@@ -56,7 +54,7 @@ const writeIfChanged = async (filename, data) => {
 };
 
 [
-  [outSvg, svg], // standalone svg
-  [outHtmlSvg, svg], // optional dupe for html
+  [outSrcSvg, svg], // standalone svg
+  [outSvg, svg], // optional dupe for html
   [outHtml, html], // optional standalone html file
 ].map(e => writeIfChanged(...e));
