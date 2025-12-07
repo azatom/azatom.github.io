@@ -103,13 +103,15 @@ button:not(:empty):not([disabled]) {
   cursor: pointer;
 }
 
-button,
-button>object {
-  height: 2.5rem;
-}
-
+button>svg,
 button>object {
   pointer-events: none;
+}
+
+button,
+button>svg,
+button>object {
+  height: 2.5rem;
 }
 
 button:not(:empty):hover {
@@ -285,7 +287,7 @@ body.mobile-view>#divider:hover {
   cursor: pointer;
 }
 
-svg {
+#right svg {
   display: block;
   object-fit: contain;
   width: 100%;
