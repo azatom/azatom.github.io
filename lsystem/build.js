@@ -46,10 +46,10 @@ const html = (await readFile(srcHtml, 'utf8'))
   .replace(/<link[^>]*href="editor\.css"[^>]*>/, `<style>${css}</style>`);
 
 const writeIfChanged = async (filename, data) => {
-  let buf = Buffer.from(data), old, res = '✗';
+  let buf = Buffer.from(data), old, res = '-';
   try { old = await readFile(filename); }
   catch (e) { if (e.code !== 'ENOENT') throw e; }
-  if (!old || buf.compare(old)) { await writeFile(filename, buf); res = '✓'; }
+  if (!old || buf.compare(old)) { await writeFile(filename, buf); res = '+'; }
   console.log(`${res} ${filename}`);
 };
 
