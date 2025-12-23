@@ -459,10 +459,12 @@ function setupHelp() {
     src: el.readme.getAttribute('data-src'),
     frameBorder: 0,
   });
-  fetch(el.readme.getAttribute('data-src'))
-    .then(r => r.text())
-    .then(setHelpText)
-    .catch(_ => el.readme.append(createFailsafeIframe()));
+  try {
+    fetch(el.readme.getAttribute('data-src'))
+      .then(r => r.text())
+      .then(setHelpText)
+      .catch(_ => el.readme.append(createFailsafeIframe()));
+  } catch (e) { console.log(e); }
 }
 
 function setupConsts() {

@@ -259,6 +259,10 @@ body.mobile-view>#divider:hover {
   width: 100%;
 }
 
+#readme>* {
+  flex-grow: 1;
+}
+
 #bigsvg {
   height: 100vh;
 }

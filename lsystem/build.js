@@ -3,12 +3,12 @@ import { build } from 'esbuild';
 import { readFile, writeFile } from 'node:fs/promises';
 import { minify } from 'terser';
 
-const srcHtml = 'src/editor.html';
+const srcHtml = 'src/lsystem.html';
 const outSrcSvg = 'src/lsystem.svg';
 const outSvg = 'lsystem.svg';
 const outHtml = 'index.html';
 const srcs = [{
-  entryPoints: ['src/editor.js'],
+  entryPoints: ['src/lsystem.js'],
   format: 'iife',
 }, {
   entryPoints: ['src/lsystem.svg.onload.js'],
@@ -23,7 +23,7 @@ const srcs = [{
   format: 'esm',
   minify: true,
 }, {
-  entryPoints: ['src/editor.css'],
+  entryPoints: ['src/lsystem.css'],
 }]
 
 const failOnWarning = async (options) => {
@@ -56,8 +56,8 @@ const [js, onload, onloadForCDATA, lsForCDATA, css] = await Promise.all(srcs.map
 const [js2, onload2, onloadForCDATA2, lsForCDATA2] = (await Promise.all([js, onload, onloadForCDATA, lsForCDATA].map(a => minify(a, terseropts)))).map(a=>a.code);
 
 const html = (await readFile(srcHtml, 'utf8'))
-  .replace(/<script[^>]*src="editor\.js"[^>]*><\/script>/, `<script>${js2}</script>`)
-  .replace(/<link[^>]*href="editor\.css"[^>]*>/, `<style>${css}</style>`);
+  .replace(/<script[^>]*src="lsystem\.js"[^>]*><\/script>/, `<script>${js2}</script>`)
+  .replace(/<link[^>]*href="lsystem\.css"[^>]*>/, `<style>${css}</style>`);
 
 const esc = s => s
   .replace(/&/g, '&amp;')
@@ -76,7 +76,7 @@ const writeIfChanged = async (filename, data) => {
   try { old = await readFile(filename); }
   catch (e) { if (e !== 'ENOENT') throw e; }
   if (!old || buf.compare(old)) { await writeFile(filename, buf); res = '+'; }
-  console.log(`${res} ${filename} ${buf.length} (${buf.length - old.length})`);
+  console.log(`${res} ${filename}  ${buf.length<old.length?'':'+'}${buf.length-old.length}/${buf.length}`);
 };
 
 [
