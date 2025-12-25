@@ -84,3 +84,21 @@ const writeIfChanged = async (filename, data) => {
   [outSvg, svg], // optional dupe for html
   [outHtml, html], // optional standalone html file
 ].map(e => writeIfChanged(...e));
+
+const readme1 = 'README.md';
+const readme2 = 'src/README.md';
+const { statSync } = await import('node:fs');
+try {
+  const readme1Content = await readFile(readme1, 'utf8').catch(() => '');
+  const readme2Content = await readFile(readme2, 'utf8').catch(() => '');
+  if (readme1Content !== readme2Content) {
+    if (statSync(readme1).mtime < statSync(readme2).mtime) {
+      await writeIfChanged(readme1, readme2Content);
+    } else {
+      console.error('error: You must edit README.md in src!');
+    }
+  }
+} catch (e) {
+  console.error(`error:  Could not check file dates: ${e.message}`);
+}
+

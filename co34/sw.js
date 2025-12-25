@@ -6,7 +6,6 @@ const urlsToCache = [
     './cdn.js',
     './favicon.ico',
     './manifest.json',
-    './offline.html',
     './saves.js',
     './script.js',
     './style.css',
@@ -85,7 +84,8 @@ function handleNavigateRequest(event) {
 function handleSameOriginRequest(event) {
     const cacheRequest = getCacheRequest(event);
     event.respondWith(
-        caches.match(cacheRequest).then(async (cachedResponse) => cachedResponse || fetch(event.request)
+        caches.match(cacheRequest)
+            .then(async (cachedResponse) => cachedResponse || fetch(event.request)
             .then(async (networkResponse) => {
                 const cache = await caches.open(cacheName);
                 cache.put(event.request, networkResponse.clone());

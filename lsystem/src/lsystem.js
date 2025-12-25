@@ -1,5 +1,5 @@
 import { strings } from './strings.js';
-import { lsystemSvg } from './lsystem-svg.js';
+import lsystemSvg from './lsystem-svg.js';
 import { examples } from './examples.js';
 import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
 import { getRules, addDefaults, addVb, stringify } from './ruletext.js';

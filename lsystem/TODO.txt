@@ -1,3 +1,5 @@
+! One readme!
++ starting angle
 + Pinch-zoom
 - Mobile immediate exit from "keyboard mode" on outside tap of textarea
 - Start/stop correct debounce

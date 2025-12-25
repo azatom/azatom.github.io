@@ -13,7 +13,7 @@
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    function getBase() { return window.location.pathname.replace(/\/*(index.html)?$/, "/"); }
+    function getBase() { return window.location.pathname.replace(/\/*([a-z]+\.html)?$/, "/"); }
     function setBase() {
       const base = document.createElement('base');
       base.href = getBase();

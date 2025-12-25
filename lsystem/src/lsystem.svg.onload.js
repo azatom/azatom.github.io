@@ -1,4 +1,4 @@
-import { lsystemSvg } from './lsystem-svg.js';
+import lsystemSvg from './lsystem-svg.js';
 (
   (e, s = e.target) => (
     onhashchange = e => lsystemSvg(

@@ -2,45 +2,111 @@
 
 const CACHE_NAME = 'my-site-v1';
 
-const URLs_TO_CACHE = [
+const URLS_TO_CACHE = [
   './',
+  './192x192.png',
   './lsystem.svg',
   './README.md',
   './favicon.ico',
+  './manifest.json',
+  'https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js',
 ];
+const urlAlias = {
+  '.': './',
+  './index.html': './',
+  './lsystem.html': './', 
+};
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(URLs_TO_CACHE))
+      .then(cache => cache.addAll(URLS_TO_CACHE))
       .then(() => self.skipWaiting())
+      .catch(err => console.error('Cache installation failed:', err))
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.map(key => {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      })
-    )).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys =>
+        Promise.all(
+          keys.map(key => {
+            if (key !== CACHE_NAME) {
+              return caches.delete(key);
+            }
+          })
+        )
+      )
+      .then(() => self.clients.claim())
   );
 });
 
+function resolveAlias(fullUrl) {
+  const path = new URL(fullUrl).pathname;
+  return urlAlias[path] || path;
+};
+
 self.addEventListener('fetch', event => {
-  console.log('fetch:::', event.request.url);
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http')) return;
+  const effectivePath = resolveAlias(event.request.url);
+
+  // Create a synthetic request for cache lookup ONLY
+  // IMPORTANT: NEVER set mode: 'navigate'
+  const cacheLookupRequest = new Request(effectivePath, {
+    method: event.request.method,
+    headers: event.request.headers,
+    // mode: 'same-origin',   // safe default – or omit entirely
+    credentials: event.request.credentials,
+    cache: event.request.cache,
+    redirect: event.request.redirect,
+    referrer: event.request.referrer,
+    integrity: event.request.integrity,
+    // IMPORTANT: Do NOT copy mode if it's 'navigate'
+  });
+
   event.respondWith(
-    caches.match(event.request)
-      .then(cached => {
-        if (cached) return cached;
-        console.log('notcached:::', event.request.url);
+    caches.match(cacheLookupRequest)
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // Fetch from network using the ORIGINAL request
         return fetch(event.request)
           .then(networkResponse => {
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+            if (
+              !networkResponse ||
+              networkResponse.status >= 400 ||
+              networkResponse.type === 'opaque'
+            ) {
+              return networkResponse;
+            }
+
+            const responseToCache = networkResponse.clone();
+
+            caches.open(CACHE_NAME).then(cache => {
+              // Cache under ORIGINAL URL
+              cache.put(event.request, responseToCache);
+
+              // Also cache under the aliased path (for future alias hits)
+              if (effectivePath !== new URL(event.request.url).pathname) {
+                cache.put(cacheLookupRequest, responseToCache);
+              }
+            }).catch(err => console.error('Cache put failed:', err));
+
             return networkResponse;
           })
-          .catch(() => caches.match(event.request));
+          .catch(() => {
+            if (event.request.mode === 'navigate') {
+              return new Response(
+                "Offline – this page requires a connection.",
+                { headers: { 'Content-Type': 'text/plain' } }
+              );
+            }
+            return new Response('', { status: 503 });
+          });
       })
   );
 });
