@@ -1,6 +1,6 @@
 ## LSystem.svg - Logo Turtle with Context-Free Grammar - Lindenmayer System Fractals
 ### Just click **`all examples`** / **`next e.g.`** buttons.
-- Standalone editor html/PWA: [html#...](.#=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_z=1.5)
+- Standalone editor html/PWA: [html#...](lsystem.html#=Hilbert,S=-!S!F+SFS+F!S!-,_a=90,_l=2,_n=4,_z=1.5)
 - Standalone SVG file: [svg#...](lsystem.svg#S=AX,X=F+F+F+FFF-F-F-F,F=,A=[+AX-AX-AX]-AX+AX+AX-,_a=60,_n=3)
 - Re-formatting rules (e.g. after pasting): `Update` (Triangle) or `Ctrl+Enter`
 - Buttons with alternative feautres: press `shift` key or 'long click'

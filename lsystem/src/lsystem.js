@@ -1,7 +1,7 @@
 import { strings } from './strings.js';
 import lsystemSvg from './lsystem-svg.js';
 import { examples } from './examples.js';
-import { wrappedRun, yieldOnce, toggleCustomLog, installServiceWorker} from './utils.js';
+import { wrappedRun, yieldOnce, toggleCustomLog, installServiceWorker, setupHtmlBase } from './utils.js';
 import { getRules, addDefaults, addVb, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 import { initMobile, isMobile, forceMobile, isMobileAgent } from './ismobile.js';
@@ -485,6 +485,7 @@ function setupConsts() {
 }
 
 async function init() {
+  const base = await setupHtmlBase();
   setupConsts();
   // datasvg = ...; [...document.querySelectorAll('[data-r]')].forEach(e => e.data = datasvg + '#' + e.getAttribute('data-r'));
   setupCustomLog();
@@ -494,7 +495,7 @@ async function init() {
   setupEventListeners();
   await localstorageLoad() || show(el.readme);
   el.textarea.setAttribute('contenteditable', true);
-  await installServiceWorker();
+  await installServiceWorker('./sw.js', base);
 }
 
 /* end of fun */

@@ -1,5 +1,5 @@
 // dummy sw: self.addEventListener("fetch", (e) =>e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-const version = 'v1.0.2';
+const version = 'v1.0.4';
 const CACHE_NAME = `lsystemcache-${version}`;
 
 const URLS_TO_CACHE = [
@@ -11,6 +11,13 @@ const URLS_TO_CACHE = [
   './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js',
 ];
+const base = (() => {
+  if (typeof WorkerLocation !== 'undefined' && self.location && self.location.pathname) {
+    const swPath = self.location.pathname;
+    return swPath.substring(0, swPath.lastIndexOf('/') + 1);
+  }
+  return './';
+})();
 const urlAlias = {
   '.': './',
   './index.html': './',
@@ -43,7 +50,8 @@ self.addEventListener('activate', event => {
 });
 
 function resolveAlias(fullUrl) {
-  const path = new URL(fullUrl).pathname;
+  let path = new URL(fullUrl).pathname;
+  if (path.startsWith(base)) path = './' + path.substring(base.length);
   return urlAlias[path] || path;
 };
 

@@ -40,7 +40,16 @@ export async function wrappedRun(acHolder, progress, fn, arg) {
   }
 }
 
-export async function installServiceWorker(sw = './sw.js') {
+export async function setupHtmlBase() {
+  const base = window.location.pathname.replace(/\/*([a-z]+\.html)?$/, "/");
+  document.head.insertBefore(Object.assign(
+    document.createElement('base'),
+    { href: base }
+  ), document.head.firstChild);
+  return base;
+}
+
+export async function installServiceWorker(sw, base) {
   try {
     const reg = await window.navigator.serviceWorker.register(sw);
     const mc = new MessageChannel();
