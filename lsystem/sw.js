@@ -1,6 +1,6 @@
 // dummy sw: self.addEventListener("fetch", (e) =>e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
 
-const CACHE_NAME = 'my-site-v1';
+const CACHE_NAME = 'my-site-v1.1';
 
 const URLS_TO_CACHE = [
   './',
