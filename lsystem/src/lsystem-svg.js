@@ -61,25 +61,42 @@ export default async function lsystemSvg(R = 'S=SF+SF-SF', svg, pleaseStop) {
       };
     })();
   let id = [0, 1].map(_ => 'id' + Math.random().toString(36).slice(2)), ir;
-  /*/
-  for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* (Z && n === R._n ? Z : R)?.[j] ?? j; else yield* R.S; }(R._n))
-  /*/
-  const stop = async _ => ++cnt && pleaseStop && cnt % 1e4 === 0 && (ir = await pleaseStop(cnt))
-  const ai = Array(2 + R._n).fill(0), ar = ai.map(() => []), next = (n, c) => {
-    while (true) {
-      if (ai[n] < ar[n].length) return ar[n][ai[n]++];
-      if (!n || !(c = next(n - 1))) return 0;
-      ar[n] = (Z && n === R._n ? Z : R)[c] ?? c;
-      ai[n] = 0;
-    }
-  }; ar[0] = R.S; while ((i = next(R._n)) && !await stop())
-    /**/
+  const step = _ =>
     'F' === i || 'f' === i ? [x, y] = D.put(x + f(Math.cos), y + f(Math.sin), 'F' === i) :
     '+' === i ? a += p : '*' === i ? q++ : '|' === i ? b = (b + 0 + 2) % 4 :
     '-' === i ? a -= p : '/' === i ? q-- : '^' === i ? b = (b + p + 4) % 4 :
     '!' === i ? p = -p :
     '[' === i ? z.push([x, y, a, b, q]) :
     ']' === i ? z.length && ([x, y, a, b, q] = z.pop(), D.put(x, y)) : 0;
+
+  const ver = 1;
+
+  if (0 === ver) {
+    for (i of function* g(n) { if (n > 0) for (j of g(n - 1)) yield* (Z && n === R._n ? Z : R)?.[j] ?? j; else yield* R.S; }(R._n)) {
+      ++cnt;
+      if (pleaseStop && cnt % 1e4 === 0 && (ir = await pleaseStop(cnt))) break;
+      step();
+    }
+  }
+
+  if (1 === ver) {
+    const ai = Array(2 + R._n).fill(0), ar = ai.map(() => [])
+      , next = (n, c) => {
+        while (true) {
+          if (ai[n] < ar[n].length) return ar[n][ai[n]++];
+          if (!n || !(c = next(n - 1))) return 0;
+          ar[n] = (Z && n === R._n ? Z : R)[c] ?? c;
+          ai[n] = 0;
+        }
+      };
+    ar[0] = R.S;
+    while (i = next(R._n)) {
+      ++cnt;
+      if (pleaseStop && cnt % 1e4 === 0 && (ir = await pleaseStop(cnt))) break;
+      step();
+    }
+  }
+
   [x, y, a, b] = d.length ? D.vb(O(R._z, 2)).map(o) : [0, 0, 0, 0];
   let P = +O(R._j, 0) * 4 + +O(R._k, 0);
   svg ||= C('svg');
