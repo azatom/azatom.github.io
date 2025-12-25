@@ -47,7 +47,7 @@ export async function installServiceWorker(sw = './sw.js') {
     mc.port1.onmessage = ev => {
       try {
         ev.data && ev.data.version && console.log(location.host || location.origin, (window.lsystemVersion = ev.data.version));
-      } catch (err) { console.log('port1 onmessage error', err); }
+      } catch (e) { console.log('port1 onmessage error', e); }
     };
     const target = reg.active || reg.waiting || reg.installing;
     if (target && typeof target.postMessage === 'function') {
@@ -56,6 +56,6 @@ export async function installServiceWorker(sw = './sw.js') {
       navigator.serviceWorker.controller.postMessage({ type: 'getVersion' }, [mc.port2]);
     }
   } catch (e) {
-    console.log('serviceWorker register/message failed', err);
+    console.log('serviceWorker register/message failed', e);
   }
 };

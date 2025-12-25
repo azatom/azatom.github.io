@@ -69,6 +69,7 @@ async function update(rules, textToo) {
     el.bigsvg.replaceChildren(svg);
     addSvgZoom(svg, '#bigsvg');
     show(el.bigsvg);
+    return true;
   } catch (e) {
     message(e.message, 0, strings.error);
   }

@@ -1,5 +1,5 @@
 // dummy sw: self.addEventListener("fetch", (e) =>e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-const version = 'v1.0.0';
+const version = 'v1.0.2';
 const CACHE_NAME = `lsystemcache-${version}`;
 
 const URLS_TO_CACHE = [
