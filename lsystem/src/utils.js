@@ -39,3 +39,23 @@ export async function wrappedRun(acHolder, progress, fn, arg) {
     acHolder && acHolder.abortController === ac && (acHolder.abortController = null);
   }
 }
+
+export async function installServiceWorker(sw = './sw.js') {
+  try {
+    const reg = await window.navigator.serviceWorker.register(sw);
+    const mc = new MessageChannel();
+    mc.port1.onmessage = ev => {
+      try {
+        ev.data && ev.data.version && console.log(location.host || location.origin, (window.lsystemVersion = ev.data.version));
+      } catch (err) { console.log('port1 onmessage error', err); }
+    };
+    const target = reg.active || reg.waiting || reg.installing;
+    if (target && typeof target.postMessage === 'function') {
+      target.postMessage({ type: 'getVersion' }, [mc.port2]);
+    } else if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'getVersion' }, [mc.port2]);
+    }
+  } catch (e) {
+    console.log('serviceWorker register/message failed', err);
+  }
+};

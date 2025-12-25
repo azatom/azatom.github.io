@@ -13,14 +13,10 @@
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.js" integrity="sha512-p6CwIuqimImGywlprlZqDYTAteV+0lEZPYdGJ5wPDvFyYYcNIt6QvUTGy5FIMzlPdEQawgScbMW/MDTg7va+EQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    function getBase() { return window.location.pathname.replace(/\/*([a-z]+\.html)?$/, "/"); }
-    function setBase() {
-      const base = document.createElement('base');
-      base.href = getBase();
-      document.head.insertBefore(base, document.head.firstChild);
-    }
-    setBase();
-    window.addEventListener('load', e => window?.navigator?.serviceWorker?.register?.('./sw.js').catch(e => e));
+    document.head.insertBefore(Object.assign(
+      document.createElement('base'),
+      { href: window.location.pathname.replace(/\/*([a-z]+\.html)?$/, "/") }
+    ), document.head.firstChild);
   </script>
   <script type="module" src="lsystem.js"></script>
   <link rel="stylesheet" href="lsystem.css">
@@ -34,7 +30,9 @@
         <div class="b">reset<br>&nbsp;</div>
       </button>
       <button id="buttonsubmit" title="Update (Ctrl+Enter)">
-        <svg class="checked0" tabindex="-1" xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 9.464 10"><path fill="none" stroke="#000f" stroke-linecap="round" stroke-linejoin="round" d="m0 0 3.464 2L0 4V0"/>Update</svg>
+        <svg class="checked0" tabindex="-1" xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 9.464 10">
+          <path fill="none" stroke="#000f" stroke-linecap="round" stroke-linejoin="round" d="m0 0 3.464 2L0 4V0" />Update
+        </svg>
         <!--object class="checked0" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=+F++++F++++F,_a=30,_l=4,_cc=%23000f,_cb=%230000,_z=3">Update</object-->
         <object class="checked1" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=F+F+F+F,_a=90,_l=4,_cc=%23000f,_cb=%230000,_z=3">Stop</object>
       </button>
@@ -70,7 +68,9 @@
       </button>
       <button id="buttonjs" class="export hidden" title="Link to small, parametrizable svg">
         <div class="a">url<br>svg</div>
-        <svg class="b" tabindex="-1" xmlns="http://www.w3.org/2000/svg" viewBox="-9.4 -7.057 12.457 12.457"><path fill="none" stroke="#000f" stroke-linecap="round" stroke-linejoin="round" d="M0 0v4h-8v-8h4m0 4 2.828-2.828 2.829-2.829v4m0-4h-4"/>url</svg>
+        <svg class="b" tabindex="-1" xmlns="http://www.w3.org/2000/svg" viewBox="-9.4 -7.057 12.457 12.457">
+          <path fill="none" stroke="#000f" stroke-linecap="round" stroke-linejoin="round" d="M0 0v4h-8v-8h4m0 4 2.828-2.828 2.829-2.829v4m0-4h-4" />url
+        </svg>
         <!--object class="b" tabindex="-1" type="image/svg+xml" data="lsystem.svg#S=++F++FF++FF++F++f---FF[+++F]---F,_a=45,_l=4,_z=1.4,_cb=%230000,_cc=%23000f">url</object-->
       </button>
       <button id="buttonurleditor" class="export hidden" title="Link to this editor with url parameters">

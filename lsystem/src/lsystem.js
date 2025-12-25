@@ -1,7 +1,7 @@
 import { strings } from './strings.js';
 import lsystemSvg from './lsystem-svg.js';
 import { examples } from './examples.js';
-import { wrappedRun, yieldOnce, toggleCustomLog } from './utils.js';
+import { wrappedRun, yieldOnce, toggleCustomLog, installServiceWorker} from './utils.js';
 import { getRules, addDefaults, addVb, stringify } from './ruletext.js';
 import { addSvgZoom, downloadPng, downloadSvg } from './svgutils.js';
 import { initMobile, isMobile, forceMobile, isMobileAgent } from './ismobile.js';
@@ -441,8 +441,7 @@ async function localstorageLoad() {
   toggleExport(get('export') === 'false', 1);
   toggleMinilog(get('minilog') === 'false', 1);
   const r = get('R');
-  updateFromLocation() || r && r !== '' && r !== '{}' && update(r, 1);
-  return res;
+  return updateFromLocation() || r && r !== '' && r !== '{}' && update(r, 1);
 }
 
 function setupHelp() {
@@ -494,7 +493,7 @@ async function init() {
   setupEventListeners();
   await localstorageLoad() || show(el.readme);
   el.textarea.setAttribute('contenteditable', true);
-  console.log(location.host || location.origin);
+  await installServiceWorker();
 }
 
 /* end of fun */

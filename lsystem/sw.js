@@ -1,6 +1,6 @@
 // dummy sw: self.addEventListener("fetch", (e) =>e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-
-const CACHE_NAME = 'my-site-v1.0.1';
+const version = 'v1.0.0';
+const CACHE_NAME = `lsystemcache-${version}`;
 
 const URLS_TO_CACHE = [
   './',
@@ -51,7 +51,6 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith('http')) return;
   const effectivePath = resolveAlias(event.request.url);
-
   // Create a synthetic request for cache lookup ONLY
   // IMPORTANT: NEVER set mode: 'navigate'
   const cacheLookupRequest = new Request(effectivePath, {
@@ -65,14 +64,12 @@ self.addEventListener('fetch', event => {
     integrity: event.request.integrity,
     // IMPORTANT: Do NOT copy mode if it's 'navigate'
   });
-
   event.respondWith(
     caches.match(cacheLookupRequest)
       .then(cachedResponse => {
         if (cachedResponse) {
           return cachedResponse;
         }
-
         // Fetch from network using the ORIGINAL request
         return fetch(event.request)
           .then(networkResponse => {
@@ -83,25 +80,21 @@ self.addEventListener('fetch', event => {
             ) {
               return networkResponse;
             }
-
             const responseToCache = networkResponse.clone();
-
             caches.open(CACHE_NAME).then(cache => {
               // Cache under ORIGINAL URL
               cache.put(event.request, responseToCache);
-
               // Also cache under the aliased path (for future alias hits)
               if (effectivePath !== new URL(event.request.url).pathname) {
                 cache.put(cacheLookupRequest, responseToCache);
               }
             }).catch(err => console.error('Cache put failed:', err));
-
             return networkResponse;
           })
           .catch(() => {
             if (event.request.mode === 'navigate') {
               return new Response(
-                "Offline – this page requires a connection.",
+                `Offline ${event.request.url}`,
                 { headers: { 'Content-Type': 'text/plain' } }
               );
             }
@@ -109,4 +102,20 @@ self.addEventListener('fetch', event => {
           });
       })
   );
+});
+
+self.addEventListener('message', event => {
+  try {
+    const msg = event.data;
+    if (msg && msg.type === 'getVersion') {
+      const payload = { version };
+      if (event.ports && event.ports[0]) {
+        event.ports[0].postMessage(payload);
+      } else if (event.source && typeof event.source.postMessage === 'function') {
+        event.source.postMessage(payload);
+      }
+    }
+  } catch (err) {
+    console.error('sw message handler error:', err);
+  }
 });
