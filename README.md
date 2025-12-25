@@ -1,6 +1,6 @@
 move along
 
-[lsystem](lsystem)
+[lsystem](pwa-lsystem)
 
 [játékclone](co34)
 
