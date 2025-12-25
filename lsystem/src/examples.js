@@ -9,7 +9,7 @@ export const examples = [
   //'=ex2,S=F+F+f+F,_j=0.1,_k=1,_l=1,_n=1,_o=.4,_cb=#0000,_cd=#f007,_cc=#00f7',
   //'=WARNINGblurDemo,S=U+V+W+V+R,R=V+R+U+V+W+V+R-W,U=V+R+U+V+W+V+R-U+V+W+V+R+U-V,V=W+V+R+U+V+W+V+R-W,W=V+R+U+V+W+V+R-W+V+R+U+V+W-V,R2=FF,U2=F^*F/-*F/^F-F^*F/,V2=*F/^^^F,W2=F^*F/,_a=60,_j=1,_k=1,_l=.5,_m=1.7320508075688772,_n=3,_cb=#000,_o=0,_cd=#fff3',
   "=blurDemoPentagram,S=FX++FX++FX++FX++FX,X=[++++/F/F!X!*F],_a=36,_j=1,_k=1,_l=22,_m=1.6180339887498948,_n=5,_cc=#f004,_cd=#00f7",
-  "=TODO,_k=1,_o=0.5,_z=2,_cb=#7007,_cc=#0707,_cd=#0077",
+  "=TODO,_k=1,_o=0.5,_j=.1,_l=3,_z=2,_cb=#7007,_cc=#0707,_cd=#0077",
   "=KiteDart3,S=Wf+Xf+Wf+Xf+Wf+Xf+Wf+Xf+Wf+X,F=,W=[F][++*F][++f---/f|X-Y|f|W],X=[F+++*F][++/fZ|X|-f|W],Y=[+F][*F][+f/|Y+X],Z=[-F][*F][/f--Wf|+Z],_a=36,_k=4,_l=199,_m=1.6180339887498948,_n=5,_z=9,_hand=1",
   "=Lizard,S=AX,A=[+AX-AX-AX]-AX+AX+AX-,F=,X=F+F+F+FFF-F-F-F,_l=2,_a=60,_n=5",
   /*{
