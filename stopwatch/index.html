@@ -43,11 +43,10 @@
             overflow: hidden;
             font-family: monospace;
             font-size: 1.2rem;
-            background-color: #e7f0e7;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: auto 1fr;
-            gap: 0.5rem;
+            gap: 0.4rem;
             padding: 0.4rem;
             height: 100vh;
             box-sizing: border-box;
@@ -64,6 +63,7 @@
         }
 
         span {
+            background-color: #ded;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -71,9 +71,13 @@
             height: 4rem;
             font-size: 2.5rem;
             margin: 0;
+            border-radius: .4rem;
+        }
+
+        span,
+        div {
             cursor: pointer;
         }
-        span, div {border-radius: .5rem;}
 
         .invert {
             filter: invert();
@@ -200,14 +204,11 @@
                 req = timerA = requestAnimationFrame(update);
                 paused = false;
             }
-            let src;
-            if (event.type === 'touchstart') {
-                src = '👇' + event.touches.length;
-            } else if (event.target === domPause) {
-                src = '⏸';
-            } else {
-                src = event.code || (event.type + event.button);
-            }
+            let src = event.type === 'touchstart'
+                ? '👇' + event.touches.length
+                : event.target === domPause
+                    ? '⏸'
+                    : event.code || (event.type + event.button);
             as.push(src);
             at.push(now);
             if (laps) {
@@ -243,16 +244,13 @@
             domMulti = ce((e) => { window.document[(e.target.classList.toggle('invert') ? 'add' : 'remove') + 'EventListener']('touchstart', doLap, { passive: true }); });
             domCopy = ce(handleCopy);
             domReset = ce(resetStopwatch);
-            //domLaps.addEventListener('touchstart', doLap, { passive: true });
+            // why not? domLaps.addEventListener('touchstart', doLap, { passive: true });
             domLaps.addEventListener('pointerdown', doLap);
             window.document.body.addEventListener('keydown', doLap);
             load();
             domLapRow = domLaps.firstChild;
-            if (last > 0) {
-                timerA = requestAnimationFrame(update);
-                domPause.classList.remove('invert');
-            }
-            //addRow('ver', (ver || '?'));
+            if (last > 0) timerA = requestAnimationFrame(update);
+            domPause.classList.toggle('invert', !last);
             swMess(updateBefore, updateAfter);
         }
 
