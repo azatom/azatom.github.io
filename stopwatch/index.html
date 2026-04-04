@@ -44,6 +44,23 @@
             font-family: monospace;
             font-size: 1.2rem;
             background-color: #e7f0e7;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: auto 1fr;
+            gap: 0.5rem;
+            padding: 0.4rem;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        body>span {
+            grid-row: 1;
+        }
+
+        body>div {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            overflow: hidden;
         }
 
         span {
@@ -51,12 +68,12 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            border-radius: .4rem;
-            margin: .4rem;
-            width: 4rem;
             height: 4rem;
             font-size: 2.5rem;
+            margin: 0;
+            cursor: pointer;
         }
+        span, div {border-radius: .5rem;}
 
         .invert {
             filter: invert();
@@ -105,22 +122,33 @@
             chSw.onmessage = (a) => { addRow('[chSw', ...a.data, ']'); };
         }
         function pad(s, n = 2) { return String(s).padStart(n, '0'); }
+        function downloadData(data, filename = '', type = 'text/plain', a = document.createElement('a')) {
+            if (data == null) throw Error();
+            a.href = window.URL.createObjectURL(new Blob([data], { type: type }));
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(a.href);
+            document.body.removeChild(a);
+        }
         function handleCopy(event) {
             window.navigator.clipboard.writeText(domLaps.innerText)
                 .then(() => flash(event.target, 1400))
                 .catch(() => { });
+            downloadData(domLaps.innerText, new Date().toISOString().replace(/[-:.Z]/g, "") + ".txt");
         }
         function addRow(...s) {
             domLaps || alert('no domLaps');
             domLapRow = domLapRow || window.document.createElement('div');
             if (s) domLapRow.textContent = s.join(' ');
             domLaps.prepend(domLapRow = window.document.createElement('div'));
+            while (domLaps.children.length > 99) domLaps.removeChild(domLaps.lastChild);
         }
         function update() {
             const t = last;
             if (!(t > 0)) return;
             let lapTime = Date.now() - t;
-            domLapRow.textContent = fmtTime(sum1 + lapTime) + ' ' + fmtTime(lapTime);
+            domLapRow.textContent = fmtTime(sum1 + lapTime) + ' - ' + fmtTime(lapTime);
             timerA = requestAnimationFrame(update);
         }
         function fmtTime(ms) {
@@ -241,7 +269,7 @@
                         updateBefore(newWorker)
                     );
                 });
-            }).catch(e => domLaps.textContent = e);
+            }).catch(e => e);
             window.navigator.serviceWorker.addEventListener('controllerchange', (refreshing => () => refreshing || (refreshing = !window.location.reload()))());
             const uuid = crypto.randomUUID();
             const chClient = new BroadcastChannel('chClient');
