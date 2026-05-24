@@ -6,9 +6,9 @@ Safety: this extension only reads your Chrome bookmarks, does not modify.
 
 ### Installation / Usage
 
-1. Copy the **html**, **js**, and **manifest.json** files into a folder.
-2. In Chrome, open **Extensions → Load unpacked**, and select that folder.
-3. Use the default **Ctrl+B** hotkey or just create a bookmark pointing to the extension’s page.
+1. Copy the **html**, **js**, **css**, **manifest.json** files into a folder.
+2. In Chrome, open **Extensions  Load unpacked**, and select that folder.
+3. Use the default **Ctrl+B** hotkey or just create a bookmark pointing to the extension's page.
 
 ### Features
 
@@ -19,4 +19,4 @@ Safety: this extension only reads your Chrome bookmarks, does not modify.
 
 ### License
 
-I dunno — just don't kill anyone with it.
+none

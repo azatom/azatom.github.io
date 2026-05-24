@@ -87,38 +87,41 @@ const time = {
 };
 time.add('0|0');
 
-const Bmview = () => ({
-    anchors: new Map(),
-    anchorsort: null,
-    txt1: null,
-    txt2: null,
-    txt3: null,
-    input: null,
-    treeDiv: null,
-    panel: null,
-    dark: null,
-    dots: (a => {
-        a.classList.add('fld');
-        return a;
-    }
-    )(document.createElement('a')),
-    onhashchangeLock: false,
-    all: false,
-    sorted: 1,
-    lastSearch: '.',
-    // #_1 #1 #0 #_0 1=sorted->lastSearch='.'
-    rempx: 12,
-});
+function Bmview() {
+    return {
+        anchors: new Map(),
+        anchorsort: null,
+        txt1: null,
+        txt2: null,
+        txt3: null,
+        input: null,
+        treeDiv: null,
+        panel: null,
+        dark: null,
+        dots: (a => {
+            a.classList.add('fld');
+            return a;
+        })(document.createElement('a')),
+        onhashchangeLock: false,
+        all: false,
+        sorted: 1,
+        lastSearch: '.',
+        // #_1 #1 #0 #_0 1=sorted->lastSearch='.'
+        rempx: 12,
+    };
+}
 
-const Bmmodel = (tree) => ({
-    json: tree,
-    descendantCountByNode: new Map,
-    parentByNode: new Map,
-    idByNode: new Map,
-    nodeById: new Map,
-    pidById: [],
-    counters: counter(),
-});
+function Bmmodel(tree) {
+    return {
+        json: tree,
+        descendantCountByNode: new Map,
+        parentByNode: new Map,
+        idByNode: new Map,
+        nodeById: new Map,
+        pidById: [],
+        counters: counter(),
+    };
+}
 
 const gensort = (a, b) => ((A, B) => !isNaN(A) && !isNaN(B) ? A - B : !isNaN(A) ? -1 : !isNaN(B) ? 1 : a.localeCompare(b))(parseFloat(a), parseFloat(b));
 
@@ -126,20 +129,13 @@ const zoom = z => typeof z === 'undefined' ? parseFloat(document.body.style.zoom
 
 const addClickOrEnter = (el, fn) => {
     el.addEventListener('click', e => {
-        if (bm.view.panel.dataset.dragging === '1')
-            return;
+        if (bm.view.panel.dataset.dragging === '1') return;
         fn(e);
-    }
-    );
-    el.addEventListener('keypress', e => {
-        e.key === 'Enter' && (e.stopPropagation(),
-            fn(e));
-    }
-    );
+    });
+    el.addEventListener('keypress', e => e.key === 'Enter' && (e.stopPropagation(), fn(e)));
     // el.tabIndex = 0;
     // el.href='#';
-}
-    ;
+};
 
 // const stringOrPath = (a) =>
 //     Array.isArray(a)
@@ -164,8 +160,7 @@ const downloadData = (data, filename = '', type = 'text/plain') => {
     a.click();
     window.URL.revokeObjectURL(a.href);
     document.body.removeChild(a);
-}
-    ;
+};
 
 const queryParams = (def = 'q=') => {
     const str1 = location.href.split(/[?]/)[1]?.replace(/#.*/, '');
@@ -176,10 +171,8 @@ const queryParams = (def = 'q=') => {
     } catch (_) {
         error('Invalid QueryParams', str2);
         return {};
-    }
-    ;
-}
-    ;
+    };
+};
 
 const getDescsendants = obj => {
     return obj[strings.jsonChildren] ? getDescsendantsCache(obj) : [1, 0];
@@ -193,31 +186,27 @@ const getDescsendants = obj => {
         return bm.model.descendantCountByNode.get(obj) || (cnt => (bm.model.descendantCountByNode.set(obj, cnt),
             cnt))(calcDesc(obj));
     }
-}
-    ;
+};
 
 function toggleDark() {
     document.documentElement.classList.toggle('dark');
 }
 
 function getQ(e) {
-    if (typeof e === 'object')
+    if (typeof e === 'object') {
         return maybeHidenQuery(e.target.value);
-    // if (typeof e === 'object' && e.target.value !== '') return maybeHidenQuery(e.target.value);
-    // if (typeof e === 'object') e = 1234; // hmmm..
-
-    if (typeof e !== 'undefined' && e !== '')
+    } else if (typeof e !== 'undefined' && e !== '') {
         return maybeHidenQuery(e);
-    if (typeof bm.view.lastSearch !== 'undefined' && bm.view.lastSearch !== '')
+    } else if (typeof bm.view.lastSearch !== 'undefined' && bm.view.lastSearch !== '') {
         return bm.view.lastSearch;
-    if (bm.view.input.value !== '')
+    } else if (bm.view.input.value !== '') {
         return bm.view.input.value;
-    if (location.hash !== '')
+    } else if (location.hash !== '') {
         return location.hash.replace(/^#_?/, '#_');
+    }
     return undefined;
     function maybeHidenQuery(q) {
-        if (q.toString().startsWith('#'))
-            bm.view.input.value = '';
+        if (q.toString().startsWith('#')) bm.view.input.value = '';
         return bm.view.lastSearch = q;
     }
 }
@@ -228,8 +217,7 @@ const onSearch = (() => {
         add: f => listBefore.push(f),
         before: () => listBefore.forEach(f => f()),
     };
-}
-)();
+})();
 
 const search = e => {
     onSearch.before();
@@ -242,8 +230,7 @@ const search = e => {
 
     const maxDisplay = bm.view.all || q.startsWith('#') ? Infinity : window.innerHeight / (zoom() * bm.view.rempx) | 0;
     const qmatcher = searchMatcher(q);
-    if (qmatcher === undefined)
-        return;
+    if (qmatcher === undefined) return;
     const displayed = {
         all: 0,
         bm: 0,
@@ -252,7 +239,7 @@ const search = e => {
     };
     const newItems = [];
 
-    for (const [_, v] of bm.view.sorted ? bm.view.anchorsort : bm.view.anchors) {
+    for (const [_, v] of bm.view.sorted && bm.view.anchorsort ? bm.view.anchorsort : bm.view.anchors) {
         if (qmatcher(v)) {
             if (displayed.all++ < maxDisplay) {
                 newItems.push(v);
@@ -270,7 +257,6 @@ const search = e => {
         newItems.push(bm.view.dots);
     bm.view.treeDiv.replaceChildren(...newItems);
     bm.view.txt1.textContent = (displayed.not ? `${displayed.all - displayed.not} … ` : '') + displayed.bm;
-    //bm.view.txt2.textContent = `${~~(performance.now() - t)}ms`;
 
     return;
 
@@ -295,9 +281,19 @@ const search = e => {
         return el => el.id === id || id.startsWith('_') && el.dataset.pid === id || el.dataset.pid === pid || el.id === '_' + bm.model.pidById[id];
     }
 
-    function searchByRegexp(re) {
-        return v => v.textContent.match(re) || v.classList.contains('bm') && v.href?.match(re);
-        // || v.classList.contains('path');
+    function searchByRegexp(q) {
+        const re = new RegExp(q, 'ui');
+        return v =>
+            re.test(v.textContent) ||
+            v.classList.contains('bm') && re.test(v.href);
+    }
+
+    function searchByRegexpS(qs) {
+        const sbrs = qs
+            .trim()
+            .split(/\s+/)
+            .map(searchByRegexp);
+        return v => sbrs.every(sbr => sbr(v));
     }
 
     function searchMatcher(q) {
@@ -313,17 +309,17 @@ const search = e => {
                 return searchByDate(new RegExp(q.substring(5)));
             } else if (q === '-') {
                 return searchByHoc();
+            } else if (q.indexOf(' ') > -1) {
+                return searchByRegexpS(q);
             } else {
-                return searchByRegexp(new RegExp(q, 'ui'));
+                return searchByRegexp(q);
             }
         } catch (_) {
             bm.view.input.classList.add('error');
             return undefined;
-        }
-        ;
+        };
     }
-}
-    ;
+};
 
 const toomuch = (maxFn, fltr, rec = false, cnt = counter()) => {
     foreachBranch(c => {
@@ -332,16 +328,14 @@ const toomuch = (maxFn, fltr, rec = false, cnt = counter()) => {
             cnt.add(arr.map(a => a.textContent).join(strings.PS), c.children.filter(fltr).length);
             arr.pop();
         } while (rec && arr.length);
-    }
-    );
+    });
     const a = Object.entries(cnt.data).filter(a => maxFn(a[1]));
     a.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
     return {
         arr: a.map(a => [a[1], a[0]]),
         leftalign: true,
     };
-}
-    ;
+};
 
 const nourls = () => toomuch(a => !a, c => !c.children, true);
 const emptyfolder = () => toomuch(a => !a, c => 1);
@@ -368,36 +362,32 @@ const createTable = () => {
 
     const initDates = title => {
         Object.entries(stats).forEach(([k, v]) => v === undefined && (stats[k] = counter()));
-
-        foreachChild(c => Object.entries(dateRe.exec(fmtDate(c)).groups).forEach(([k, v]) => stats[k].inc(k === 'ms' ? parseFloat(v) : v)));
+        foreachChild(c => Object.entries(dateRe.exec(fmtDate(c)).groups)
+            .forEach(([k, v]) => stats[k].inc(k === 'ms' ? parseFloat(v) : v)));
         return stats[title];
-    }
-        ;
+    };
 
     const toTrs = stat => {
         const x = typeof stat === 'object' ? stat : stat();
         return 'arr' in x ? arr2trs(x.arr, x?.leftalign ?? false) : obj2trs(x.data);
-    }
-        ;
+    };
 
     const tableClick = e => {
-        if (e?.altKey)
-            return;
+        if (e?.altKey) return;
         e?.stopPropagation();
         const titles = Object.keys(stats);
-        table.title = titles[(Math.max(titles.indexOf(table.title), 0) + (e?.shiftKey ? titles.length - 1 : 1)) % titles.length];
+        const titleNum = titles.indexOf(table.title) + (e?.shiftKey ? - 1 : 1);
+        table.title = titles[(titleNum + titles.length) % titles.length];
         const stat = stats[table.title] === undefined ? initDates(table.title) : stats[table.title];
         table.innerHTML = stat === time ? time : toTrs(stat);
         table.createCaption().textContent = table.title;
-    }
-        ;
+    };
     addClickOrEnter(table, tableClick);
 
     table.title = dateReLast;
 
     return table;
-}
-    ;
+};
 
 const createPanel = () => {
     const panel = document.createElement('div');
@@ -406,23 +396,23 @@ const createPanel = () => {
     const tables = createTable();
     panel.appendChild(tables);
 
-    const asdf = document.createElement('div');
-    asdf.classList.add('asdf');
-    asdf.appendChild(bm.view.input = createInput());
-    asdf.appendChild(bm.view.txt1 = createTxt());
-    asdf.appendChild(bm.view.txt2 = createTxt());
-    asdf.appendChild(bm.view.txt3 = createTxt());
-    asdf.appendChild(createSort());
-    asdf.appendChild(createUnlimited());
-    asdf.appendChild(createStat(tables));
-    asdf.appendChild(createZoom());
-    asdf.appendChild(createDateOrRownum());
-    asdf.appendChild(createUpload());
-    asdf.appendChild(createExportloink());
-    asdf.appendChild(createRot());
-    asdf.appendChild(createFoof());
-    asdf.appendChild(bm.view.dark = createDark());
-    panel.appendChild(asdf);
+    const div = document.createElement('div');
+    div.classList.add('topbar');
+    div.appendChild(bm.view.input = createInput());
+    div.appendChild(bm.view.txt1 = createTxt());
+    div.appendChild(bm.view.txt2 = createTxt());
+    div.appendChild(bm.view.txt3 = createTxt());
+    div.appendChild(createSort());
+    div.appendChild(createUnlimited());
+    div.appendChild(createStat(tables));
+    div.appendChild(createZoom());
+    div.appendChild(createDateOrRownum());
+    div.appendChild(createUpload());
+    div.appendChild(createExportloink());
+    div.appendChild(createRot());
+    div.appendChild(createFoof());
+    div.appendChild(bm.view.dark = createDark());
+    panel.appendChild(div);
 
     return panel;
 
@@ -432,8 +422,7 @@ const createPanel = () => {
         addClickOrEnter(a, e => {
             e.target.classList.toggle('on');
             fn(e);
-        }
-        );
+        });
         return a;
     }
     function createExportloink() {
@@ -442,8 +431,7 @@ const createPanel = () => {
         // addClickOrEnter(a, () => window.chrome.bookmarks.getTree(downloadHtml(true)));
         addClickOrEnter(a, e => {
             downloadHtml(!e.shiftKey)(bm.model.json);
-        }
-        );
+        });
         a.title = '(Ctrl+S) ' + (a => (a.href = '',
             a.href))(document.createElement('a'));
         document.addEventListener('keydown', e => e.ctrlKey && e.key === 's' && (e.preventDefault(),
@@ -454,21 +442,24 @@ const createPanel = () => {
     }
 
     function createTxt() {
-        const div = document.createElement('span');
-        div.classList.add('txt');
-        return div;
+        const txt = document.createElement('span');
+        txt.classList.add('txt');
+        return txt;
     }
 
     function createInput() {
         const input = document.createElement('input');
         input.style.display = 'inline';
         input.type = 'search';
-        input.addEventListener('input', search);
         input.setAttribute('autocomplete', 'off');
         input.setAttribute('autocorrect', 'off');
         input.setAttribute('autocapitalize', 'off');
         input.setAttribute('spellcheck', false);
         input.setAttribute('name', 'inputsearch');
+        input.addEventListener('input', search);
+        input.addEventListener('input', _ => localStorage.setItem('ambookmarks.inputsearch', input.value));
+        input.value = localStorage.getItem('ambookmarks.inputsearch') || '';
+        window.addEventListener('load', _ => input.dispatchEvent(new Event('input', { bubbles: true })));
         return input;
     }
 
@@ -489,12 +480,10 @@ const createPanel = () => {
                 } catch (e) {
                     error('onload', e);
                 }
-            }
-                ;
+            };
             reader.readAsText(e.target.files[0]);
             bm.src = e.target.files[0].name;
-        }
-        );
+        });
         //async function parseJsonFile(file) {
         //  return new Promise((resolve, reject) => {
         //    const fileReader = new FileReader()
@@ -508,8 +497,7 @@ const createPanel = () => {
         a.appendChild(input);
         addClickOrEnter(a, e => {
             input.click(e);
-        }
-        );
+        });
         window.addEventListener('keydown', e => e.ctrlKey && e.key === 'o' && !e.preventDefault() && input.click(e));
         return a;
     }
@@ -518,16 +506,14 @@ const createPanel = () => {
         return createButton('stat', e => {
             tables.classList.toggle('hide');
             tables.click();
-        }
-        );
+        });
     }
 
     function createUnlimited() {
         return createButton('all', e => {
             bm.view.all = ~bm.view.all;
             search();
-        }
-        );
+        });
     }
 
     function createZoom() {
@@ -536,17 +522,14 @@ const createPanel = () => {
             zoom(z);
             e.target.textContent = z > 1.001 ? 'zoom 150%' : z < 0.99 ? 'zoom 66%' : 'zoom';
             e.target.classList.toggle('on', z < 0.99 || 1.01 < z);
-        }
-        );
-    }
-    ;
+        });
+    };
     function createSort() {
         const b = a => ['folder', 'date'][a];
         return createButton(b(bm.view.sorted), e => {
             e.target.textContent = b(bm.view.sorted = 1 - bm.view.sorted);
             search();
-        }
-        );
+        });
     }
 
     function createDateOrRownum() {
@@ -567,8 +550,7 @@ const createPanel = () => {
             search('##long');
             e.target.textContent = 'long';
             e.target.classList.toggle('on', false);
-        }
-        );
+        });
         onSearch.add(() => a.textContent = txt);
         return a;
     }
@@ -577,8 +559,7 @@ const createPanel = () => {
         return createButton('hover', e => (bm.view.panel.classList.toggle('moveable'),
             bm.view.panel.classList.toggle('toprow')));
     }
-}
-    ;
+};
 
 const any2date = any => any instanceof Date ? any : new Date(epoch(any));
 
@@ -587,16 +568,14 @@ const fmtDate = any => (date => {
     const sgn = tzo > 0 ? '-' : '+';
     const pad = num => String(num).padStart(2, '0');
     return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds()) + '.' + pad(date.getMilliseconds()) + sgn + pad(Math.floor(Math.abs(tzo) / 60)) + ':' + pad(Math.abs(tzo) % 60);
-}
-)(any2date(any));
+})(any2date(any));
 
 const fmtDa = any => (date => String(date.getFullYear()).substring(2, 10) + ('0' + (date.getMonth() + 1)).slice(-2) + ('0' + date.getDate()).slice(-2))(any2date(any));
 
 const setDataCnt = (el, node) => {
     const [childs, descLeafs, notAscBranches] = [node[strings.jsonChildren].length, ...getDescsendants(node)];
     el.dataset.cnt = `${[childs, descLeafs - childs, notAscBranches - 1]}`;
-}
-    ;
+};
 
 const createPath = node => {
     const path = document.createElement('div');
@@ -613,12 +592,10 @@ const createPath = node => {
         node = bm.model.parentByNode.get(node);
     } while (node !== undefined);
     return path;
-}
-    ;
+};
 
 const processChildOf = parent => node => {
-    if (typeof node !== 'object')
-        return;
+    if (typeof node !== 'object') return;
     //node = { title: node };
     bm.model.idByNode.set(node, bm.model.idByNode.size);
     const pid = bm.model.idByNode.get(parent) || 0;
@@ -641,12 +618,10 @@ const processChildOf = parent => node => {
             bm.model.counters.inc('#other');
         }
     }
-}
-    ;
+};
 
 const createElementsOf = parent => node => {
-    if (typeof node !== 'object')
-        return;
+    if (typeof node !== 'object') return;
     //node = { title: node };
     const pid = bm.model.idByNode.get(parent) || 0;
     const id = bm.model.idByNode.get(node);
@@ -673,14 +648,12 @@ const createElementsOf = parent => node => {
             a.target = '_blank';
         }
     }
-}
-    ;
+};
 
 const viewBranch = branch => {
     bm.view.anchors.set(`_${bm.model.idByNode.get(branch)}`, createPath(branch));
     branch[strings.jsonChildren].forEach(createElementsOf(branch));
-}
-    ;
+};
 
 const modelBranch = branch => {
     if (!bm.model.idByNode.has(branch)) {
@@ -689,8 +662,7 @@ const modelBranch = branch => {
         bm.model.parentByNode.set(branch, undefined);
     }
     branch[strings.jsonChildren].forEach(processChildOf(branch));
-}
-    ;
+};
 
 const foreachBranch = fn => {
     const queue = [{
@@ -701,8 +673,7 @@ const foreachBranch = fn => {
     for (let current; undefined !== (current = queue.shift()); queue.unshift(...nexts(current))) {
         fn(current);
     }
-}
-    ;
+};
 
 // const flatten = (o = bmmodel.json, path = []) => o.reduce((acc, e) => {
 //   if (strings.jsonChildren in e) {
@@ -719,16 +690,13 @@ const counterOfJsonSch = () => {
     foreachBranch(branch => {
         detailedCounterKey('branch')(branch);
         branch[strings.jsonChildren].filter(leaf => !leaf[strings.jsonChildren]).forEach(detailedCounterKey('leaf'));
-    }
-    );
+    });
     return cnt;
-}
-    ;
+};
 
 const throwError = e => {
     throw Error(e);
-}
-    ;
+};
 
 const consolidateInput = tree => {
     if (Array.isArray(tree)) {
@@ -746,14 +714,12 @@ const consolidateInput = tree => {
         }];
     }
     throwError('cepasa?');
-}
-    ;
+};
 
 const indexingDatesort = () => {
     const dateById = id => epoch(bm.model.nodeById.get(typeof id === 'number' ? id : parseInt(id.substring(1))));
     bm.view.anchorsort = new Map(Array.from(bm.view.anchors).sort((a, b) => dateById(b[0]) - dateById(a[0])));
-}
-    ;
+};
 
 const createTreeDiv = () => {
     const div = document.createElement('div');
@@ -766,11 +732,9 @@ const createTreeDiv = () => {
         } else if (e.target.classList.contains('ml')) {
             e.target.classList.toggle('opened');
         }
-    }
-    );
+    });
     return div;
-}
-    ;
+};
 
 const process = tree => {
     time.add('4|process');
@@ -789,8 +753,7 @@ const process = tree => {
     }
     bm.view.txt2.replaceChildren(getMaxDate());
     time.add('9|process');
-}
-    ;
+};
 
 const init = (tree) => {
     time.add('1|browserinit');
@@ -823,8 +786,7 @@ const init = (tree) => {
 
     document.querySelector('.ruler').textContent = '';
     time.add('2|initend');
-}
-    ;
+};
 
 function setupDark() {
     (e => (e.matches && (toggleDark(),
@@ -848,18 +810,15 @@ const domLoaded = () => {
         fetch(src || strings.fileJson).then(response => response.json()).then(init).catch(() => {
             init(typeof inlinedjson === 'undefined' ? [] : inlinedjson);
             inlinedjson = undefined;
-        }
-        );
+        });
     }
-}
-    ;
+};
 
 const downloadHtml = (inline = false) => obj => {
     (async (urls) => {
         const responses = await Promise.all(urls.map(url => fetch(url)));
         return await Promise.all(responses.map(res => res.text()));
-    }
-    )([strings.fileHtml, strings.fileJs]).then(([html, js]) => {
+    })([strings.fileHtml, strings.fileJs]).then(([html, js]) => {
         const replacer = [strings.jsonChildren, ...strings.jsonFields];
         const json = JSON.stringify(obj, replacer).replace(/("ur[li]":")/g, '\n$1');
         if (inline) {
@@ -878,26 +837,21 @@ const downloadHtml = (inline = false) => obj => {
             downloadData(html, strings.fileHtml, 'text/html');
             downloadData(js, strings.fileJs, 'text/javascript');
         }
-    }
-    );
-}
-    ;
+    });
+};
 
 window.onhashchange = e => {
-    if (bm.view.onhashchangeLock)
-        return;
+    if (bm.view.onhashchangeLock) return;
     bm.view.onhashchangeLock = true;
     search(location.hash);
     const t = location.hash.substring(1);
     location.hash = '';
     location.hash = t;
     setTimeout(() => bm.view.onhashchangeLock = false, 0);
-}
-    ;
+};
 
 window.addEventListener('keydown', e => {
-    if (e.target === bm.view.input)
-        return;
+    if (e.target === bm.view.input) return;
     if (
         !e.shiftKey && !e.ctrlKey && !e.altKey && e.key !== 'Tab' && e.key !== 'Enter' ||
         e.ctrlKey && e.key === 'v' ||
@@ -908,7 +862,6 @@ window.addEventListener('keydown', e => {
         bm.view.input.value = '';
         bm.view.input.focus();
     }
-}
-);
+});
 
 window.addEventListener('DOMContentLoaded', domLoaded);
