@@ -47,6 +47,7 @@ min3x:
 const strings = {
     fileHtml: 'bm.html',
     fileJs: 'bm.js',
+    fileCss: 'bm.css',
     fileJson: 'bm.json',
     jsonChildren: 'children',
     jsonUrl: ['url', 'uri'],
@@ -98,10 +99,7 @@ function Bmview() {
         treeDiv: null,
         panel: null,
         dark: null,
-        dots: (a => {
-            a.classList.add('fld');
-            return a;
-        })(document.createElement('a')),
+        dots: Object.assign(document.createElement('a'), { className: 'fld' }),
         onhashchangeLock: false,
         all: false,
         sorted: 1,
@@ -222,7 +220,7 @@ const onSearch = (() => {
 const search = e => {
     onSearch.before();
     // const t = performance.now();
-    const q = getQ(e).toString();
+    const q = getQ(e)?.toString();
     if (q === undefined) {
         error('search', e);
         return;
@@ -428,16 +426,19 @@ const createPanel = () => {
     function createExportloink() {
         const a = document.createElement('a');
         a.textContent = 'export';
-        // addClickOrEnter(a, () => window.chrome.bookmarks.getTree(downloadHtml(true)));
-        addClickOrEnter(a, e => {
-            downloadHtml(!e.shiftKey)(bm.model.json);
+        // addClickOrEnter(a, e => window.chrome.bookmarks.getTree(downloadHtml(true)));
+        addClickOrEnter(a, e => downloadHtml(!e.shiftKey)(bm.model.json));
+        a.title = '(Ctrl+S) ' + (a => (a.href = '', a.href))(document.createElement('a'));
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Shift') a.textContent = 'exports';
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                a.click();
+                a.classList.add('on');
+                setTimeout(() => a.classList.remove('on'), 1000);
+            }
         });
-        a.title = '(Ctrl+S) ' + (a => (a.href = '',
-            a.href))(document.createElement('a'));
-        document.addEventListener('keydown', e => e.ctrlKey && e.key === 's' && (e.preventDefault(),
-            a.click(),
-            a.classList.add('on'),
-            setTimeout(() => a.classList.remove('on'), 1000)));
+        document.addEventListener('keyup', e => e.key === 'Shift' && (a.textContent = 'export'));
         return a;
     }
 
@@ -457,8 +458,8 @@ const createPanel = () => {
         input.setAttribute('spellcheck', false);
         input.setAttribute('name', 'inputsearch');
         input.addEventListener('input', search);
-        input.addEventListener('input', _ => localStorage.setItem('ambookmarks.inputsearch', input.value));
-        input.value = localStorage.getItem('ambookmarks.inputsearch') || '';
+        input.addEventListener('input', _ => localStorage.setItem('bookmarx.inputsearch', input.value));
+        input.value = localStorage.getItem('bookmarx.inputsearch') || '';
         window.addEventListener('load', _ => input.dispatchEvent(new Event('input', { bubbles: true })));
         return input;
     }
@@ -815,26 +816,29 @@ const domLoaded = () => {
 };
 
 const downloadHtml = (inline = false) => obj => {
-    (async (urls) => {
+    (async urls => {
         const responses = await Promise.all(urls.map(url => fetch(url)));
         return await Promise.all(responses.map(res => res.text()));
-    })([strings.fileHtml, strings.fileJs]).then(([html, js]) => {
+    })([strings.fileHtml, strings.fileJs, strings.fileCss]).then(([html, js, css]) => {
         const replacer = [strings.jsonChildren, ...strings.jsonFields];
         const json = JSON.stringify(obj, replacer).replace(/("ur[li]":")/g, '\n$1');
         if (inline) {
-            const newScript = `${js}; let inlinedjson = ${json};`;
-            const inline = '<script>' + newScript.split('</script>').join('<\\/script>') + '</script>';
-            const src = `<script src="${strings.fileJs}"></script>`;
-            const idx = html.indexOf(src);
-            if (idx < 1) {
-                error('no matching script tag in html and in js!', src);
-                return;
-            }
-            const newHtml = html.substring(0, idx) + inline + html.substring(idx + src.length);
-            downloadData(newHtml, 'bm.html', 'text/html');
+            const scriptContent = `${js}; let inlinedjson = ${json};`;
+            const escScriptContent = scriptContent.replace(/<\/script>/g, '<\\/script>');
+            const inlineScript = `<script>${escScriptContent}</script>`;
+            const escCss = css.replace(/<\/style>/g, '<\\/style>');
+            const inlineStyle = `<style>${escCss}</style>`;
+            const cssLinkSrc = `<link rel="stylesheet" type="text/css" media="screen" href="${strings.fileCss}">`;
+            const scriptSrc = `<script src="${strings.fileJs}"></script>`;
+            const htmlWithCss = html.replace(cssLinkSrc, () => inlineStyle);
+            if (htmlWithCss === html) return error('no link-stylesheet tag');
+            const htmlWithCssJs = htmlWithCss.replace(scriptSrc, () => inlineScript);
+            if (htmlWithCssJs === htmlWithCss) return error('no script tag');
+            downloadData(htmlWithCssJs, 'bm.html', 'text/html');
         } else {
-            downloadData(json, strings.fileJson, 'application/json');
             downloadData(html, strings.fileHtml, 'text/html');
+            downloadData(json, strings.fileJson, 'application/json');
+            downloadData(css, strings.fileCss, 'text/css');
             downloadData(js, strings.fileJs, 'text/javascript');
         }
     });
