@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Event Logger</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <meta name="color-scheme" content="light dark" />
+    <style>
+        body {
+            font-family: monospace, monospace;
+            overflow-y: hidden;
+            background-color: Canvas;
+        }
+        table {border-collapse: collapse;}
+        td {
+            border: .06rem solid #aaa7;
+            padding: .1rem .2rem;
+        }
+        th {
+            position: relative;
+            height: 2.8rem;
+            padding: .1rem .2rem;
+            min-width: 1rem;
+        }
+        th>div {
+            position: absolute;
+            bottom: 0;
+            left: .8rem;
+            transform: rotate(-35deg);
+            transform-origin: left bottom;
+            width: 0;
+            text-align: left;
+            font-size: .8rem;
+        }
+    </style>
+</head>
+<body>
+    <label><input style="zoom:1.8" type="checkbox" />pause</label>
+    <script>
+        const cols = ['type', 'code', 'key', 'keyCode', 'button', 'buttons', 'altKey', 'shiftKey', 'ctrlKey', 'metaKey', 'dtime', '#'];
+        const eTypesSkipped = ['mousemove',];
+        const eTypes = [
+            'keydown', 'keyup', 'keypress',
+            'mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu',
+            'pointerdown', 'pointerup', 'pointercancel',
+            'input', 'change', 'beforeinput',
+            'focus', 'blur', 'focusin', 'focusout',
+            'compositionstart', 'compositionupdate', 'compositionend',
+            'scroll', 'wheel',
+            'dragstart', 'drag', 'dragenter', 'dragover', 'dragleave', 'drop', 'dragend',
+            'resize',
+        ];
+        const isPause = (pause => (e) =>
+            e.target === pause ||
+            e.target === pause.parentElement ||
+            pause.checked
+        )(document.querySelector('input'));
+        document.body.appendChild(document.createElement('table')).innerHTML =
+            `<thead>${cols.map(k => `<th><div>${k.replace(/Key$/, '')}</div></th>`).join('')}</thead><tbody></tbody>`;
+        const tbody = document.querySelector('tbody');
+        const trs = [];
+        let cnt = 0;
+        let t0 = performance.now();
+        const foo = (ev, col, t1) =>
+            ev[col] !== undefined
+                ? col.endsWith("Key") ? ev[col] ? col[0] : "" : ev[col]
+                : "dtime" === col
+                    ? ([col, t0] = [t0, t1], (t1 - col).toFixed(3))
+                    : "#" === col ? cnt++ : ''
+            ;
+        const log = (ev) => {
+            const t1 = performance.now();
+            if (isPause(ev)) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const row = 999 < trs.length ? trs.pop() : document.createElement('tr');
+            trs.unshift(row);
+            row.innerHTML = cols.map(col => `<td>${foo(ev, col, t1)}</td>`).join('');
+            tbody.prepend(row);
+        }
+        eTypes.forEach(eType => window.addEventListener(eType, log, {capture: true,}));
+    </script>
+</body>
+</html>
