@@ -3,7 +3,7 @@
     <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Event Logger</title>
+    <title>keycode</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <meta name="color-scheme" content="light dark" />
     <style>
@@ -51,11 +51,9 @@
             'dragstart', 'drag', 'dragenter', 'dragover', 'dragleave', 'drop', 'dragend',
             'resize',
         ];
-        const isPause = (pause => (e) =>
-            e.target === pause ||
-            e.target === pause.parentElement ||
-            pause.checked
-        )(document.querySelector('input'));
+        const pause = document.querySelector('input');
+        const isPause = e => pause.checked || e.target === pause || e.target === pause.parentElement;
+        pause.onchange = () => !pause.checked && pause.blur();
         document.body.appendChild(document.createElement('table')).innerHTML =
             `<thead>${cols.map(k => `<th><div>${k.replace(/Key$/, '')}</div></th>`).join('')}</thead><tbody></tbody>`;
         const tbody = document.querySelector('tbody');
