@@ -1,0 +1,158 @@
+<!doctype html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light dark">
+    <title>Level</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1.2vh;
+            padding: 1.5vh 8px 1vh;
+            box-sizing: border-box;
+            background: #f8f8f8;
+            color: #111;
+            user-select: none;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .reading {
+            font-size: clamp(1.8rem, 9vh, 3.8rem);
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .label {
+            font-size: clamp(1.1rem, 3.5vh, 1.4rem);
+            opacity: 0.85;
+        }
+
+        button {
+            font-size: clamp(1.1rem, 4vh, 1.5rem);
+            padding: 1.2vh 2.5em;
+            margin: 0.5vh 0;
+            border: none;
+            border-radius: 12px;
+            background: #0066ff;
+            color: white;
+            font-weight: 600;
+        }
+
+        table {
+            width: 96vw;
+            max-width: 420px;
+            border-collapse: collapse;
+            font-size: clamp(1.05rem, 3.2vh, 1.8rem);
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1.5px solid #666;
+            padding: 0.7vh 4px;
+            text-align: center;
+        }
+
+        th {
+            background: #ddd;
+            font-size: clamp(0.95rem, 2.8vh, 1.3rem);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body { background: #111; color: #eee; }
+            th { background: #333; }
+        }
+    </style>
+</head>
+<body>
+    <div class="label">Pitch</div>
+    <div class="reading"><span id="pitch">0.0</span>°</div>
+
+    <div class="label">Roll</div>
+    <div class="reading"><span id="roll">0.0</span>°</div>
+
+    <button id="capture">Capture</button>
+
+    <table id="tbl">
+        <thead>
+            <tr>
+                <th>Pitch</th>
+                <th>Roll</th>
+                <th>Avg P</th>
+                <th>Avg R</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        let pitch = 0, roll = 0;
+        const rows = [];
+
+        function normalize(a) {
+            while (a > 180) a -= 360;
+            while (a < -180) a += 360;
+            return a;
+        }
+
+        function update(e) {
+            pitch = normalize(e.beta || 0);
+            roll  = normalize(e.gamma || 0);
+            document.getElementById("pitch").textContent = pitch.toFixed(1);
+            document.getElementById("roll").textContent  = roll.toFixed(1);
+        }
+
+        async function startSensors() {
+            if (typeof DeviceOrientationEvent?.requestPermission === "function") {
+                try {
+                    await DeviceOrientationEvent.requestPermission();
+                } catch (e) {}
+            }
+            window.addEventListener("deviceorientation", update, true);
+        }
+
+        startSensors();
+
+        document.getElementById("capture").onclick = () => {
+            rows.push({ pitch, roll });
+
+            const tbody = document.querySelector("#tbl tbody");
+            const tr = document.createElement("tr");
+
+            let avgP = "", avgR = "";
+            if (rows.length >= 2) {
+                const a = rows[rows.length - 2];
+                const b = rows[rows.length - 1];
+                avgP = ((a.pitch + b.pitch) / 2).toFixed(2);
+                avgR = ((a.roll + b.roll) / 2).toFixed(2);
+            }
+
+            tr.innerHTML = `
+                <td>${pitch.toFixed(2)}</td>
+                <td>${roll.toFixed(2)}</td>
+                <td>${avgP}</td>
+                <td>${avgR}</td>
+            `;
+
+            tbody.prepend(tr);
+
+            // Hard limit to prevent any scrolling
+            while (tbody.rows.length > 8) {
+                tbody.deleteRow(tbody.rows.length - 1);
+            }
+        };
+    </script>
+</body>
+</html>
