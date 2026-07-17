@@ -2,7 +2,7 @@ move along
 
 [lsystem](pwa-lsystem)
 
-[level](level.html)
+[waterlevel](waterlevel.html)
 
 [keycode](keycode.html)
 
