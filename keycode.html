@@ -6,8 +6,9 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'>
 <meta name="color-scheme" content="light dark" />
 <style>
-  body {
-    font-family: monospace, monospace;
+  html {
+    font-family: Verdana, Tahoma, 'Segoe UI', Geneva, monospace, sans-serif;
+    font-size: 11px;
     overflow-y: hidden;
   }
   table {border-collapse: collapse;}
@@ -28,59 +29,140 @@
     transform: rotate(-35deg);
     transform-origin: left bottom;
     text-align: left;
-    font-size: .8rem;
   }
 </style>
 <script>
+const evTypes = {
+  // Keyboard
+  keydown:  ['location', 'repeat', 'isComposing'],
+  keyup:    ['location', 'repeat', 'isComposing'],
+  keypress: ['location', 'repeat', 'isComposing'],
+
+  // Mouse
+  click:       ['detail', 'movementX', 'movementY'],
+  dblclick:    ['detail', 'movementX', 'movementY'],
+  auxclick:    ['detail', 'movementX', 'movementY'],
+  mousedown:   ['detail', 'movementX', 'movementY'],
+  mouseup:     ['detail', 'movementX', 'movementY'],
+  mousemove:   [          'movementX', 'movementY'],
+  mouseenter:  [],
+  mouseleave:  [],
+  mouseover:   [],
+  mouseout:    [],
+  contextmenu: [],
+
+  // Pointer
+  pointerdown:   ['pointerId', 'pressure', 'tiltX', 'tiltY', 'pointerType', 'isPrimary'],
+  pointerup:     ['pointerId', 'pressure', 'tiltX', 'tiltY', 'pointerType', 'isPrimary'],
+  pointermove:   ['pointerId', 'pressure', 'tiltX', 'tiltY', 'pointerType', 'isPrimary', 'movementX', 'movementY'],
+  pointerenter:  ['pointerId', 'pointerType', 'isPrimary'],
+  pointerleave:  ['pointerId', 'pointerType', 'isPrimary'],
+  pointerover:   ['pointerId', 'pointerType', 'isPrimary'],
+  pointerout:    ['pointerId', 'pointerType', 'isPrimary'],
+  pointercancel: ['pointerId', 'pointerType', 'isPrimary'],
+
+  // Touch
+  touchstart:  ['touches', 'targetTouches', 'changedTouches'],
+  touchmove:   ['touches', 'targetTouches', 'changedTouches'],
+  touchend:    ['touches', 'targetTouches', 'changedTouches'],
+  touchcancel: ['touches', 'targetTouches', 'changedTouches'],
+
+  // Input
+  beforeinput: ['data', 'inputType', 'isComposing'],
+  input:       ['data', 'inputType', 'isComposing'],
+  change:      ['value'],
+  focus:       [],
+  blur:        [],
+  focusin:     [],
+  focusout:    [],
+
+  // IME
+  compositionstart:  ['data'],
+  compositionupdate: ['data'],
+  compositionend:    ['data'],
+
+  // Clipboard
+  copy:  ['clipboardData'],
+  cut:   ['clipboardData'],
+  paste: ['clipboardData'],
+
+  // Selection
+  select: ['selectionStart', 'selectionEnd', 'selectionDirection'],
+  selectionchange: [],
+
+  // Scroll
+  scroll:    ['scrollX', 'scrollY'],
+  scrollend: ['scrollX', 'scrollY'],
+  wheel:     ['deltaX', 'deltaY', 'deltaZ', 'deltaMode', 'clientX', 'clientY'],
+
+  // Drag
+  dragstart: ['dataTransfer'],
+  drag:      ['dataTransfer'],
+  dragend:   ['dataTransfer'],
+  dragenter: ['dataTransfer'],
+  dragover:  ['dataTransfer'],
+  dragleave: ['dataTransfer'],
+  drop:      ['dataTransfer'],
+
+  // Window
+  resize:           ['innerWidth', 'innerHeight', 'outerWidth', 'outerHeight'],
+  visibilitychange: ['visibilityState'],
+  pageshow:         ['persisted'],
+  pagehide:         ['persisted'],
+  hashchange:       ['oldURL', 'newURL'],
+  popstate:         ['state'],
+  online:           [],
+  offline:          [],
+
+  // Etc
+  deviceorientationabsolute: ['absolute', 'alpha', 'beta', 'gamma'],
+  deviceorientation:         ['absolute', 'alpha', 'beta', 'gamma'],
+};
+const floods = ['mousemove','mouseenter','mouseleave','mouseover','mouseout','pointermove','pointerenter','pointerleave','pointerover','pointerout'];
+const evProps = ['key', 'code', 'keyCode', 'button', 'buttons', 'shiftKey', 'ctrlKey', 'altKey', 'metaKey'];
+const otherprops = ['absolute','alpha','beta','changedTouches','clientX','clientY','clipboardData','data','dataTransfer','deltaMode','deltaX','deltaY','deltaZ','detail','gamma','height','innerHeight','innerWidth','inputType','isComposing','isPrimary','location','movementX','movementY','newURL','offsetX','offsetY','oldURL','outerHeight','outerWidth','pageX','pageY','persisted','pointerId','pointerType','pressure','relatedTarget','repeat','scrollX','scrollY','selectionDirection','selectionEnd','selectionStart','state','targetTouches','tiltX','tiltY','touches','value','visibilityState','width'];
 document.addEventListener("DOMContentLoaded", () => {
-  const cols = ['type', 'code', 'key', 'keyCode', 'button', 'buttons', 'altKey', 'shiftKey', 'ctrlKey', 'metaKey', 'dtime', '#'];
-  const eTypesSkipped = ['mousemove',];
-  const eTypes = [
-    'keydown', 'keyup', 'keypress',
-    'mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu',
-    'pointerdown', 'pointerup', 'pointercancel',
-    'input', 'change', 'beforeinput',
-    'focus', 'blur', 'focusin', 'focusout',
-    'compositionstart', 'compositionupdate', 'compositionend',
-    'scroll', 'wheel',
-    'dragstart', 'drag', 'dragenter', 'dragover', 'dragleave', 'drop', 'dragend',
-    'resize',
-  ];
+  const cols = ['type', ...evProps, 'dTime', '{}', '#', '##'];
   document.body.innerHTML = `
-    <label><input onchange="!this.checked&&this.blur()" style="zoom:1.8" type="checkbox" /><b><u>P</u></b>ause</label>
+    <label><input onchange="!this.checked&&this.blur()" type="checkbox" id="pause"/><b><u>P</u></b>ause</label>
+    <label><input onchange="!this.checked&&this.blur()" type="checkbox" id="flood"/>Flood</label>
     <table>
       <thead>${cols.map(k => `<th><div>${k.replace(/Key$/, '')}</div></th>`).join('')}</thead>
       <tbody></tbody>
     </table>
   `;
-  const pause = document.querySelector('input');
+  const pause = document.querySelector('#pause');
+  const flood = document.querySelector('#flood');
   const tbody = document.querySelector('tbody');
   const trs = [];
-  let cnt = 0;
+  const inc = (o=>a=>o[a]=(o[a]??0)+1)({});
   let t0 = performance.now();
   const td = (ev, col, t1) =>
-    col === "dtime" ? ([col, t0] = [t0, t1], (t1 - col).toFixed(3)) :
-    col === "#" ? cnt++ :
+    col === "dTime" ? ([col, t0] = [t0, t1], (t1 - col).toFixed(3)) :
+    col === "#" ? inc('') :
+    col === "##" ? inc(`${ev.key},${ev.code},${ev.type}`) :
+    col === "{}" ? evTypes[ev.type].filter(p=>ev[p]).map(p=>`${p}: ${ev[p]}`).join('<br>') :
     col.endsWith("Key" ) ? ev[col] ? col[0] : "" :
     ev[col] !== undefined ? ev[col] :
     '';
   const log = (ev) => {
     const t1 = performance.now();
+    if (!flood.checked && floods.includes(ev.type)) return; 
     if (ev.type === 'keydown' && ev.code === 'KeyP' && !(ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey)) {
       pause.checked = !pause.checked;
       ev.preventDefault();
       ev.stopPropagation();
       return;
     }
-    if (pause.checked || ev.target === pause || ev.target === pause.parentElement) return;
-    ev.preventDefault();
+    if (pause.checked || ev.target instanceof Element && ev.target.closest('input, label') !== null) return;
+    ev.cancelable && ev.preventDefault();
     ev.stopPropagation();
-    const row = 999 < trs.length ? trs.pop() : document.createElement('tr');
+    const row = 99 < trs.length ? trs.pop() : document.createElement('tr');
     row.innerHTML = cols.map(col => `<td>${td(ev, col, t1)}</td>`).join('');
     trs.unshift(row);
     tbody.prepend(row);
   };
-  eTypes.forEach(eType => window.addEventListener(eType, log, {capture:true}));
+  Object.keys(evTypes).forEach(e => window.addEventListener(e, log, {capture:true}));
 });
 </script>
 </head>
